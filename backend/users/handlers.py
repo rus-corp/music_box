@@ -85,7 +85,3 @@ async def _get_user_by_id(session: AsyncSession, user_id: int):
     user_dal = UserDAL(session)
     user = await user_dal.get_user_by_id(user_id)
     return user
-    # return ShowUser(
-    #   id=id,
-    #   role=
-    # )

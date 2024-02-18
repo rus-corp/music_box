@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import async_session_maker
 from .schemas import ShowClient, CreateClient
-from .services import ClientDAL
+from .dals import ClientDAL
 
 async def _create_client(body: CreateClient) -> ShowClient:
   async with async_session_maker() as session:

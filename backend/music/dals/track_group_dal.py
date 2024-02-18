@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, update, exists, and_
-
+from sqlalchemy.orm import selectinload
 
 from backend.music.models import TrackCollection
 from backend.clients.models import trackCollections_client_association
+
 
 
 
@@ -40,9 +41,17 @@ class TrackCollectionDAL:
   
   
   async def get_all_track_collections(self):
-      query = select(TrackCollection).group_by(TrackCollection.id)
-      res = await self.db_sesion.execute(query)
-      return res.scalars().all()
+    query = select(TrackCollection).group_by(TrackCollection.id)
+    res = await self.db_sesion.execute(query)
+    return res.scalars().all()
+  
+  
+  async def get_track_group_with_tracks(self, track_group_id: int):
+    query = select(TrackCollection).where(TrackCollection.id == track_group_id).options(selectinload(TrackCollection.tracks))
+    result = await self.db_sesion.execute(query)
+    track_group_row = result.fetchone()
+    if track_group_row is not None:
+      return track_group_row[0]
   
   
   async def update_track_collection(self, track_collection_id, **kwargs):
@@ -72,3 +81,9 @@ class TrackCollectionDAL:
     deleted_client_in_trackcollection = result.rowcount
     if deleted_client_in_trackcollection is not None:
       return deleted_client_in_trackcollection
+    
+  
+  async def get_track_collection_for_append_track_to_group(self, track_group_id: int):
+    query = select(TrackCollection).where(TrackCollection.id == track_group_id).options(selectinload(TrackCollection.tracks))
+    result = await self.db_sesion.scalar(query)
+    return result

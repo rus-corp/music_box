@@ -2,7 +2,7 @@ from typing import List, TYPE_CHECKING
 import sqlalchemy
 from datetime import datetime
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from sqlalchemy import String, Table, Column, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy import String, Column, ForeignKey, UniqueConstraint, Integer, Table
 
 from backend.database import Base
 

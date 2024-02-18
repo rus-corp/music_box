@@ -68,6 +68,7 @@ class CollectionGroupDAL:
   
   
   async def get_collection_group_for_track_collection(self, group_collection_id: int):
+    """Для создания группы и подгруппы"""
     query = select(CollectionGroup).where(CollectionGroup.id == group_collection_id).options(selectinload(CollectionGroup.track_collections))
     res = await self.db_session.scalar(query)
     return res

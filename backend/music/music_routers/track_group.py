@@ -11,7 +11,7 @@ from backend.music import schemas
 from backend.music.music_handlers.track_group_handlers import (_get_track_collections,
                        _get_track_collection_by_id, _update_track_collection,
                        _delete_track_collection, _create_track_and_group_collections,
-                       _delete_client_in_trackcollection)
+                       _delete_client_in_trackcollection, _append_track_to_collection)
 
 
 
@@ -94,3 +94,8 @@ async def delete_client_in_track_collection(track_collection_id: int,
     session, track_collection_id, client_id
   )
   return deleted_client_in_track_collection
+
+@router.post('/append_track_to_collection')
+async def append_track_to_collection(track_id: int, track_collection_id: int, session: AsyncSession = Depends(get_db)):
+  res = await _append_track_to_collection(session=session, track_collection_id=track_collection_id, track_id=track_id)
+  return res

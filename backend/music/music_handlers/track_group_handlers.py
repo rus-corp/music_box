@@ -3,9 +3,10 @@ from fastapi.responses import JSONResponse
 
 from backend.music.dals.track_group_dal import TrackCollectionDAL
 from backend.music.dals.main_group_dal import CollectionGroupDAL
+from backend.music.dals.tracks_dal import TrackDAL
 
 
-from backend.music.schemas import TrackCollectionCreate, TrackCollectionShow, GroupCollectionWithTrackCollectionCreate, TrackCollectionUpdateResponse
+from backend.music.schemas import TrackCollectionCreate, TrackCollectionShow, GroupCollectionWithTrackCollectionCreate, TrackCollectionUpdateResponse, TrackCollectionWithTracks, TrackShow
 
 
 
@@ -86,3 +87,33 @@ async def _delete_client_in_trackcollection(session: AsyncSession, track_collect
       track_collection_id=track_collection_id, client_id=client_id
     )
     return JSONResponse(content=f'Deleted {deleted_client_in_track_collection} rows', status_code=204)
+
+
+async def _append_track_to_collection(session: AsyncSession, track_collection_id: int, track_id: int):
+  async with session.begin():
+    track_collection_dal = TrackCollectionDAL(session)
+    track_collection = await track_collection_dal.get_track_collection_for_append_track_to_group(track_group_id=track_collection_id)
+    if track_collection is None:
+      return JSONResponse(content='track_collection not found')
+    track_dal = TrackDAL(session)
+    track = await track_dal.get_track_by_id(track_id=track_id)
+    
+    track_collection.tracks.append(track)
+    await session.commit()
+    
+    track = TrackShow(
+      id = track.id,
+      title = track.title,
+      artist = track.artist,
+      label= track.label,
+      open_name = track.open_name,
+      file_path = track.file_path,
+      created_at = track.created_at
+    )
+    
+    return TrackCollectionWithTracks(
+      id = track_collection.id,
+      name = track_collection.name,
+      player_option = track_collection.player_option,
+      tracks=track
+    )

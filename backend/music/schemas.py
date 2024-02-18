@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, constr
 from datetime import datetime
 
@@ -58,6 +58,7 @@ class TrackShow(BaseModel):
   artist: str
   label: str
   open_name: str
+  file_path: str
   created_at: datetime
   
   class Config:
@@ -77,7 +78,14 @@ class TrackUpdate(BaseModel):
   label: Optional[constr(min_length=2)] # type: ignore
   open_name: Optional[constr(min_length=2)] # type: ignore
   
- 
+
+class TrackError(BaseModel):
+  message: str
+  
+  
+class TrackCreateResponse(BaseModel):
+  error_tracks: Optional[List[Union[str, TrackError]]] = []
+  created_tracks: Optional[List[Union[str, TrackError]]] = []
  
 # ================ Service Models =================== 
 class GroupCollectionWithTrackCollectionCreate(GroupCollectionShow):
@@ -86,3 +94,7 @@ class GroupCollectionWithTrackCollectionCreate(GroupCollectionShow):
   
 class GroupCollectionWithTrackCollectionShow(GroupCollectionShow):
   track_collections: List[TrackCollectionShow]
+  
+  
+class TrackCollectionWithTracks(TrackCollectionShow):
+  tracks: TrackShow

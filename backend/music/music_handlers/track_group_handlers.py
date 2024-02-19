@@ -80,13 +80,7 @@ async def _delete_track_collection(session: AsyncSession, track_collection_id: i
     return deleted_track_collection
   
 
-async def _delete_client_in_trackcollection(session: AsyncSession, track_collection_id: int, client_id: int):
-  async with session.begin():
-    track_collection_dal = TrackCollectionDAL(session)
-    deleted_client_in_track_collection = await track_collection_dal.delete_client_in_group_collection(
-      track_collection_id=track_collection_id, client_id=client_id
-    )
-    return JSONResponse(content=f'Deleted {deleted_client_in_track_collection} rows', status_code=204)
+
 
 
 async def _append_track_to_collection(session: AsyncSession, track_collection_id: int, track_id: int):

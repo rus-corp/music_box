@@ -40,13 +40,19 @@ class TrackCollectionDAL:
       return track_collection_id_row[0]
   
   
+  async def get_track_collections_with_tracks(self):
+    query = select(TrackCollection).options(selectinload(TrackCollection.tracks)).order_by(TrackCollection.id)
+    result = await self.db_sesion.execute(query)
+    return result.scalars().all()
+  
+  
   async def get_all_track_collections(self):
     query = select(TrackCollection).group_by(TrackCollection.id)
     res = await self.db_sesion.execute(query)
     return res.scalars().all()
   
   
-  async def get_track_group_with_tracks(self, track_group_id: int):
+  async def get_track_group_by_id_with_tracks(self, track_group_id: int):
     query = select(TrackCollection).where(TrackCollection.id == track_group_id).options(selectinload(TrackCollection.tracks))
     result = await self.db_sesion.execute(query)
     track_group_row = result.fetchone()

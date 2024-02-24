@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, and_
 from sqlalchemy.orm import selectinload
 
-from ..models import Track
+from ..models import Track, track_collection_tracks_association
 from ..schemas import TrackCreate, TrackShow
 
 class TrackDAL:
@@ -64,3 +64,14 @@ class TrackDAL:
     query = select(Track).where(Track.id == track_id).options(selectinload(Track.track_collections))
     result = await self.db_session.scalar(query)
     return result
+  
+  
+  async def delete_track_from_collection(self, track_id: int, track_collection_id: int):
+    stmt = delete(track_collection_tracks_association).where(
+      and_(track_collection_tracks_association.c.track_collection_id == track_collection_id,
+           track_collection_tracks_association.c.track_id == track_id)
+    ).returning(track_collection_tracks_association.c.track_collection_id)
+    result = await self.db_session.execute(stmt)
+    deleted_track_in_collection = result.scalar()
+    if deleted_track_in_collection is not None:
+      return deleted_track_in_collection

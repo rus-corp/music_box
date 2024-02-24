@@ -86,6 +86,10 @@ class TrackError(BaseModel):
 class TrackCreateResponse(BaseModel):
   error_tracks: Optional[List[Union[str, TrackError]]] = []
   created_tracks: Optional[List[Union[str, TrackError]]] = []
+  
+  
+class DeletedTrackFromCollection(BaseModel):
+  track_collection_id: int
  
 # ================ Service Models =================== 
 class GroupCollectionWithTrackCollectionCreate(GroupCollectionShow):
@@ -97,4 +101,5 @@ class GroupCollectionWithTrackCollectionShow(GroupCollectionShow):
   
   
 class TrackCollectionWithTracks(TrackCollectionShow):
-  tracks: TrackShow
+  tracks: List[TrackShow]
+

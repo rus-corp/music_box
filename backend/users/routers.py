@@ -63,7 +63,7 @@ async def create_user(body: CreateUser, session: AsyncSession = Depends(get_db))
   return created_user
 
 
-@router.get('//{user_id}', response_model=ShowUser)
+@router.get('/{user_id}', response_model=ShowUser)
 async def get_user_by_id(user_id: int, session: AsyncSession = Depends(get_db)):
   user = await _get_user_by_id(
     session=session,

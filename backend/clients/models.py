@@ -50,10 +50,11 @@ class Client(Base):
   price:Mapped[int] 
   
   currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'), nullable=True)
-  user_id = mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
-  
-  user = relationship('User', back_populates='client')
   currency: Mapped[Currency] = relationship(back_populates='client')
+  
+  user_id = mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
+  user = relationship('User', back_populates='client')
+  
   another_contract: Mapped[List['AnotherContracts']] = relationship(back_populates='client')
   track_collections: Mapped[List['TrackCollection']] = relationship(secondary='trackCollections_client_association', back_populates='clients')
   

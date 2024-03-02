@@ -32,14 +32,6 @@ class TrackCollectionDAL:
     return new_track_collcetion
   
   
-  async def get_track_collection_by_id(self, track_collection_id: int):
-    query = select(TrackCollection).where(TrackCollection.id == track_collection_id)
-    res = await self.db_sesion.execute(query)
-    track_collection_id_row = res.fetchone()
-    if track_collection_id_row is not None:
-      return track_collection_id_row[0]
-  
-  
   async def get_track_collections_with_tracks(self):
     query = select(TrackCollection).options(selectinload(TrackCollection.tracks)).order_by(TrackCollection.id)
     result = await self.db_sesion.execute(query)
@@ -50,6 +42,14 @@ class TrackCollectionDAL:
     query = select(TrackCollection).group_by(TrackCollection.id)
     res = await self.db_sesion.execute(query)
     return res.scalars().all()
+  
+  
+  async def get_track_collection_by_id(self, track_collection_id: int):
+    query = select(TrackCollection).where(TrackCollection.id == track_collection_id)
+    res = await self.db_sesion.execute(query)
+    track_collection_id_row = res.scalar()
+    if track_collection_id_row is not None:
+      return track_collection_id_row
   
   
   async def get_track_group_by_id_with_tracks(self, track_group_id: int):
@@ -78,7 +78,7 @@ class TrackCollectionDAL:
       return deleted_track_collcetion_row[0]
     
     
-  async def delete_client_in_group_collection(self, track_collection_id, client_id):
+  async def delete_client_in_track_collection(self, track_collection_id, client_id):
     stmt = delete(trackCollections_client_association).where(
       and_(trackCollections_client_association.c.track_collection_id == track_collection_id,
            trackCollections_client_association.c.client_id == client_id)

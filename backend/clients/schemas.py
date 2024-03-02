@@ -2,6 +2,8 @@ from pydantic import BaseModel, constr, EmailStr
 from typing import Optional, List
 from datetime import date
 
+from backend.music.schemas import TrackCollectionShow
+
 
 class CurrencyShow(BaseModel):
   cur_id: int
@@ -43,3 +45,4 @@ class CreateClient(BaseClient):
 class ShowClient(BaseClient):
   client_id: int
   user: int
+  track_collections: List[TrackCollectionShow] = None

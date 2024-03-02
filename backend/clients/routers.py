@@ -1,12 +1,14 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from backend.database import get_db
 
-from .handlers import (_get_clients, _create_client,
-                       _delete_client_in_trackcollection)
-from .schemas import ShowClient, CreateClient
+from .handlers import (_get_clients, _create_client, _add_client_to_collection,
+                       _delete_client_in_trackcollection, _create_currency, _get_all_currencies,
+                       _get_currency_by_id, _update_currency, _delete_currency)
+from .schemas import ShowClient, CreateClient, CurrencyShow, CurrencyDeleteResponse
 
 
 
@@ -31,9 +33,12 @@ async def create_client(body: CreateClient) -> ShowClient:
 
 
 
-@router.post('/add_client_to_track_collection/{track_collection_id}')
-async def add_client_to_track_collection(track_collection_id: int, session: AsyncSession = Depends(get_db)):
-  pass
+@router.post('/add_client_to_track_collection/{track_collection_id}', response_model=ShowClient)
+async def add_client_to_track_collection(track_collection_id: int, client_id: int, session: AsyncSession = Depends(get_db)):
+  aded_client_to_track_collection = await _add_client_to_collection(
+    session=session, track_collection_id=track_collection_id, client_id=client_id
+  )
+  return aded_client_to_track_collection
 
 
 @router.delete('/delete_client_in_track_collections/{track_collection_id}', )
@@ -44,3 +49,43 @@ async def delete_client_in_track_collection(track_collection_id: int,
     session, track_collection_id, client_id
   )
   return deleted_client_in_track_collection
+
+
+
+# ======================== CURRENCY =============================
+@router.post('/currency', response_model=CurrencyShow)
+async def create_currency(currency_name: str, session: AsyncSession = Depends(get_db)):
+  new_currency = await _create_currency(
+    session=session, currency_name=currency_name
+  )
+  return new_currency
+
+
+@router.get('/currency', response_model=List[CurrencyShow])
+async def get_all_currencies(session: AsyncSession = Depends(get_db)):
+  currencies = await _get_all_currencies(session)
+  return currencies
+  
+  
+@router.get('/currency/{currency_id}', response_model=CurrencyShow)
+async def get_currency_by_id(currency_id: int, session: AsyncSession = Depends(get_db)):
+  currency = await _get_currency_by_id(
+    session=session, currency_id=currency_id
+  )
+  return currency
+
+
+@router.patch('/currency/{currency_id}', response_model=CurrencyShow)
+async def update_currency(currency_id: int, new_name: str, session: AsyncSession = Depends(get_db)):
+  updated_currency = await _update_currency(
+    session=session, currency_id=currency_id, new_name=new_name
+  )
+  return updated_currency
+
+
+@router.delete('/currency/{currency_id}', response_model=CurrencyDeleteResponse)
+async def delete_currency(currency_id: int, session: AsyncSession = Depends(get_db)):
+  deleted_currency = await _delete_currency(
+    session=session, currency_id=currency_id
+  )
+  return deleted_currency

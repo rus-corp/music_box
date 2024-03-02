@@ -1,9 +1,9 @@
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from backend.music.models import CollectionGroup
+from backend.music.models import CollectionGroup, group_track_collection_association
 
 
 class CollectionGroupDAL:
@@ -48,7 +48,6 @@ class CollectionGroupDAL:
       return group_collection_row[0]
     
   
-  
   async def update_collection_group(self, collection_group_id: int, name: str):
     stmt = update(CollectionGroup).where(CollectionGroup.id == collection_group_id).values({'group_name':name}).returning(CollectionGroup.id, CollectionGroup.group_name)
     res = await self.db_session.execute(stmt)
@@ -72,4 +71,16 @@ class CollectionGroupDAL:
     query = select(CollectionGroup).where(CollectionGroup.id == group_collection_id).options(selectinload(CollectionGroup.track_collections))
     res = await self.db_session.scalar(query)
     return res
-     
+  
+  
+  async def delete_track_group_in_main_group(self, old_main_grop_id: int,
+                                             track_collection_group_id: int) -> int:
+    stmt = delete(group_track_collection_association).where(
+      and_(group_track_collection_association.c.group_collection_id == old_main_grop_id,
+           group_track_collection_association.c.track_collection_id == track_collection_group_id)
+    ).returning(group_track_collection_association.c.group_collection_id)
+    result = await self.db_session.execute(stmt)
+    deleted_relationship = result.scalar()
+    if deleted_relationship is not None:
+      return deleted_relationship
+    

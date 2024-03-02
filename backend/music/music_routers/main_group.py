@@ -6,10 +6,10 @@ from fastapi.exceptions import HTTPException
 from backend.database import get_db
 
 from backend.music import schemas
-from backend.music.music_handlers.main_group_handlers import (_create_collection_group, _get_collcetions_group_all_with_track_collections, _get_collection_by_id,
-                       _update_collection_group, _delete_collection_group, _get_group_collections_without_track_collections, _get_group_coll_by_id_with_track_collections)
-
-
+from backend.music.music_handlers.main_group_handlers import (_create_collection_group, _get_collcetions_group_all_with_track_collections,
+                                                              _get_collection_by_id, _update_collection_group,
+                                                              _delete_collection_group, _get_group_collections_without_track_collections,
+                                                              _get_group_coll_by_id_with_track_collections, _change_main_group_in_track_group)
 
 
 
@@ -18,6 +18,8 @@ router = APIRouter(
   prefix='/main_group',
   # tags=['MainGroup']
 )
+
+
 
 @router.post('/group_collections', response_model=schemas.GroupCollectionShow)
 async def create_collection(group_name: schemas.GroupCollectionCreate, session: AsyncSession = Depends(get_db)):
@@ -29,6 +31,7 @@ async def create_collection(group_name: schemas.GroupCollectionCreate, session: 
   raise HTTPException(status_code=403, detail='Не получилось создать колекцию')
 
 
+
 @router.get('/group_track_collections', response_model=List[schemas.GroupCollectionWithTrackCollectionShow])
 async def get_collections_with_track_collections(session: AsyncSession = Depends(get_db)):
   group_collections = await _get_collcetions_group_all_with_track_collections(session)
@@ -37,12 +40,14 @@ async def get_collections_with_track_collections(session: AsyncSession = Depends
   return group_collections
 
 
-@router.get('/group_no_track_collections', response_model=List[schemas.GroupCollectionShow])
+
+@router.get('/group_without_track_collections', response_model=List[schemas.GroupCollectionShow])
 async def get_group_collections_without_track_collections(session: AsyncSession = Depends(get_db)):
   group_collections = await _get_group_collections_without_track_collections(session)
   if group_collections is None:
     raise HTTPException(status_code=404, detail='Collectoin not found')
   return group_collections
+
 
 
 @router.get('/group_collection/{collection_id}', response_model=schemas.GroupCollectionShow)
@@ -53,12 +58,15 @@ async def get_group_collection_by_id_without_track_collections(collection_id: in
   return res
 
 
-@router.get('/group_collection_with_track/{collection_id}',response_model=schemas.GroupCollectionWithTrackCollectionShow)
+
+@router.get('/group_collection_with_track_collection/{collection_id}',response_model=schemas.GroupCollectionWithTrackCollectionShow)
 async def get_group_collection_by_id_with_track_collections(collection_id: int,session: AsyncSession = Depends(get_db)):
   group_collection = await _get_group_coll_by_id_with_track_collections(session=session, collection_id=collection_id)
   if group_collection is None:
     raise HTTPException(status_code=404, detail=f'Group collection with id = {collection_id} not found')
   return group_collection
+
+
 
 @router.patch('/group_collection/{collection_id}', response_model=schemas.GroupCollectionShow)
 async def update_collection(collection_id: int, name: str, session: AsyncSession = Depends(get_db)):
@@ -70,9 +78,21 @@ async def update_collection(collection_id: int, name: str, session: AsyncSession
   raise HTTPException(status_code=403, detail='For change the collection, need new name')
 
 
+
 @router.delete('/group_collection/{collection_id}', response_model=schemas.DeletedGroupResponse)
 async def delete_group(collection_id: int, session: AsyncSession = Depends(get_db)):
   deleted_group_id = await _delete_collection_group(session=session, collection_id=collection_id)
   if deleted_group_id is None:
     raise HTTPException(status_code=404, detail=f'Group with id = {collection_id} not found')
   return deleted_group_id
+
+
+
+@router.post('/chane_track_group_in_main_group/{new_main_group}')
+async def change_track_group_in_main_group(new_main_group: int, old_main_group: int, track_collection_group: int, session: AsyncSession = Depends(get_db)):
+  changed_group = await _change_main_group_in_track_group(
+    session=session, new_main_group=new_main_group,
+    old_main_group=old_main_group,
+    track_collection_group=track_collection_group
+  )
+  return changed_group

@@ -2,8 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 
-from .services import UserDAL, UserRoleDAL
-from .schemas import CreateUser, ShowUser, UpdateRoleShow
+from .dals import UserDAL, UserRoleDAL
+from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate
+
 
 
 async def _create_user_role(session: AsyncSession, name: str):
@@ -73,7 +74,7 @@ async def _create_user(session: AsyncSession, body: CreateUser):
     return new_user
 
 
-async def _get_users(session):
+async def _get_users(session: AsyncSession):
   async with session.begin():
     user_dal = UserDAL(session)
     users = await user_dal.get_users()
@@ -83,5 +84,22 @@ async def _get_users(session):
 async def _get_user_by_id(session: AsyncSession, user_id: int):
   async with session.begin():
     user_dal = UserDAL(session)
-    user = await user_dal.get_user_by_id(user_id)
+    user = await user_dal.get_user_by_id_with_role(user_id)
     return user
+  
+  
+async def _update_user(session: AsyncSession, body: UserUpdate):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    user_data = body.model_dump(exclude_none=True)
+    user = user_dal.get_user_by_id(user_data.get('id'))
+    if user is None:
+      return JSONResponse(
+        content='User not found',
+        status_code=404
+      )
+    update_user = user_dal.update_user_by_id(
+      user_id=user_data.pop('id'),
+      kwargs=user_data
+    )
+    return update_user

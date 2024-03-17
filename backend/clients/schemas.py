@@ -6,7 +6,7 @@ from backend.music.schemas import TrackCollectionShow
 
 
 class CurrencyShow(BaseModel):
-  cur_id: int
+  id: int
   cur_name: str
 
   
@@ -33,16 +33,17 @@ class BaseClient(BaseModel):
   phone: str
   price: float
   
-  price_currency: CurrencyShow
   
   class Config:
     from_attributes = True
   
   
 class CreateClient(BaseClient):
-  pass
+  currency_id: int
+  
 
 class ShowClient(BaseClient):
   client_id: int
   user: int
   track_collections: List[TrackCollectionShow] = None
+  currency: CurrencyShow = None

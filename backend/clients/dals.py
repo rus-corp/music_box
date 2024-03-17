@@ -12,7 +12,7 @@ class ClientDAL:
     
     
   async def create_client(self, name: str, full_name: str, certificate: str, contract_number: str,
-                          contract_date, city: str, address: str, email: str, phone: str, price) -> Client:
+                          contract_date, city: str, address: str, email: str, phone: str, price, currency: Currency) -> Client:
     new_client = Client(
       name=name,
       full_name=full_name,
@@ -23,10 +23,13 @@ class ClientDAL:
       address=address,
       email=email,
       phone=phone,
-      price=price
+      price=price,
+      currency=currency
     )
+    
     self.db_session.add(new_client)
     await self.db_session.commit()
+    # await self.db_session.refresh(new_client)
     return new_client
   
   
@@ -60,14 +63,15 @@ class ClientDAL:
   
   
 # =================== Currency ========================
-class CurrenctDAL:
+class CurrencyDAL:
   def __init__(self, db_session: AsyncSession) -> None:
     self.db_session = db_session
   
   
   async def create_currency(self, name):
     new_currency = Currency(cur_name=name)
-    await self.db_session.add(new_currency)
+    self.db_session.add(new_currency)
+    await self.db_session.flush()
     return new_currency
   
   

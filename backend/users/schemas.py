@@ -55,6 +55,8 @@ class CreateUser(BaseModel):
   
   
 class UserUpdate(BaseModel):
+  id: int
   name: Optional[constr(min_length=2)] # type: ignore
   login: Optional[constr(min_length=2)] # type: ignore
   password: Optional[constr(min_length=6)] # type: ignore
+  role_id: Optional[int] = None

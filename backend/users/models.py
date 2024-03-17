@@ -22,8 +22,9 @@ class User(Base):
   id: Mapped[int] = mapped_column(primary_key=True)
   name: Mapped[str] = mapped_column(nullable=False)
   comment: Mapped[str] = mapped_column(nullable=True)
-  login: Mapped[str] = mapped_column(nullable=False)
-  password: Mapped[str] = mapped_column(nullable=False)
+  login: Mapped[str] = mapped_column(nullable=False, unique=True)
+  email: Mapped[str] = mapped_column(nullable=False, unique=True)
+  hashed_password: Mapped[str] = mapped_column(nullable=False)
   is_active: Mapped[bool] = mapped_column(default=True)
   is_superuser: Mapped[bool] = mapped_column(default=False)
   

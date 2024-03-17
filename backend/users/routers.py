@@ -1,11 +1,15 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi.exceptions import HTTPException
+from datetime import timedelta
 
 
 from backend.database import get_db
 
-from .schemas import ShowUser, CreateUser, UserRoleShow, DeleteUserRole, UpdateRoleShow, UserUpdate
+
+from .schemas import ShowUser, CreateUser, UserRoleShow, DeleteUserRole, UpdateRoleShow, UserUpdate, Token
 from .handlers import (_create_user, _get_users, _get_user_by_id, _create_user_role, _get_all_roles, _get_role_by_id,
                        _update_role_by_id, _delete_role_by_id, _update_user)
 
@@ -17,6 +21,7 @@ router = APIRouter(
   prefix='/users',
   tags=['Users']
 )
+
 
 
 
@@ -59,15 +64,17 @@ async def delete_role_by_id(role_id: int, session: AsyncSession = Depends(get_db
 
 
 # =============== Users routers ================
+@router.post('/', response_model=ShowUser, status_code=status.HTTP_201_CREATED)
+async def create_user(body: CreateUser, session: AsyncSession = Depends(get_db)):
+  created_user = await _create_user(session=session, body=body)
+  return created_user
+
+
+
 @router.get('/', response_model=List[ShowUser])
 async def get_users(session: AsyncSession = Depends(get_db)) -> ShowUser:
   return await _get_users(session)
 
-
-@router.post('/', response_model=ShowUser)
-async def create_user(body: CreateUser, session: AsyncSession = Depends(get_db)):
-  created_user = await _create_user(session=session, body=body)
-  return created_user
 
 
 @router.get('/{user_id}', response_model=ShowUser)
@@ -84,4 +91,3 @@ async def get_user_by_id(user_id: int, session: AsyncSession = Depends(get_db)):
 async def update_user(body: UserUpdate, session: AsyncSession = Depends(get_db)):
   updated_user = await _update_user(session=session, body=body)
   return updated_user
-  

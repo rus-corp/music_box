@@ -1,9 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
+from sqlalchemy.exc import IntegrityError
+
 
 from .dals import UserDAL, UserRoleDAL
-from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate
+from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow
+from backend.auth.service import Hasher
 
 
 
@@ -58,19 +61,33 @@ async def _delete_role_by_id(session: AsyncSession, role_id: int):
 
 
 # ==================== User Handlers ===================
+async def _get_user_by_email(session: AsyncSession, email: str):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    return await user_dal.get_user_by_email(email)
+
+
+
 async def _create_user(session: AsyncSession, body: CreateUser):
   async with session.begin():
     user_dal = UserDAL(session)
     body_data = body.model_dump(exclude_none=True)
     role_dal = UserRoleDAL(session)
     role = await role_dal.get_user_role_by_id(id=body_data['role_id'])
-    new_user = await user_dal.create_user(
+    new_user, error = await user_dal.create_user(
       name=body_data.get('name'),
       login=body_data.get('login'),
-      password=body_data.get('password'),
-      comment=body_data.get('comment'),
+      email=body_data.get('email'),
+      password=Hasher.get_hasher_password(body_data['password']),
+      comment=body_data.get('comment', None),
       role=role
     )
+    if error:
+      message_start_index = error.find('DETAIL: ')
+      message_end_index = error.find('[SQL:')
+      if message_start_index != -1:
+        message = error[message_start_index:message_end_index].rstrip()
+      return JSONResponse(status_code=400, content=message)
     return new_user
 
 

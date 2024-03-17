@@ -1,10 +1,11 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 
 from .models import User, UserRole
-from .schemas import CreateUser, ShowUser
+from .schemas import CreateUser, ShowUser, UserRoleShow
 
 
 
@@ -61,18 +62,38 @@ class UserDAL:
     self.db_session = db_session
     
     
-  async def create_user(self, name: str, login: str,
+  async def create_user(self, name: str, login: str, email: str,
                         password: str, comment: str = None, role: UserRole = None) -> ShowUser:
     new_user = User(
       name=name,
       login=login,
-      password=password,
+      email=email,
+      hashed_password=password,
       comment=comment,
       role=role
     )
     self.db_session.add(new_user)
-    await self.db_session.flush()
-    return new_user
+    try:
+      await self.db_session.flush()
+      user_role = UserRoleShow(
+        id=new_user.role.id,
+        role_name=new_user.role.role_name
+      )
+      show_user = ShowUser(
+        id=new_user.id,
+        name=new_user.name,
+        login=new_user.login,
+        email=new_user.email,
+        is_active=new_user.is_active,
+        comment=new_user.comment,
+        role=user_role
+      )
+      return show_user, None
+    
+    except IntegrityError as e:
+      return None, str(e)
+      
+    
     
     
   async def get_users(self) -> list[ShowUser]:
@@ -87,8 +108,9 @@ class UserDAL:
     user_row = result.scalar()
     return user_row
   
+  
   async def get_user_by_email(self, user_email):
-    query = select(User).where(User.email == user_email)
+    query = select(User).where(User.email == user_email).options(selectinload(User.role))
     result = await self.db_session.execute(query)
     user_row = result.fetchone()
     if user_row is not None:

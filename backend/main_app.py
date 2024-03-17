@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 import os
 from os import path
@@ -7,7 +7,9 @@ from os import path
 from .clients.routers import router as client_routers
 from .users.routers import router as users_routers
 from .music.app_main_routers import router as music_routers
+from .auth.routers import login_router
 
+from backend.database import get_db
 
 
 app = FastAPI(
@@ -18,6 +20,11 @@ app = FastAPI(
 @app.get("/")
 async def root():
   return {'mes': 'hi'}
+
+  
+  
+
+
 
 # media_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), 'media'))
 
@@ -36,6 +43,6 @@ app.mount('/media', StaticFiles(directory=f'{path_str}/media'), name='media')
 app.include_router(client_routers)
 app.include_router(users_routers)
 app.include_router(music_routers)
-
+app.include_router(login_router)
 
 

@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from backend.database import async_session_maker
 from .schemas import ShowClient, CreateClient, CurrencyShow
-from .dals import ClientDAL, CurrenctDAL
+from .dals import ClientDAL, CurrencyDAL
 from backend.music.dals.track_group_dal import TrackCollectionDAL
 from backend.music.schemas import TrackCollectionShow
 
@@ -13,24 +13,38 @@ from backend.music.schemas import TrackCollectionShow
 
 
 # ======================== CLIENT =============================
-async def _create_client(body: CreateClient) -> ShowClient:
-  async with async_session_maker() as session:
-    async with session.begin():
-      client_dal = ClientDAL(session)
-      client = await client_dal.create_client(**body)
-      return ShowClient(
-        user_id=client.client_id,
-        name=client.name,
-        full_name=client.full_name,
-        certificate=client.cretificate,
-        contract_number=client.contract_number,
-        contract_date=client.contract_date,
-        city=client.city,
-        address= client.address,
-        email=client.email,
-        phone=client.phone,
-        price=client.price,
+async def _create_client(body: CreateClient, session: AsyncSession) -> ShowClient:
+  async with session.begin():
+    client_dal = ClientDAL(session)
+    currency_dal = CurrencyDAL(session)
+    model_data = body.model_dump()
+    currency_id = model_data.pop('currency_id', 1)
+    currency_data = await currency_dal.get_currency_by_id(currency_id)
+    if currency_data is None:
+      return JSONResponse(
+        content=f'Currency not found'
       )
+      
+    model_data.update(currency=currency_data)
+    client = await client_dal.create_client(**model_data)
+    currency = CurrencyShow(
+      id=client.currency.id,
+      cur_name=client.currency.cur_name
+    )
+    return ShowClient(
+      user_id=client.id,
+      name=client.name,
+      full_name=client.full_name,
+      certificate=client.certificate,
+      contract_number=client.contract_number,
+      contract_date=client.contract_date,
+      city=client.city,
+      address= client.address,
+      email=client.email,
+      phone=client.phone,
+      price=client.price,
+      currency=currency
+    )
       
       
 async def _get_clients(session: AsyncSession):
@@ -93,7 +107,7 @@ async def _add_client_to_collection(session: AsyncSession, track_collection_id: 
 # ======================== CURRENCY =============================
 async def _create_currency(session: AsyncSession, currency_name: str):
   async with session.begin():
-    currency_dal = CurrenctDAL(session)
+    currency_dal = CurrencyDAL(session)
     new_currency = await currency_dal.create_currency(name=currency_name)
     return CurrencyShow(
       cur_id=new_currency.id,
@@ -103,14 +117,14 @@ async def _create_currency(session: AsyncSession, currency_name: str):
 
 async def _get_all_currencies(session: AsyncSession):
   async with session.begin():
-    currency_dal = CurrenctDAL(session)
+    currency_dal = CurrencyDAL(session)
     currencies = await currency_dal.get_all_currency()
     return list(currencies)
   
 
 async def _get_currency_by_id(session : AsyncSession, currency_id):
   async with session.begin():
-    currency_dal = CurrenctDAL(session)
+    currency_dal = CurrencyDAL(session)
     currency = await currency_dal.get_currency_by_id(currency_id)
     if currency is None:
       return JSONResponse(
@@ -122,7 +136,7 @@ async def _get_currency_by_id(session : AsyncSession, currency_id):
 
 async def _update_currency(session: AsyncSession, currency_id: int, new_name: str):
   async with session.begin():
-    currency_dal = CurrenctDAL(session)
+    currency_dal = CurrencyDAL(session)
     has_currency = await currency_dal.get_currency_by_id(currency_id)
     if has_currency is None:
       return JSONResponse(
@@ -137,7 +151,7 @@ async def _update_currency(session: AsyncSession, currency_id: int, new_name: st
   
 async def _delete_currency(session: AsyncSession, currency_id: int):
   async with session.begin():
-    currency_dal = CurrenctDAL(session)
+    currency_dal = CurrencyDAL(session)
     has_currency = await currency_dal.get_currency_by_id(currency_id)
     if has_currency is None:
       return JSONResponse(

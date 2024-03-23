@@ -27,8 +27,10 @@ async def get_clients(session: AsyncSession = Depends(get_db)):
 
 
 @router.post('/', response_model=ShowClient)
-async def create_client(body: CreateClient) -> ShowClient:
-  res = await _create_client(body)
+async def create_client(body: CreateClient, session: AsyncSession = Depends(get_db)) -> ShowClient:
+  res = await _create_client(
+    session=session, body=body
+  )
   return res
 
 

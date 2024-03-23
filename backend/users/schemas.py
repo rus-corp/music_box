@@ -1,4 +1,4 @@
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, EmailStr
 from typing import Optional
 
 
@@ -37,9 +37,8 @@ class ShowUser(UserBase):
   id: int
   name: str
   login: str
-  password: str
+  email: EmailStr
   is_active: bool
-  is_superuser: bool
   comment: Optional[str] = None
   
   role: UserRoleShow
@@ -48,6 +47,7 @@ class ShowUser(UserBase):
 class CreateUser(BaseModel):
   name: str
   login: str
+  email: EmailStr
   password: str
   comment: Optional[str] = None
   
@@ -55,6 +55,8 @@ class CreateUser(BaseModel):
   
   
 class UserUpdate(BaseModel):
+  id: int
   name: Optional[constr(min_length=2)] # type: ignore
   login: Optional[constr(min_length=2)] # type: ignore
   password: Optional[constr(min_length=6)] # type: ignore
+  role_id: Optional[int] = None

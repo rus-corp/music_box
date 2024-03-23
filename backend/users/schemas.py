@@ -40,8 +40,16 @@ class ShowUser(UserBase):
   email: EmailStr
   is_active: bool
   comment: Optional[str] = None
+  is_superuser: bool
   
   role: UserRoleShow
+  
+  
+class CreateSuperUser(BaseModel):
+  name: str
+  login: str
+  email: EmailStr
+  password: str
   
   
 class CreateUser(BaseModel):

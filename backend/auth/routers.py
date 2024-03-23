@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schemas import Token
 from .handlers import _authenticate_user
-from .security import create_access_token, _get_current_user_from_token
+from .security import create_access_token, get_current_user_from_token
 from backend.database import get_db
 from config import ACCESS_TOKEN_EXPIRE_MINUTES
 

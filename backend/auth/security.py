@@ -10,7 +10,10 @@ from config import SECRET_KEY, ALGORITHM
 from backend.database import get_db
 from backend.users.handlers import _get_user_by_email
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl='/login/token')
+oauth_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
+
+
+
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
   to_encode = data.copy()
@@ -24,7 +27,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 
 
-async def _get_current_user_from_token(
+async def get_current_user_from_token(
   token: str = Depends(oauth_scheme),
   session: AsyncSession = Depends(get_db)
 ):

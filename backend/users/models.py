@@ -26,6 +26,7 @@ class User(Base):
   email: Mapped[str] = mapped_column(nullable=False, unique=True)
   hashed_password: Mapped[str] = mapped_column(nullable=False)
   is_active: Mapped[bool] = mapped_column(default=True)
+  is_superuser: Mapped[bool] = mapped_column(default=False)
 
   
   role_id: Mapped[int] = mapped_column(ForeignKey('user_role.id'))

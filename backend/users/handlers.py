@@ -5,8 +5,9 @@ from sqlalchemy.exc import IntegrityError
 
 
 from .dals import UserDAL, UserRoleDAL
-from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow
+from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow, CreateSuperUser
 from backend.auth.service import Hasher
+from config import super_user_email
 
 
 
@@ -14,6 +15,7 @@ async def _create_user_role(session: AsyncSession, name: str):
   async with session.begin():
     role_dal = UserRoleDAL(session)
     created_role = await role_dal.create_user_role(name)
+    await session.commit()
     if created_role is not None:
       return created_role
   
@@ -67,6 +69,33 @@ async def _get_user_by_email(session: AsyncSession, email: str):
     return await user_dal.get_user_by_email(email)
 
 
+
+async def _create_super_user(session: AsyncSession, body: CreateUser | CreateSuperUser):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    body_data = body.model_dump(exclude_none=True)
+    role_dal = UserRoleDAL(session)
+    role = await role_dal.create_user_role('superuser')
+    body_data.update({'is_superuser': True})
+    super_user, error = await user_dal.create_user(
+      name=body_data.get('name'),
+      login=body_data.get('login'),
+      email=body_data.get('email'),
+      password=Hasher.get_hasher_password(body_data['password']),
+      is_superuser=body_data.get('is_superuser'),
+      comment=body_data.get('comment', None),
+      role=role
+    )
+    if error:
+      message_start_index = error.find('DETAIL: ')
+      message_end_index = error.find('[SQL:')
+      if message_start_index != -1:
+        message = error[message_start_index:message_end_index].rstrip()
+      return JSONResponse(status_code=400, content=message)
+    
+    return super_user
+      
+    
 
 async def _create_user(session: AsyncSession, body: CreateUser):
   async with session.begin():

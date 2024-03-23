@@ -1,8 +1,8 @@
 """first
 
-Revision ID: af1664b367a1
+Revision ID: 1bd3c4dd1f57
 Revises: 
-Create Date: 2024-02-18 21:42:01.128637
+Create Date: 2024-03-23 17:30:31.891456
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'af1664b367a1'
+revision: str = '1bd3c4dd1f57'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -76,12 +76,15 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('comment', sa.String(), nullable=True),
     sa.Column('login', sa.String(), nullable=False),
-    sa.Column('password', sa.String(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.String(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_superuser', sa.Boolean(), nullable=False),
     sa.Column('role_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['role_id'], ['user_role.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('login')
     )
     op.create_table('client',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -95,8 +98,8 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('phone', sa.String(length=30), nullable=False),
     sa.Column('currency_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('price', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['currency_id'], ['currency.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')

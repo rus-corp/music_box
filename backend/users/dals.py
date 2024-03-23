@@ -13,13 +13,13 @@ class UserRoleDAL:
   def __init__(self, db_session: AsyncSession) -> None:
     self.db_session = db_session
     
-    
+        
   async def create_user_role(self, name: str):
     new_role = UserRole(
       role_name=name
     )
     self.db_session.add(new_role)
-    await self.db_session.commit()
+
     return new_role
   
   
@@ -63,13 +63,14 @@ class UserDAL:
     
     
   async def create_user(self, name: str, login: str, email: str,
-                        password: str, comment: str = None, role: UserRole = None) -> ShowUser:
+                        password: str, comment: str = None, role: UserRole = None, is_superuser=False) -> ShowUser:
     new_user = User(
       name=name,
       login=login,
       email=email,
       hashed_password=password,
       comment=comment,
+      is_superuser=is_superuser,
       role=role
     )
     self.db_session.add(new_user)
@@ -85,6 +86,7 @@ class UserDAL:
         login=new_user.login,
         email=new_user.email,
         is_active=new_user.is_active,
+        is_superuser=new_user.is_superuser,
         comment=new_user.comment,
         role=user_role
       )

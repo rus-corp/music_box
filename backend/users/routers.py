@@ -9,7 +9,7 @@ from datetime import timedelta
 from backend.database import get_db
 
 
-from .schemas import ShowUser, CreateUser, UserRoleShow, DeleteUserRole, UpdateRoleShow, UserUpdate, Token
+from .schemas import ShowUser, CreateUser, UserRoleShow, DeleteUserRole, UpdateRoleShow, UserUpdate
 from .handlers import (_create_user, _get_users, _get_user_by_id, _create_user_role, _get_all_roles, _get_role_by_id,
                        _update_role_by_id, _delete_role_by_id, _update_user)
 

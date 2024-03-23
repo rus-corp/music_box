@@ -15,3 +15,8 @@ async def _authenticate_user(session: AsyncSession, email: str, password: str):
   if not Hasher.verify_password(password, user.hashed_password):
     return False
   return user
+
+
+
+
+

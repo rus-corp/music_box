@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schemas import Token
 from .handlers import _authenticate_user
-from .security import create_access_token
+from .security import create_access_token, _get_current_user_from_token
 from backend.database import get_db
 from config import ACCESS_TOKEN_EXPIRE_MINUTES
 
@@ -41,3 +41,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     expires_delta=access_token_expires
   )
   return {'access_token': access_token, 'token_type': 'bearer'}
+
+
+
+# @login_router.get('/test_auth_endpoint')
+# async def jwt_endpoint(current_user = Depends(_get_current_user_from_token)):
+#   return {'Success': True, 'user': current_user}

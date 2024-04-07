@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, APIRouter
 from fastapi.staticfiles import StaticFiles
 import os
 from os import path
@@ -8,6 +8,7 @@ from .clients.routers import router as client_routers
 from .users.routers import router as users_routers
 from .music.app_main_routers import router as music_routers
 from .auth.routers import login_router
+
 
 from backend.database import get_db
 
@@ -21,8 +22,6 @@ app = FastAPI(
 async def root():
   return {'mes': 'hi'}
 
-  
-  
 
 
 

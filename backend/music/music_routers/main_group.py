@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.exceptions import HTTPException
 
@@ -21,7 +21,7 @@ router = APIRouter(
 
 
 
-@router.post('/group_collections', response_model=schemas.GroupCollectionShow)
+@router.post('/group_collections', response_model=schemas.GroupCollectionShow, status_code=status.HTTP_201_CREATED)
 async def create_collection(group_name: schemas.GroupCollectionCreate, session: AsyncSession = Depends(get_db)):
   if group_name.group_name == '' or group_name.group_name is None:
     raise HTTPException(status_code=400, detail='To create a group, need a name')

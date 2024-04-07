@@ -19,11 +19,6 @@ class UserRoleShow(BaseModel):
 
 class UpdateRoleShow(UserRoleShow):
   pass
-  
-
-class DeleteUserRole(BaseModel):
-  id: int
-
 
 
 # =============== User Schemas ==================
@@ -64,7 +59,11 @@ class CreateUser(BaseModel):
   
 class UserUpdate(BaseModel):
   id: int
-  name: Optional[constr(min_length=2)] # type: ignore
-  login: Optional[constr(min_length=2)] # type: ignore
-  password: Optional[constr(min_length=6)] # type: ignore
+  name: Optional[constr(min_length=2)] = None # type: ignore
+  login: Optional[constr(min_length=2)] = None # type: ignore
+  password: Optional[constr(min_length=6)] = None # type: ignore
   role_id: Optional[int] = None
+
+
+class DeleteUserResponse(BaseModel):
+  id: int

@@ -49,10 +49,10 @@ class Client(Base):
   phone:Mapped[str] = mapped_column(String(30), nullable=False)
   price:Mapped[int] 
   
-  currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'), nullable=True)
+  currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'))
   currency: Mapped[Currency] = relationship(back_populates='client')
   
-  user_id = mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
+  user_id = mapped_column(sqlalchemy.ForeignKey('user.id'))
   user = relationship('User', back_populates='client')
   
   another_contract: Mapped[List['AnotherContracts']] = relationship(back_populates='client')

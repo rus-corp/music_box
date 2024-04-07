@@ -12,7 +12,7 @@ class ClientDAL:
     
     
   async def create_client(self, name: str, full_name: str, certificate: str, contract_number: str,
-                          contract_date, city: str, address: str, email: str, phone: str, price, currency: Currency) -> Client:
+                          contract_date, city: str, address: str, email: str, phone: str, price, currency: Currency, user_id: int) -> Client:
     new_client = Client(
       name=name,
       full_name=full_name,
@@ -24,44 +24,58 @@ class ClientDAL:
       email=email,
       phone=phone,
       price=price,
-      currency=currency
+      currency=currency,
+      user_id=user_id
     )
     
     self.db_session.add(new_client)
     await self.db_session.commit()
-    # await self.db_session.refresh(new_client)
     return new_client
   
   
-  async def get_clients(self):
+  async def get_all_clients(self):
     query = select(Client)
-    res = await self.db_session.execute(query)
-    return res.all()
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
   
   
-  async def get_user_by_id(self, id):
-    query = select(Client).where(Client.client_id == id)
+  async def get_client_by_id(self, client_id):
+    query = select(Client).where(Client.id == client_id)
     res = await self.db_session.execute(query)
     client_row = res.fetchone()
     if client_row is not None:
       return client_row[0]
-    
-    
+
+
+  async def update_client_by_id(self, client_id, kwargs):
+    stmt = update(Client).where(Client.id == client_id).values(**kwargs).returning(Client)
+    result = await self.db_session.execute(stmt)
+    updated_client = result.scalar()
+    return updated_client
+
+
   async def get_client_for_append(self, client_id: int):
     query = select(Client).where(Client.id == client_id)
     client = await self.db_session.scalar(query)
     return client
-    
-  
-  
-  async def update_client(self, client_id):
-    pass
-  
-    
+
+
+
+  async def update_client(self, client_id: int, kwargs):
+    stmt = update(Client).where(Client.id == client_id).values(**kwargs).returning(Client)
+    result = await self.db_session.execute(stmt)
+    updated_client = result.scalar()
+    return updated_client
+
+
   async def delete_client(self, client_id):
-    pass
-  
-  
+    stmt = delete(Client).where(Client.id == client_id)
+    deleted_client = await self.db_session.execute(stmt)
+    await self.db_session.commit()
+    if deleted_client is not None:
+      return True
+
+
 # =================== Currency ========================
 class CurrencyDAL:
   def __init__(self, db_session: AsyncSession) -> None:
@@ -73,20 +87,20 @@ class CurrencyDAL:
     self.db_session.add(new_currency)
     await self.db_session.flush()
     return new_currency
-  
-  
+
+
   async def get_all_currency(self):
     query = select(Currency).order_by(Currency.id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
-  
-  
+
+
   async def get_currency_by_id(self, currency_id: int):
     query = select(Currency).where(Currency.id == currency_id)
     currency = await self.db_session.scalar(query)
     return currency
-  
-  
+
+
   async def update_currency(self, currency_id: int, new_name: str):
     stmt = update(Currency).where(Currency.id == currency_id).values(
       new_name).returning(Currency)
@@ -94,20 +108,14 @@ class CurrencyDAL:
     currency = result.fetchone()
     if currency is not None:
       return currency[0]
-    
-    
+
+
   async def delete_currency_by_id(self, currency_id):
     stmt = delete(Currency).where(Currency.id == currency_id).returning(Currency.id)
-    result = await self.db_session.execute(stmt)
+    deleted_currency = await self.db_session.execute(stmt)
     await self.db_session.commit()
-    deleted_currency = result.fetchone()
     if deleted_currency is not None:
-      return deleted_currency[0]
-    
-  
-  
-  
-  
-  
-  
+      return True
+
+
 # =================== Anoteher Contract ========================

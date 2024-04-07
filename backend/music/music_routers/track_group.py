@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
@@ -26,7 +26,7 @@ router = APIRouter(
 @router.post('/track_group_collections', response_model=schemas.GroupCollectionWithTrackCollectionCreate,
              responses={
   404: {'desc': 'group collection not found'}
-})
+}, status_code=status.HTTP_201_CREATED)
 async def create_track_group_collection(body: schemas.TrackCollectionCreate,
                                         session: AsyncSession = Depends(get_db)):
   if body.track_collection_name == None or body.track_collection_name == '':

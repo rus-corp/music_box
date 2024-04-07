@@ -1,6 +1,6 @@
 import os
 from typing import List, TYPE_CHECKING
-from fastapi import APIRouter, File, UploadFile, Depends
+from fastapi import APIRouter, File, UploadFile, Depends, status
 from fastapi.responses import FileResponse
 import shutil
 from pathlib import Path
@@ -27,7 +27,7 @@ router = APIRouter(
 
 
 
-@router.post('/upload', response_model=TrackCreateResponse)
+@router.post('/upload', response_model=TrackCreateResponse, status_code=status.HTTP_201_CREATED)
 async def upload_tracks(upload_files: List[UploadFile],
                         session: AsyncSession = Depends(get_db)):
   tracks = {'error_tracks': [], 'created_tracks': []}
@@ -80,7 +80,7 @@ async def update_track(track_id: int, body: TrackUpdate, session: AsyncSession =
   return updated_track
 
 
-@router.delete('/{track_id}')
+@router.delete('/{track_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_track_by_id(track_id: int, session: AsyncSession = Depends(get_db)):
   deleted_track = await _delete_track_by_id(session=session, track_id=track_id)
   if deleted_track is None:

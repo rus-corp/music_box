@@ -9,12 +9,19 @@ class Permissions:
     self.current_user = current_user
 
 
-  @staticmethod
-  async def has_role_permission(current_user):
-    if current_user.is_superuser == True:
+  async def superuser_permission(self):
+    if self.current_user.is_superuser == True:
       return True
     return False
-    
+
+
+async def manager_permission(self):pass
+
+
+async def client_permission(self): pass
+
+
+async def redactor_permission(self): pass
 
 
 async def chek_user_permissions(): pass

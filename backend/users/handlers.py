@@ -1,13 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from sqlalchemy.exc import IntegrityError
-
 
 from .dals import UserDAL, UserRoleDAL
 from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow, CreateSuperUser
 from backend.auth.service import Hasher
-from config import super_user_email
+from backend.auth.errors import not_Found_error
 
 
 
@@ -18,23 +16,24 @@ async def _create_user_role(session: AsyncSession, name: str):
     await session.commit()
     if created_role is not None:
       return created_role
-  
-  
+
+
 async def _get_all_roles(session: AsyncSession):
   async with session.begin():
     role_dal = UserRoleDAL(session)
     user_roles = await role_dal.get_user_roles()
     return list(user_roles)
-  
+
+
 async def _get_role_by_id(session: AsyncSession, role_id):
   async with session.begin():
     role_dal = UserRoleDAL(session)
     role = await role_dal.get_user_role_by_id(role_id)
     if role is None:
-      return JSONResponse(content=f'Role with {role_id} not found', status_code=404)
+      return not_Found_error
     return role
-  
-  
+
+
 async def _update_role_by_id(session: AsyncSession, role_id: int, new_name: str):
   async with session.begin():
     role_dal = UserRoleDAL(session)
@@ -47,7 +46,7 @@ async def _update_role_by_id(session: AsyncSession, role_id: int, new_name: str)
         id=updated_role.id,
         role_name=updated_role.role_name
       )
-    
+
 
 async def _delete_role_by_id(session: AsyncSession, role_id: int):
   async with session.begin():
@@ -75,7 +74,9 @@ async def _create_super_user(session: AsyncSession, body: CreateUser | CreateSup
     user_dal = UserDAL(session)
     body_data = body.model_dump(exclude_none=True)
     role_dal = UserRoleDAL(session)
-    role = await role_dal.create_user_role('superuser')
+    role = await role_dal.get_role_by_name('superuser')
+    if role is None:
+      role = await role_dal.create_user_role('superuser')
     body_data.update({'is_superuser': True})
     super_user, error = await user_dal.create_user(
       name=body_data.get('name'),
@@ -92,10 +93,9 @@ async def _create_super_user(session: AsyncSession, body: CreateUser | CreateSup
       if message_start_index != -1:
         message = error[message_start_index:message_end_index].rstrip()
       return JSONResponse(status_code=400, content=message)
-    
     return super_user
-      
-    
+
+
 
 async def _create_user(session: AsyncSession, body: CreateUser):
   async with session.begin():
@@ -125,27 +125,66 @@ async def _get_users(session: AsyncSession):
     user_dal = UserDAL(session)
     users = await user_dal.get_users()
     return list(users)
-  
-  
+
+
 async def _get_user_by_id(session: AsyncSession, user_id: int):
   async with session.begin():
     user_dal = UserDAL(session)
     user = await user_dal.get_user_by_id_with_role(user_id)
+    if user is None:
+      return not_Found_error
     return user
-  
-  
+
+
 async def _update_user(session: AsyncSession, body: UserUpdate):
   async with session.begin():
     user_dal = UserDAL(session)
+    role_dal = UserRoleDAL(session)
     user_data = body.model_dump(exclude_none=True)
-    user = user_dal.get_user_by_id(user_data.get('id'))
+    user = await user_dal.get_user_by_id(user_data.get('id'))
     if user is None:
-      return JSONResponse(
-        content='User not found',
-        status_code=404
-      )
-    update_user = user_dal.update_user_by_id(
+      return not_Found_error
+    update_user = await user_dal.update_user_by_id(
       user_id=user_data.pop('id'),
       kwargs=user_data
     )
-    return update_user
+    user_role = UserRoleShow(
+      id=update_user.role.id,
+      role_name=update_user.role.role_name
+    )
+    updated_user_data = ShowUser(
+      id=update_user.id,
+      name=update_user.name,
+      login=update_user.login,
+      email=update_user.email,
+      is_active=update_user.is_active,
+      comment=update_user.comment,
+      is_superuser=update_user.is_superuser,
+      role=user_role
+    )
+    return updated_user_data
+
+
+
+async def _update_user_role(session: AsyncSession, user_id: int, role_id: int):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    user_data = await user_dal.get_user_by_id(user_id=user_id)
+    if user_data is None:
+      return not_Found_error
+    updated_user_role = await user_dal.update_user_role(
+      user_id=user_id, role_id=role_id
+    )
+    return updated_user_role
+    
+
+
+async def _delete_user(session: AsyncSession, user_id: int):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    user_data = await user_dal.get
+    user = await user_dal.delete_user_by_id(user_id=user_id)
+    if user is None:
+      return not_Found_error
+    deleted_user = await user_dal.delete_user_by_id(user_id=user_id)
+    return deleted_user

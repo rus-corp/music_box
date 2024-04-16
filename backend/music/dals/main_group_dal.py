@@ -73,8 +73,10 @@ class CollectionGroupDAL:
     return res
   
   
-  async def delete_track_group_in_main_group(self, old_main_grop_id: int,
-                                             track_collection_group_id: int) -> int:
+  async def delete_track_group_in_main_group(
+    self,
+    old_main_grop_id: int,
+    track_collection_group_id: int) -> int:
     stmt = delete(group_track_collection_association).where(
       and_(group_track_collection_association.c.group_collection_id == old_main_grop_id,
            group_track_collection_association.c.track_collection_id == track_collection_group_id)

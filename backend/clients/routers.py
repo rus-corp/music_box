@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from backend.database import get_db
-from backend.auth.security import get_current_user_from_token
+from backend.auth.security import get_current_user_from_token, super_user_permission
 from backend.users.models import User
 from backend.auth.permissions import Permissions
 from backend.auth.errors import access_denied_error
@@ -29,11 +29,9 @@ router = APIRouter(
 async def create_client(
   body: CreateClient,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ) -> ShowClient:
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     client = await _create_client(
       session=session, body=body
     )
@@ -80,11 +78,9 @@ async def get_client_by_id(
 async def update_client_by_id(
   body: UpdateClientRequest,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     updated_client = await _update_client_by_id(session=session, body=body)
     return updated_client
   else:
@@ -96,19 +92,20 @@ async def update_client_by_id(
 async def delete_client_by_id(
   client_id: int,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     deleted_client = await _delete_client_by_id(session=session, client_id=client_id)
     return deleted_client
   else:
     return access_denied_error
 
 
-@router.get('')
-async def get_user_clients(): pass
+
+
+@router.post('')
+async def add_currency_to_user(): pass
+
 
 
 
@@ -136,11 +133,9 @@ async def delete_client_in_track_collection(track_collection_id: int,
 async def create_currency(
   currency_name: str,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     new_currency = await _create_currency(
       session=session, currency_name=currency_name
     )
@@ -153,11 +148,9 @@ async def create_currency(
 @router.get('/currency', response_model=List[CurrencyShow])
 async def get_all_currencies(
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     currencies = await _get_all_currencies(session)
     return currencies
   else:
@@ -169,11 +162,9 @@ async def get_all_currencies(
 async def get_currency_by_id(
   currency_id: int,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     currency = await _get_currency_by_id(
       session=session, currency_id=currency_id
     )
@@ -188,11 +179,9 @@ async def update_currency(
   currency_id: int,
   new_name: str,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     updated_currency = await _update_currency(
       session=session, currency_id=currency_id, new_name=new_name
     )
@@ -201,15 +190,14 @@ async def update_currency(
     return access_denied_error
 
 
+
 @router.delete('/currency/{currency_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_currency(
   currency_id: int,
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: User = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     deleted_currency = await _delete_currency(
       session=session, currency_id=currency_id
     )

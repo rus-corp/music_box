@@ -6,6 +6,8 @@ from .dals import UserDAL, UserRoleDAL
 from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow, CreateSuperUser
 from backend.auth.service import Hasher
 from backend.auth.errors import not_Found_error
+from backend.clients.handlers import _create_client_for_user
+from backend.clients.schemas import CreateClient, ShowUserClients
 
 
 
@@ -188,3 +190,46 @@ async def _delete_user(session: AsyncSession, user_id: int):
       return not_Found_error
     deleted_user = await user_dal.delete_user_by_id(user_id=user_id)
     return deleted_user
+
+
+async def _get_user_client(session: AsyncSession, user_id: int):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    user_clients= await user_dal.get_user_clients(user_id=user_id)
+    return user_clients
+
+
+async def _add_user_clients(session: AsyncSession, user_id: int, body: CreateClient):
+  async with session.begin():
+    user_dal = UserDAL(session)
+    user = await user_dal.get_user_by_id(user_id)
+    new_client = await _create_client_for_user(
+      session=session, body=body
+    )
+    user.client.append(new_client)
+    await session.commit()
+    client = ShowUserClients(
+      client_id=new_client.id,
+      name=new_client.name,
+      full_name=new_client.full_name,
+      certificate=new_client.certificate,
+      contract_number=new_client.contract_number,
+      contract_date=new_client.contract_date,
+      city=new_client.city,
+      address=new_client.address,
+      email=new_client.email,
+      phone=new_client.phone,
+      price=new_client.price,
+      currency=new_client.currency
+    )
+    return ShowUser(
+      id=user.id,
+      name=user.name,
+      login=user.login,
+      email=user.email,
+      is_active=user.is_active,
+      comment=user.comment,
+      is_superuser=user.is_superuser,
+      role=user.role,
+      client=client
+    )

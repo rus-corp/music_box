@@ -70,7 +70,6 @@ class TrackCollection(Base):
    
 class CollectionGroup(Base):
   __tablename__ = 'group_collection'
-  
   id = Column(Integer, primary_key=True, autoincrement=True)
   group_name = Column(String, nullable=False)
   

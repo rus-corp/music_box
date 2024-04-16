@@ -24,12 +24,12 @@ class TrackCollectionDAL:
   
   
   async def create_track_collection(self, name: str, player_option: bool) -> TrackCollection:
-    new_track_collcetion = TrackCollection(
+    new_track_collection = TrackCollection(
       name=name,
       player_option=player_option
     )
-    self.db_sesion.add(new_track_collcetion)
-    return new_track_collcetion
+    self.db_sesion.add(new_track_collection)
+    return new_track_collection
   
   
   async def get_track_collections_with_tracks(self):

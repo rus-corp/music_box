@@ -1,5 +1,8 @@
 from pydantic import BaseModel, constr, EmailStr
-from typing import Optional
+from typing import Optional, List
+
+
+from backend.clients.schemas import ShowUserClients
 
 
 
@@ -38,6 +41,7 @@ class ShowUser(UserBase):
   is_superuser: bool
   
   role: UserRoleShow
+  client: Optional[List[ShowUserClients] | ShowUserClients] = None
   
   
 class CreateSuperUser(BaseModel):

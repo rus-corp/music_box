@@ -48,6 +48,20 @@ async def _create_client(body: CreateClient, session: AsyncSession) -> ShowClien
 
 
 
+async def _create_client_for_user(session: AsyncSession, body: CreateClient):
+  client_dal = ClientDAL(session)
+  currency_dal = CurrencyDAL(session)
+  model_data = body.model_dump()
+  currency_id = model_data.pop('currency_id', 1)
+  currency_data = await currency_dal.get_currency_by_id(currency_id)
+  if currency_data is None:
+      return errors.not_Found_error
+  model_data.update(currency=currency_data)
+  client = await client_dal.create_client_for_add_to_user(**model_data)
+  return client
+
+
+
 async def _get_all_clients(session: AsyncSession):
   async with session.begin():
     client_dal = ClientDAL(session)
@@ -102,9 +116,6 @@ async def _delete_client_by_id(session: AsyncSession, client_id: int):
     deleted_client = await client_dal.delete_client(client_id)
     if deleted_client:
       return deleted_client
-    
-    
-    
 
 
 
@@ -199,3 +210,10 @@ async def _delete_currency(session: AsyncSession, currency_id: int):
       return errors.not_Found_error
     deleted_currency = currency_dal.delete_currency_by_id(currency_id)
     return deleted_currency
+
+
+
+async def _add_currency_to_client(session: AsyncSession, client_id: int): pass
+
+
+

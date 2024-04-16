@@ -10,7 +10,7 @@ from backend.music.schemas import TrackCollectionCreate, TrackCollectionShow, Gr
 
 
 
-async def _create_track_collection(session: AsyncSession, track_collection_dal: TrackCollectionDAL, body):
+async def _create_track_collection(track_collection_dal: TrackCollectionDAL, body):
   track_collection_created = await track_collection_dal.create_track_collection(name=body['track_collection_name'], player_option=body['player_option'])
   return track_collection_created
 
@@ -27,7 +27,7 @@ async def _create_track_and_group_collections(session: AsyncSession, body: Track
       return JSONResponse(content=f'Collection with id = {group_coollection_id} not found', status_code=404)
     group_collection = await group_collection_dal.get_collection_group_for_track_collection(group_coollection_id)
     
-    track_collection = await _create_track_collection(session=session, track_collection_dal=track_collection_dal, body=model_data)
+    track_collection = await _create_track_collection(track_collection_dal=track_collection_dal, body=model_data)
     
     group_collection.track_collections.append(track_collection)
     await session.commit()

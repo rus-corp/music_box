@@ -9,7 +9,7 @@ from config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
 from backend.database import Base
 from backend.users.models import UserRole, User
-from backend.clients.models import Currency, Client, AnotherContracts
+from backend.clients.models import Currency, Client, ClientCluster, ClientGroup, AnotherContracts
 from backend.music.models import TrackCollection, CollectionGroup, Track
 
 # this is the Alembic Config object, which provides

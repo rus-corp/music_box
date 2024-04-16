@@ -9,6 +9,9 @@ from fastapi.exceptions import HTTPException
 from config import SECRET_KEY, ALGORITHM
 from backend.database import get_db
 from backend.users.handlers import _get_user_by_email
+from backend.users.models import User
+from .permissions import Permissions
+
 
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
@@ -50,3 +53,39 @@ async def get_current_user_from_token(
   if user is None:
     raise credentials_exceptions
   return user
+
+
+
+async def super_user_permission(current_user: User = Depends(get_current_user_from_token)):
+  permission = Permissions(current_user=current_user)
+  super_user = await permission.superuser_permission()
+  if super_user:
+    return True
+  return False
+
+
+
+async def has_manager_permissions(current_user: User = Depends(get_current_user_from_token)):
+  permission = Permissions(current_user=current_user)
+  manager_permission = await permission.manager_permission()
+  if manager_permission:
+    return True
+  return False
+
+
+
+async def has_redactor_permissions(current_user: User = Depends(get_current_user_from_token)):
+  permission = Permissions(current_user=current_user)
+  redactor_permission = await permission.redactor_permission()
+  if redactor_permission:
+    return True
+  return False
+
+
+
+async def has_client_permission(current_user: User = Depends(get_current_user_from_token)):
+  permission = Permissions(current_user=current_user)
+  client_permission = await permission.client_permission()
+  if client_permission:
+    return True
+  return False

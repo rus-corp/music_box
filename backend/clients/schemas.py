@@ -54,6 +54,11 @@ class ShowClient(BaseClient):
   currency: CurrencyShow = None
 
 
+class ShowUserClients(BaseClient):
+  client_id: int
+  currency: CurrencyShow = None
+
+
 class UpdateClientRequest(BaseModel):
   id: Optional[int] = None
   name: Optional[str] = None

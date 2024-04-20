@@ -1,7 +1,7 @@
 from sqlalchemy import select, delete, update, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.exc import IntegrityError
 
 from backend.music.models import CollectionGroup, group_track_collection_association
 
@@ -58,12 +58,13 @@ class CollectionGroupDAL:
     
     
   async def delete_collection_group(self, collection_id):
-    query = delete(CollectionGroup).where(CollectionGroup.id == collection_id).returning(CollectionGroup.id)
-    res = await self.db_session.execute(query)
-    await self.db_session.commit()
-    deleted_colection_group_row = res.fetchone()
-    if deleted_colection_group_row is not None:
-      return deleted_colection_group_row[0]
+    try:
+      query = delete(CollectionGroup).where(CollectionGroup.id == collection_id).returning(CollectionGroup.id)
+      res = await self.db_session.execute(query)
+      await self.db_session.commit()
+      return res.scalar()
+    except IntegrityError as e:
+      error_message = 'Невозможно удалить CollectionGroup из-за наличия зависимых записей в TrackCollection.'
   
   
   async def get_collection_group_for_track_collection(self, group_collection_id: int):

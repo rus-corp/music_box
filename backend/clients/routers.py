@@ -29,7 +29,7 @@ router = APIRouter(
 async def create_client(
   body: CreateClient,
   session: AsyncSession = Depends(get_db),
-  permissions: User = Depends(super_user_permission)
+  permissions: bool = Depends(super_user_permission)
 ) -> ShowClient:
   if permissions:
     client = await _create_client(
@@ -44,11 +44,9 @@ async def create_client(
 @router.get('/', response_model=List[ShowClient])
 async def get_all_clients(
   session: AsyncSession = Depends(get_db),
-  current_user: User = Depends(get_current_user_from_token)
+  permissions: bool = Depends(super_user_permission)
 ):
-  permission = Permissions(current_user=current_user)
-  permission_role = await permission.superuser_permission()
-  if permission_role:
+  if permissions:
     result = await _get_all_clients(session)
     return result
   else:
@@ -110,7 +108,11 @@ async def add_currency_to_user(): pass
 
 
 @router.post('/add_client_to_track_collection/{track_collection_id}', response_model=ShowClient)
-async def add_client_to_track_collection(track_collection_id: int, client_id: int, session: AsyncSession = Depends(get_db)):
+async def add_client_to_track_collection(
+  track_collection_id: int,
+  client_id: int,
+  session: AsyncSession = Depends(get_db)
+):
   aded_client_to_track_collection = await _add_client_to_collection(
     session=session, track_collection_id=track_collection_id, client_id=client_id
   )

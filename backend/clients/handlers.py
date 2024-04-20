@@ -163,6 +163,14 @@ async def _add_client_to_collection(session: AsyncSession, track_collection_id: 
       )
 
 
+# async def _check_user_and_client(session: AsyncSession, user_id: int, client_group_id: int) -> bool:
+#   async with session.begin():
+#     client_dal = ClientDAL(session)
+#     return await client_dal.check_group_access(
+#       user_id=user_id, client_group_id=client_group_id
+#     )
+    
+
 
 
 

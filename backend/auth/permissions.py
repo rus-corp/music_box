@@ -3,6 +3,7 @@
 from backend.users.models import User
 
 
+
 class Permissions:
   def __init__(self, target_user: User=None, current_user: User=None) -> None:
     self.target_user = target_user
@@ -28,7 +29,7 @@ class Permissions:
 
 
   async def client_permission(self):
-    if self.current_user.role == 'client' or self.current_user.is_superuser == True:
+    if self.current_user.role == 'client' and self.current_user.is_superuser == True:
       return True
     return False
 

@@ -47,9 +47,9 @@ class TrackCollectionDAL:
   async def get_track_collection_by_id(self, track_collection_id: int):
     query = select(TrackCollection).where(TrackCollection.id == track_collection_id)
     res = await self.db_sesion.execute(query)
-    track_collection_id_row = res.scalar()
+    track_collection_id_row = res.fetchone()
     if track_collection_id_row is not None:
-      return track_collection_id_row
+      return track_collection_id_row[0]
   
   
   async def get_track_group_by_id_with_tracks(self, track_group_id: int):

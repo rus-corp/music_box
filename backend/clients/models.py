@@ -48,6 +48,8 @@ class ClientCluster(Base):
   __tablename__ = 'client_cluster'
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   name: Mapped[str] = mapped_column(unique=True, nullable=False)
+  
+  client_groups: Mapped['ClientGroup'] = relationship(back_populates='client_cluster')
 
 
 
@@ -56,6 +58,9 @@ class ClientGroup(Base):
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   name: Mapped[str]
   comment: Mapped[str]
+  
+  client_cluster_id: Mapped[int] = mapped_column(ForeignKey('client_cluster.id'))
+  client_cluster: Mapped['ClientCluster'] = relationship(back_populates='client_groups')
   
   users: Mapped[List['User']] = relationship(secondary='user_client_group_association', back_populates='client_groups')  
 

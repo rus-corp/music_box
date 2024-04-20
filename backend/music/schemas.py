@@ -91,7 +91,7 @@ class TrackCreateResponse(BaseModel):
 class DeletedTrackFromCollection(BaseModel):
   track_collection_id: int
  
-# ================ Service Models =================== 
+# ================ COMMON MODELS =================== 
 class GroupCollectionWithTrackCollectionCreate(GroupCollectionShow):
   track_collections: 'TrackCollectionShow'
   

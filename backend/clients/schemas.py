@@ -4,6 +4,8 @@ from datetime import date
 
 from backend.music.schemas import TrackCollectionShow
 
+
+
 # =================== CURRENCY ====================
 class CurrencyBase(BaseModel):
   class Config:
@@ -23,6 +25,39 @@ class UpdateCurrencyRequest(CurrencyBase):
 class UpdateCurrencyResponse(CurrencyBase):
   cur_name: Optional[constr(min_length=2)] # type: ignore
 
+
+# =================== CLIENT CLUSTER ====================
+class ClientClusterBase(BaseModel):
+  class Config:
+    from_attributes = True
+
+
+class ClientClusterShow(ClientClusterBase):
+  id: int
+  name: str
+
+
+class ClientClusterCreate(ClientClusterBase):
+  name: str
+
+
+
+
+# =================== CLIENT GROUP ====================
+class ClientGroupBase(BaseModel):
+  class Config:
+    from_attributes = True
+
+
+class ClientGroupShow(ClientGroupBase):
+  id: int
+  name: str
+  comment: Optional[str] = None
+
+
+class ClientGroupCreate(ClientGroupBase):
+  name: str
+  comment: Optional[str] = None
 
 
 # =================== CLIENT ====================
@@ -60,7 +95,6 @@ class ShowUserClients(BaseClient):
 
 
 class UpdateClientRequest(BaseModel):
-  id: Optional[int] = None
   name: Optional[str] = None
   full_name: Optional[str] = None
   certificate: Optional[str] = None
@@ -83,3 +117,11 @@ class UpdateClientResponse(BaseClient):
   id: int
   currency_id: int
   user_id: int
+
+
+# ================ COMMON MODELS =================== 
+class ClientClusterShow_WithClientGroups(ClientClusterShow):
+  client_groups: ClientGroupShow
+
+class ClientGroupShow_WithClients(ClientGroupShow):
+  clients: ShowClient

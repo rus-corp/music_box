@@ -6,7 +6,7 @@ from .dals import UserDAL, UserRoleDAL
 from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow, CreateSuperUser
 from backend.auth.service import Hasher
 from backend.auth.errors import not_Found_error
-from backend.clients.handlers import _create_client_for_user
+from backend.clients.handlers.clients_hand import _create_client_for_user
 from backend.clients.schemas import CreateClient, ShowUserClients
 
 

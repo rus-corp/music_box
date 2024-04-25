@@ -161,3 +161,7 @@ class UserDAL:
     user_clients = result.scalar()
     return user_clients
 
+  async def get_scalar_user(self, user_id: int):
+    query = select(User).where(User.id == user_id)
+    result = await self.db_session.scalar(query)
+    return result

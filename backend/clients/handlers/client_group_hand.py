@@ -1,10 +1,15 @@
+from typing import TYPE_CHECKING
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..dals.client_cluster_dals import ClientClusterDAL
 from ..dals.client_group_dals import ClientGroupDAL
-from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
-                       ClientGroupUpdate)
 from backend.auth.errors import not_Found_error
+from backend.users.dals import UserDAL
+
+from ..schemas import (ClientGroup_WithUsers, ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
+                       ClientGroupUpdate)
+from backend.users.schemas import UserShowForClient
+
 
 
 
@@ -137,3 +142,33 @@ async def _change_cluster_of_clients_group(session: AsyncSession, client_group_i
       new_client_cluster_id=new_client_cluster_id
     )
     return changed_cluster_of_client_group
+
+
+async def _append_user_to_client_group(session: AsyncSession, client_group_id: int, user_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    user_dal = UserDAL(session)
+    client_group = client_group_dal.get_scalar_client_group_by_id(client_group_id)
+    user = user_dal.get_scalar_user(user_id)
+    if client_group is None or user is None:
+      return not_Found_error
+    client_group.users.append(user)
+    await session.commit()
+    
+    user = UserShowForClient(
+      id=user.id,
+      name=user.name,
+      comment=user.comment,
+      login=user.comment,
+      email=user.email,
+      is_active=user.is_active,
+      is_superuser=user.is_superuser
+    )
+    
+    return ClientGroup_WithUsers(
+      id=client_group.id,
+      name=client_group.name,
+      comment=client_group.comment,
+      users=user
+    )
+    

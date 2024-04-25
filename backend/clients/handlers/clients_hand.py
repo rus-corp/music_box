@@ -9,6 +9,8 @@ from ..dals.currency_dals import CurrencyDAL
 from backend.music.dals.track_group_dal import TrackCollectionDAL
 from backend.music.schemas import TrackCollectionShow
 
+
+
 # ======================== CLIENT =============================
 async def _create_client(body: CreateClient, session: AsyncSession) -> ShowClient:
   async with session.begin():

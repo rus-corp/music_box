@@ -18,7 +18,7 @@ class UserRole(Base):
   role_name: Mapped[str] = mapped_column(nullable=False, unique=True)
 
   user: Mapped[List['User']] = relationship(back_populates='role')
-  
+
 
 
 class User(Base):

@@ -41,8 +41,7 @@ class TrackDAL:
     query = select(Track).where(Track.id == track_id)
     result = await self.db_session.execute(query)
     track_row = result.scalar()
-    if track_row is not None:
-      return track_row
+    return track_row
 
 
   async def update_track(self, track_id, **kwargs):

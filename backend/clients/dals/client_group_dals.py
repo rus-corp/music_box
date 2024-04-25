@@ -109,7 +109,10 @@ class ClientGroupDAL:
       error_message = 'Невозможно удалить ClientGroup из-за наличия зависимых записей.'
       return error_message
   
-  
+  async def get_scalar_client_group_by_id(self, client_group_id: int):
+    query = select(ClientGroup).where(ClientGroup.id == client_group_id)
+    result = await self.db_session.scalar(query)
+    return result
   
   
   async def add_user_to_client_group(self): pass

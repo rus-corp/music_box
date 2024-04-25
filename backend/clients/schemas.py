@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
 from pydantic import BaseModel, constr, EmailStr
 from typing import Optional, List
 from datetime import date
 
 from backend.music.schemas import TrackCollectionShow
+
+
+from backend.users.schemas import UserShowForClient
 
 
 
@@ -132,3 +136,7 @@ class ClientClusterShow_With_ClientGroups(ClientClusterShow):
 
 class ClientGroupShow_With_Clients(ClientGroupShow):
   clients: Optional[ShowClient] = None
+
+
+class ClientGroup_WithUsers(ClientGroupShow):
+  users: Optional[List[UserShowForClient]] = None

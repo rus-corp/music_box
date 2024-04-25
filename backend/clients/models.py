@@ -20,7 +20,9 @@ user_client_group_association = Table(
   Base.metadata,
   Column('id', Integer, primary_key=True, autoincrement=True),
   Column('user_id', ForeignKey('user.id')),
-  Column('client_group_id', ForeignKey('client_group.id'))
+  Column('client_group_id', ForeignKey('client_group.id')),
+  
+  UniqueConstraint('user_id', 'client_group_id')
 )
 
 
@@ -30,7 +32,7 @@ trackCollections_client_association = Table(
   Base.metadata,
   Column('id', Integer, primary_key=True, autoincrement=True),
   Column('client_id', ForeignKey('client.id')),
-  Column('track_collection_id', ForeignKey('track_collection.id'))
+  Column('track_collection_id', ForeignKey('track_collection.id')),
 )
 
 

@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from pydantic import BaseModel, constr, EmailStr
 from typing import Optional, List
 
@@ -29,8 +30,8 @@ class UpdateRoleShow(UserRoleShow):
 class UserBase(BaseModel):
   class Config:
     from_attributes = True
-    
-    
+
+
 class ShowUser(UserBase):
   id: int
   name: str
@@ -71,3 +72,14 @@ class UserUpdate(BaseModel):
 
 class DeleteUserResponse(BaseModel):
   id: int
+
+
+class UserShowForClient(UserBase):
+  id: int
+  name: str
+  comment: str
+  login: str
+  email: str
+  is_active: bool
+  is_superuser: bool
+  

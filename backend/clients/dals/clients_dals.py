@@ -99,20 +99,6 @@ class ClientDAL:
 
 
 
-# =================== Anoteher Contract ========================
-class ClientGroupDAL:
-  def __init__(self, db_session: AsyncSession) -> None:
-    self.db_session = db_session
-  
-  async def create_client_group(self): pass
-  
-  async def get_all_client_groups(self): pass
-  
-  async def get_client_group_by_id(self): pass
-  
-  async def update_client_group_by_id(self): pass
-  
-  
-  async def delete_client_group(self): pass
+
 
 

@@ -58,6 +58,13 @@ class ClientGroupShow(ClientGroupBase):
 class ClientGroupCreate(ClientGroupBase):
   name: str
   comment: Optional[str] = None
+  client_cluster_id: int
+
+
+class ClientGroupUpdate(ClientGroupBase):
+  id: int
+  name: Optional[str] = None
+  comment: Optional[str] = None
 
 
 # =================== CLIENT ====================
@@ -120,8 +127,8 @@ class UpdateClientResponse(BaseClient):
 
 
 # ================ COMMON MODELS =================== 
-class ClientClusterShow_WithClientGroups(ClientClusterShow):
+class ClientClusterShow_With_ClientGroups(ClientClusterShow):
   client_groups: ClientGroupShow
 
-class ClientGroupShow_WithClients(ClientGroupShow):
-  clients: ShowClient
+class ClientGroupShow_With_Clients(ClientGroupShow):
+  clients: Optional[ShowClient] = None

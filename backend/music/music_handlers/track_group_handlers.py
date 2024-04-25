@@ -75,7 +75,7 @@ async def _get_track_collection_by_id_with_tracks(session: AsyncSession, track_c
     
     
 
-async def _update_track_collection(session: AsyncSession, track_collection_id, body: TrackCollectionUpdateResponse):
+async def _update_track_collection(session: AsyncSession, track_collection_id: int, body: TrackCollectionUpdateResponse):
   async with session.begin():
     track_collection_dal = TrackCollectionDAL(session)
     track_collection_group = await track_collection_dal.get_track_collection_by_id(track_collection_id)

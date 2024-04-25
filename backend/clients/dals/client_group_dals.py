@@ -18,7 +18,6 @@ class ClientGroupDAL:
       comment=comment
     )
     self.db_session.add(new_client_group)
-    await self.db_session.commit()
     return new_client_group
 
 
@@ -87,11 +86,18 @@ class ClientGroupDAL:
 
 
   async def change_cluster_of_clients_group(self, client_group_id: int, new_client_cluster_id: int):
-    stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(client_cluster_id = new_client_cluster_id).returning(ClientGroup)
-    result = await self.db_session.execute(stmt)
-    updated_client_group = result.fetchone()
-    if updated_client_group is not None:
-      return updated_client_group[0]
+    query = select(ClientGroup).where(
+      and_(ClientGroup.id == client_group_id, ClientGroup.client_cluster_id == new_client_cluster_id)
+    )
+    result = await self.db_session.execute(query)
+    if result.fetchone() is not None:
+      stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(client_cluster_id = new_client_cluster_id).returning(ClientGroup)
+      result = await self.db_session.execute(stmt)
+      updated_client_group = result.fetchone()
+      if updated_client_group is not None:
+        return updated_client_group[0]
+    return 'Relationship exist'
+    
 
 
   async def delete_client_group_by_id(self, client_group_id: int):
@@ -102,6 +108,8 @@ class ClientGroupDAL:
     except IntegrityError as e:
       error_message = 'Невозможно удалить ClientGroup из-за наличия зависимых записей.'
       return error_message
+  
+  
   
   
   async def add_user_to_client_group(self): pass

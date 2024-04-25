@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 
 
-from ..models import Currency
+from ..models import Currency, AnotherContracts
 
 class CurrencyDAL:
   def __init__(self, db_session: AsyncSession) -> None:
@@ -43,3 +43,11 @@ class CurrencyDAL:
     await self.db_session.commit()
     if deleted_currency is not None:
       return True
+
+
+
+# =================== Anoteher Contract ========================
+
+class AnotherContractDAL:
+  def __init__(self, db_session: AsyncSession) -> None:
+    self.db_session = db_session

@@ -1,0 +1,139 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..dals.client_cluster_dals import ClientClusterDAL
+from ..dals.client_group_dals import ClientGroupDAL
+from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
+                       ClientGroupUpdate)
+from backend.auth.errors import not_Found_error
+
+
+
+async def _create_client_group(client_group_dal: ClientGroupDAL, name: str, comment: str):
+  client_group_cerated = await client_group_dal.create_client_group(name=name, comment=comment)
+  return client_group_cerated
+
+
+async def _create_client_group_take_client_cluster(session: AsyncSession, body: ClientGroupCreate):
+  async with session.begin():
+    client_cluster_dal = ClientClusterDAL(session)
+    client_group_dal = ClientGroupDAL(session)
+    model_data = body.model_dump(exclude_none=True)
+    client_cluster = await client_cluster_dal.get_client_cluster_for_client_group(
+      client_cluster_id=model_data.pop('client_cluster_id')
+    )
+    if client_cluster is None:
+      return not_Found_error
+    client_group = await _create_client_group(
+      client_group_dal=client_group_dal,
+      name=model_data['name'],
+      comment=model_data.get('comment', '')
+    )
+    client_cluster.client_groups.append(client_group)
+    await session.commit()
+    
+    client_group_schema = ClientGroupShow(
+      id=client_group.id,
+      name=client_group.name,
+      comment=client_group.comment
+    )
+    
+    return ClientClusterShow_With_ClientGroups(
+      id=client_cluster.id,
+      name=client_cluster.name,
+      client_groups=client_group_schema
+    )
+
+
+async def _get_all_client_groups_with_clients(session: AsyncSession):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_groups = await client_group_dal.get_all_client_groups_with_clients()
+    return list(client_groups)
+
+
+async def _get_only_clients_group(session: AsyncSession):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_groups = await client_group_dal.get_only_clients_group()
+    return list(client_groups)
+
+
+async def _get_all_client_groups_with_users(session: AsyncSession):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_groups = await client_group_dal.get_all_client_groups_with_users()
+    return list(client_groups)
+
+
+async def _get_all_client_groups_with_clients_and_users(session: AsyncSession):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_groups = await client_group_dal.get_all_client_groups_with_clients_and_users()
+    return list(client_groups)
+
+
+async def _get_only_client_group_by_id(session: AsyncSession, client_group_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_group = await client_group_dal.get_only_client_group_by_id(client_group_id)
+    return client_group
+
+
+async def _get_client_group_by_id_with_clients(session: AsyncSession, client_group_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_group = await client_group_dal.get_client_group_by_id_with_clients(client_group_id)
+    return client_group
+
+
+async def _get_client_group_by_id_with_users(session: AsyncSession, client_group_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_group = await client_group_dal.get_client_group_by_id_with_users(client_group_id)
+    return client_group
+
+
+async def _get_client_group_by_id_with_users_and_clients(session: AsyncSession, client_group_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_group = await client_group_dal.get_client_group_by_id_with_users_and_clients(client_group_id)
+    return client_group
+
+
+async def _update_client_group_by_id(session: AsyncSession, body: ClientGroupUpdate):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    model_data = body.model_dump(exclude_none=True)
+    client_group = await client_group_dal.get_only_client_group_by_id(model_data['id'])
+    if client_group is None:
+      return not_Found_error
+    updated_client_group = await client_group_dal.update_client_group_by_id(
+      client_group_id=model_data.pop('id'),
+      kwargs=model_data
+    )
+    return updated_client_group
+
+
+async def _delete_client_group_by_id(session: AsyncSession, client_group_id: int):
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_group = await client_group_dal.get_only_client_group_by_id(client_group_id)
+    if client_group is None:
+      return not_Found_error
+    deleted_client_group = await client_group_dal.delete_client_group_by_id(client_group_id)
+    return deleted_client_group
+
+
+async def _change_cluster_of_clients_group(session: AsyncSession, client_group_id: int, new_client_cluster_id: int) -> ClientGroupShow:
+  async with session.begin():
+    client_group_dal = ClientGroupDAL(session)
+    client_cluster_dal = ClientClusterDAL(session)
+    has_client_group = await client_group_dal.get_only_client_group_by_id(client_group_id)
+    has_client_cluster = client_cluster_dal.get_all_client_clusters_without_client_groups(new_client_cluster_id)
+    if has_client_group is None or has_client_cluster is None:
+      return not_Found_error
+    changed_cluster_of_client_group = await client_group_dal.change_cluster_of_clients_group(
+      client_group_id=client_group_id,
+      new_client_cluster_id=new_client_cluster_id
+    )
+    return changed_cluster_of_client_group

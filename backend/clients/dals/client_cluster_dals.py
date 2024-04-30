@@ -14,7 +14,7 @@ class ClientClusterDAL:
   async def create_client_cluster(self, name: str):
     new_cluster = ClientCluster(name=name)
     self.db_session.add(new_cluster)
-    await self.db_session.commit()
+    # await self.db_session.commit()
     return new_cluster
 
 

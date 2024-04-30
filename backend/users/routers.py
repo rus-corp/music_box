@@ -16,7 +16,7 @@ from backend.clients.schemas import CreateClient
 from .schemas import ShowUser, CreateUser, UserRoleShow, UpdateRoleShow, UserUpdate, CreateSuperUser, DeleteUserResponse
 from .handlers import (_create_user, _get_users, _get_user_by_id, _create_user_role, _get_all_roles, _get_role_by_id,
                        _update_role_by_id, _delete_role_by_id, _update_user, _create_super_user, _delete_user,
-                       _update_user_role, _get_user_client, _add_user_clients)
+                       _update_user_role, _get_user_client)
 
 
 
@@ -217,17 +217,17 @@ async def get_user_clients(
 
 
 
-@router.post('/user_clients/{user_id}')
-async def add_user_client(
-  user_id: int,
-  body: CreateClient,
-  session: AsyncSession = Depends(get_db),
-  permissions: bool = Depends(super_user_permission)
-):
-  if permissions:
-    add_clients = await _add_user_clients(
-      session=session, user_id=user_id, body=body
-    )
-    return add_clients
-  else:
-    return access_denied_error
+# @router.post('/user_clients/{user_id}')
+# async def add_user_client(
+#   user_id: int,
+#   body: CreateClient,
+#   session: AsyncSession = Depends(get_db),
+#   permissions: bool = Depends(super_user_permission)
+# ):
+#   if permissions:
+#     add_clients = await _add_user_clients(
+#       session=session, user_id=user_id, body=body
+#     )
+#     return add_clients
+#   else:
+#     return access_denied_error

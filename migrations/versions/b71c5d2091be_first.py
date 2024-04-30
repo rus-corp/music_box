@@ -1,8 +1,8 @@
 """first
 
-Revision ID: 341896cf4629
+Revision ID: b71c5d2091be
 Revises: 
-Create Date: 2024-04-16 20:31:23.740333
+Create Date: 2024-04-30 19:46:33.134530
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '341896cf4629'
+revision: str = 'b71c5d2091be'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,12 +25,6 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
-    )
-    op.create_table('client_group',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
-    sa.Column('comment', sa.String(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('currency',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -67,24 +61,13 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('role_name')
     )
-    op.create_table('client',
+    op.create_table('client_group',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('full_name', sa.String(), nullable=False),
-    sa.Column('certificate', sa.String(), nullable=False),
-    sa.Column('contract_number', sa.String(), nullable=False),
-    sa.Column('contract_date', sa.DateTime(), nullable=False),
-    sa.Column('city', sa.String(), nullable=False),
-    sa.Column('address', sa.String(), nullable=False),
-    sa.Column('email', sa.String(), nullable=False),
-    sa.Column('phone', sa.String(length=30), nullable=False),
-    sa.Column('currency_id', sa.Integer(), nullable=True),
-    sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('client_group_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['client_group_id'], ['client_group.id'], ),
-    sa.ForeignKeyConstraint(['currency_id'], ['currency.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('phone')
+    sa.Column('comment', sa.String(), nullable=True),
+    sa.Column('client_cluster_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['client_cluster_id'], ['client_cluster.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('group_track_collection_association',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -117,6 +100,34 @@ def upgrade() -> None:
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('login')
     )
+    op.create_table('client',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('full_name', sa.String(), nullable=False),
+    sa.Column('certificate', sa.String(), nullable=False),
+    sa.Column('contract_number', sa.String(), nullable=True),
+    sa.Column('contract_date', sa.DateTime(), nullable=True),
+    sa.Column('city', sa.String(), nullable=False),
+    sa.Column('address', sa.String(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('phone', sa.String(length=30), nullable=False),
+    sa.Column('price', sa.Integer(), nullable=True),
+    sa.Column('currency_id', sa.Integer(), nullable=True),
+    sa.Column('client_group_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['client_group_id'], ['client_group.id'], ),
+    sa.ForeignKeyConstraint(['currency_id'], ['currency.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('phone')
+    )
+    op.create_table('user_client_group_association',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('client_group_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['client_group_id'], ['client_group.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'client_group_id')
+    )
     op.create_table('another_contracts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('contract_number', sa.Date(), nullable=True),
@@ -133,31 +144,23 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['track_collection_id'], ['track_collection.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('user_client_group_association',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('client_group_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['client_group_id'], ['client_group.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('user_client_group_association')
     op.drop_table('trackCollections_client_association')
     op.drop_table('another_contracts')
+    op.drop_table('user_client_group_association')
+    op.drop_table('client')
     op.drop_table('user')
     op.drop_table('track_collection_tracks_association')
     op.drop_table('group_track_collection_association')
-    op.drop_table('client')
+    op.drop_table('client_group')
     op.drop_table('user_role')
     op.drop_table('track_collection')
     op.drop_table('track')
     op.drop_table('group_collection')
     op.drop_table('currency')
-    op.drop_table('client_group')
     op.drop_table('client_cluster')
     # ### end Alembic commands ###

@@ -1,0 +1,412 @@
+[
+  {
+    "roles": [
+      {
+        "role_name": "superuser"
+      },
+      {
+        "role_name": "manager"
+      },
+      {
+        "role_name": "manager"
+      },
+      {
+        "role_name": "redactor"
+      }
+    ]
+  },
+  {"users": [{
+    "name": "Carlos",
+    "comment": "our boy",
+    "login": "carlos",
+    "email": "carlos@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 2
+  },
+  {
+    "name": "Bruno",
+    "comment": "our boy",
+    "login": "bruno",
+    "email": "bruno@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 2
+  },
+  {
+    "name": "Ruslan",
+    "comment": "our boy",
+    "login": "ruslan",
+    "email": "ruslan@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 2
+  },
+  {
+    "name": "Oleg",
+    "login": "oleg",
+    "email": "oleg@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 3
+  },
+  {
+    "name": "Anton",
+    "login": "anton",
+    "email": "anton@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 3
+  },
+  {
+    "name": "Iric",
+    "login": "iric",
+    "email": "iric@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 3
+  },
+  {
+    "name": "Olga",
+    "comment": "client man",
+    "login": "olga",
+    "email": "olga@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Jula",
+    "login": "jula",
+    "email": "jula@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Lena",
+    "login": "lena",
+    "email": "lena@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Kola",
+    "comment": "cli",
+    "login": "kola",
+    "email": "kola@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Anna",
+    "login": "anna",
+    "email": "anna@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Antonina",
+    "login": "antonina",
+    "email": "antonina@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Karim",
+    "login": "karim",
+    "email": "karim@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "Fira",
+    "comment": "asd",
+    "login": "fira",
+    "email": "fira@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  },
+  {
+    "name": "leila",
+    "login": "leila",
+    "email": "leila@email.ru",
+    "hashed_password": "12345",
+    "is_superuser": "false",
+    "role_id": 4
+  }
+]},
+  {
+    "client_cluster": [
+      {
+        "name": "first cluster"
+      },
+      {
+        "name": "second cluster"
+      },
+      {
+        "name": "three cluster"
+      },
+      {
+        "name": "four cluster"
+      }
+    ]
+  },
+  {
+    "client_group": [
+      {
+        "name": "first group",
+        "comment": "first com",
+        "client_cluster_id": 1
+      },
+      {
+        "name": "second group",
+        "client_cluster_id": 2
+      },
+      {
+        "name": "therd group",
+        "client_cluster_id": 3
+      },
+      {
+        "name": "four group",
+        "client_cluster_id": 4
+      },
+      {
+        "name": "five group",
+        "client_cluster_id": 1
+      },
+      {
+        "name": "six group",
+        "client_cluster_id": 2
+      },
+      {
+        "name": "first group",
+        "client_cluster_id": 3
+      },
+      {
+        "name": "eigth group",
+        "client_cluster_id": 4
+      }
+    ]
+  },
+  {
+    "currency": [
+      {
+        "cur_name": "RUB"
+      },
+      {
+        "cur_name": "USD"
+      }
+    ]
+  },
+  {
+    "client": [
+      {
+        "name": "Trat",
+        "full_name": "trattoria",
+        "certificate": "123",
+        "contract_number": "234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "trat@mail.ru",
+        "phone": "+799927823",
+        "price": 9990,
+        "currency_id": 1,
+        "client_group_id": 1
+      },
+      {
+        "name": "Piaterka",
+        "full_name": "piaterka",
+        "certificate": "1231",
+        "contract_number": "2324234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "piaterka@mail.ru",
+        "phone": "+779927821",
+        "price": 99900,
+        "currency_id": 1,
+        "client_group_id": 1
+      },
+      {
+        "name": "Magnit",
+        "full_name": "magnit",
+        "certificate": "1023",
+        "contract_number": "0234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "magnit@mail.ru",
+        "phone": "+739917823",
+        "price": 990,
+        "currency_id": 1,
+        "client_group_id": 2
+      },
+      {
+        "name": "People",
+        "full_name": "people",
+        "certificate": "1223",
+        "contract_number": "2234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "people@mail.ru",
+        "phone": "+729927823",
+        "price": 1990,
+        "currency_id": 1,
+        "client_group_id": 2
+      },
+      {
+        "name": "Bon",
+        "full_name": "bon",
+        "certificate": "12223",
+        "contract_number": "11234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "bon@mail.ru",
+        "phone": "+719927823",
+        "price": 9990,
+        "currency_id": 1,
+        "client_group_id": 3
+      },
+      {
+        "name": "Sup",
+        "full_name": "sup",
+        "certificate": "1123",
+        "contract_number": "234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "sup@mail.ru",
+        "phone": "+792927823",
+        "price": 9490,
+        "currency_id": 1,
+        "client_group_id": 4
+      },
+      {
+        "name": "Salut",
+        "full_name": "salut",
+        "certificate": "123",
+        "contract_number": "00234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "salut@mail.ru",
+        "phone": "+709927823",
+        "price": 123,
+        "currency_id": 2,
+        "client_group_id": 5
+      },
+      {
+        "name": "Frau",
+        "full_name": "frau",
+        "certificate": "12300",
+        "contract_number": "23423004",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "frau@mail.ru",
+        "phone": "+769927823",
+        "price": 9991,
+        "currency_id": 2,
+        "client_group_id": 6
+      },
+      {
+        "name": "Mu",
+        "full_name": "mu",
+        "certificate": "12223",
+        "contract_number": "11234234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "mu@mail.ru",
+        "phone": "+7099927823",
+        "price": 19990,
+        "currency_id": 2,
+        "client_group_id": 7
+      },
+      {
+        "name": "Mechta",
+        "full_name": "mechta",
+        "certificate": "12399",
+        "contract_number": "29934234",
+        "contract_date": "30.04.2023",
+        "city": "Mosc",
+        "address": "Kazan",
+        "emai": "mechta@mail.ru",
+        "phone": "+7999927823",
+        "price": 99290,
+        "currency_id": 2,
+        "client_group_id": 8
+      }
+    ]
+  },
+  {
+    "user_client_group_association": [
+      {
+        "client_group_id": 1,
+        "user_id": 1
+      },
+      {
+        "client_group_id": 2,
+        "user_id": 1
+      },
+      {
+        "client_group_id": 3,
+        "user_id": 2
+      },
+      {
+        "client_group_id": 3,
+        "user_id": 2
+      },
+      {
+        "client_group_id": 4,
+        "user_id": 3
+      },
+      {
+        "client_group_id": 5,
+        "user_id": 3
+      },
+      {
+        "client_group_id": 5,
+        "user_id": 4
+      },
+      {
+        "client_group_id": 6,
+        "user_id": 4
+      },
+      {
+        "client_group_id": 6,
+        "user_id": 5
+      },
+      {
+        "client_group_id": 7,
+        "user_id": 5
+      }
+    ]
+  },
+  {
+    "group_collection": [
+      {
+        "name": "first mane group"
+      },
+      {
+        "name": "second mane group"
+      },
+      {
+        "name": "therd mane group"
+      },
+      {
+        "name": "fourth mane group"
+      }
+    ]
+  }
+]

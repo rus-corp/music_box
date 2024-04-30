@@ -59,7 +59,7 @@ class ClientGroup(Base):
   __tablename__ = 'client_group'
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   name: Mapped[str]
-  comment: Mapped[str]
+  comment: Mapped[str] = mapped_column(nullable=True)
   
   client_cluster_id: Mapped[int] = mapped_column(ForeignKey('client_cluster.id'))
   client_cluster: Mapped['ClientCluster'] = relationship(back_populates='client_groups')
@@ -76,13 +76,13 @@ class Client(Base):
   name: Mapped[str] = mapped_column(nullable=False)
   full_name: Mapped[str] = mapped_column(nullable=False, info={'desc': 'Наименование Юр.лица'})
   certificate: Mapped[str] = mapped_column(nullable=False)
-  contract_number: Mapped[str]
-  contract_date: Mapped[datetime]
+  contract_number: Mapped[str] = mapped_column(nullable=True)
+  contract_date: Mapped[datetime] = mapped_column(nullable=True)
   city: Mapped[str] = mapped_column(nullable=False)
   address:Mapped[str] = mapped_column(nullable=False)
   email:Mapped[str] = mapped_column(nullable=False)
   phone:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
-  price:Mapped[int] 
+  price:Mapped[int] = mapped_column(nullable=True)
   
   currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'))
   currency: Mapped[Currency] = relationship(back_populates='client')

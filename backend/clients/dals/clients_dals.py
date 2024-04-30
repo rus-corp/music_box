@@ -29,7 +29,7 @@ class ClientDAL:
       user_id=user_id
     )
     self.db_session.add(new_client)
-    await self.db_session.commit()
+    # await self.db_session.commit()
     return new_client
 
 

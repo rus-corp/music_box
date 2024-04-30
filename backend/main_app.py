@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, APIRouter
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from os import path
 
@@ -13,6 +14,7 @@ from .clients.main_router import router as client_router
 from backend.database import get_db
 
 
+
 app = FastAPI(
   title='Music Box'
 )
@@ -21,6 +23,9 @@ app = FastAPI(
 @app.get("/")
 async def root():
   return {'mes': 'hi'}
+
+
+
 
 
 

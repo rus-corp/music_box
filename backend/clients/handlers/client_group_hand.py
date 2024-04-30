@@ -1,12 +1,16 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.users.models import User
+
 from ..dals.client_cluster_dals import ClientClusterDAL
 from ..dals.client_group_dals import ClientGroupDAL
 from backend.auth.errors import not_Found_error
 from backend.users.dals import UserDAL
 
-from ..schemas import (ClientGroup_WithUsers, ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
+
+
+from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
                        ClientGroupUpdate)
 from backend.users.schemas import UserShowForClient
 
@@ -49,10 +53,13 @@ async def _create_client_group_take_client_cluster(session: AsyncSession, body: 
     )
 
 
-async def _get_all_client_groups_with_clients(session: AsyncSession):
+async def _get_all_client_groups_with_clients(session: AsyncSession, current_user: User):
   async with session.begin():
     client_group_dal = ClientGroupDAL(session)
-    client_groups = await client_group_dal.get_all_client_groups_with_clients()
+    if current_user.is_superuser:
+      client_groups = await client_group_dal.get_all_client_groups_with_clients()
+    elif current_user.role.role_name in ['client', 'manager']:
+      client_groups = await client_group_dal.user_clients(user_id=current_user.id)
     return list(client_groups)
 
 
@@ -164,11 +171,10 @@ async def _append_user_to_client_group(session: AsyncSession, client_group_id: i
       is_active=user.is_active,
       is_superuser=user.is_superuser
     )
-    
-    return ClientGroup_WithUsers(
-      id=client_group.id,
-      name=client_group.name,
-      comment=client_group.comment,
-      users=user
-    )
-    
+    return None
+    # return ClientGroup_WithUsers(
+    #   id=client_group.id,
+    #   name=client_group.name,
+    #   comment=client_group.comment,
+    #   users=user
+    # )

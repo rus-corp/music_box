@@ -6,7 +6,7 @@ from datetime import date
 from backend.music.schemas import TrackCollectionShow
 
 
-from backend.users.schemas import UserShowForClient
+# from backend.users.schemas import UserShowForClient
 
 
 
@@ -28,6 +28,7 @@ class UpdateCurrencyRequest(CurrencyBase):
 
 class UpdateCurrencyResponse(CurrencyBase):
   cur_name: Optional[constr(min_length=2)] # type: ignore
+
 
 
 # =================== CLIENT CLUSTER ====================
@@ -138,5 +139,5 @@ class ClientGroupShow_With_Clients(ClientGroupShow):
   clients: Optional[ShowClient] = None
 
 
-class ClientGroup_WithUsers(ClientGroupShow):
-  users: Optional[List[UserShowForClient]] = None
+# class ClientGroup_WithUsers(ClientGroupShow):
+#   users: Optional[List[UserShowForClient]] = None

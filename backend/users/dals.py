@@ -67,7 +67,7 @@ class UserDAL:
 
 
   async def create_user(self, name: str, login: str, email: str,
-                        password: str, comment: str = None, role: UserRole = None, is_superuser=False) -> ShowUser:
+                        password: str, comment: str = None, role_id: int = None, is_superuser=False) -> ShowUser:
     new_user = User(
       name=name,
       login=login,
@@ -75,26 +75,26 @@ class UserDAL:
       hashed_password=password,
       comment=comment,
       is_superuser=is_superuser,
-      role=role
+      role_id=role_id
     )
     self.db_session.add(new_user)
     try:
-      await self.db_session.flush()
-      user_role = UserRoleShow(
-        id=new_user.role.id,
-        role_name=new_user.role.role_name
-      )
-      show_user = ShowUser(
-        id=new_user.id,
-        name=new_user.name,
-        login=new_user.login,
-        email=new_user.email,
-        is_active=new_user.is_active,
-        is_superuser=new_user.is_superuser,
-        comment=new_user.comment,
-        role=user_role
-      )
-      return show_user, None
+      # await self.db_session.flush()
+      # user_role = UserRoleShow(
+      #   id=new_user.role.id,
+      #   role_name=new_user.role.role_name
+      # )
+      # show_user = ShowUser(
+      #   id=new_user.id,
+      #   name=new_user.name,
+      #   login=new_user.login,
+      #   email=new_user.email,
+      #   is_active=new_user.is_active,
+      #   is_superuser=new_user.is_superuser,
+      #   comment=new_user.comment,
+      #   role=user_role
+      # )
+      return new_user
     except IntegrityError as e:
       return None, str(e)
 

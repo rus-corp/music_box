@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
-from ..models import ClientGroup
+from ..models import ClientGroup, user_client_group_association
 
 
 
@@ -12,10 +12,11 @@ class ClientGroupDAL:
     self.db_session = db_session
 
 
-  async def create_client_group(self, name: str, comment: str):
+  async def create_client_group(self, name: str, client_cluster_id: int, comment: str = None):
     new_client_group = ClientGroup(
       name=name,
-      comment=comment
+      comment=comment,
+      client_cluster_id=client_cluster_id
     )
     self.db_session.add(new_client_group)
     return new_client_group
@@ -108,13 +109,24 @@ class ClientGroupDAL:
     except IntegrityError as e:
       error_message = 'Невозможно удалить ClientGroup из-за наличия зависимых записей.'
       return error_message
-  
+
+
   async def get_scalar_client_group_by_id(self, client_group_id: int):
     query = select(ClientGroup).where(ClientGroup.id == client_group_id)
     result = await self.db_session.scalar(query)
     return result
-  
-  
+
+
+  async def user_clients(self, user_id: int):
+    query = select(user_client_group_association).where(
+      user_client_group_association.c.user_id == user_id
+    )
+    result = await self.db_session.execute(query)
+    result_row = result.fetchone()
+    if result is not None:
+      return result_row[0]
+
+
   async def add_user_to_client_group(self): pass
   
   
@@ -128,3 +140,5 @@ class ClientGroupDAL:
   
   
   async def client_has_in_client_group(self): pass
+  
+  async def delete_client_in_client_group(self): pass

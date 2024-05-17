@@ -66,7 +66,7 @@ class ClientGroup(Base):
   
   users: Mapped[List['User']] = relationship(secondary='user_client_group_association', back_populates='client_groups')  
 
-  clients: Mapped['Client'] = relationship('Client', back_populates='client_group')
+  clients: Mapped[List['Client']] = relationship('Client', back_populates='client_group')
 
 
 

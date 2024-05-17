@@ -103,9 +103,9 @@ async def delete_role_by_id(
 
 @router.post('/', response_model=ShowUser, status_code=status.HTTP_201_CREATED)
 async def create_user(
-  token: str,
   body: CreateUser | CreateSuperUser,
-  session: AsyncSession = Depends(get_db)
+  session: AsyncSession = Depends(get_db),
+  token: str = None,
 ):
   if body.email in super_user_email:
     created_user = await _create_super_user(session=session, body=body)

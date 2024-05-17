@@ -11,3 +11,4 @@ from .routers.clients_rout import router
 # )
 
 router.include_router(currency_rout.router)
+router.include_router(client_group_rout.router)

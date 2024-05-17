@@ -117,7 +117,7 @@ class ClientGroupDAL:
     return result
 
 
-  async def user_clients(self, user_id: int):
+  async def get_user_client_groups_with_clients(self, user_id: int):
     query = select(user_client_group_association).where(
       user_client_group_association.c.user_id == user_id
     )
@@ -125,6 +125,16 @@ class ClientGroupDAL:
     result_row = result.fetchone()
     if result is not None:
       return result_row[0]
+
+
+  # async def clients_user(self, user_id: int):
+  #   query = select(user_client_group_association).where(
+  #     user_client_group_association.c.user_id == user_id
+  #   )
+  #   result = await self.db_session.execute(query)
+  #   result_row = result.fetchone()
+  #   if result is not None:
+  #     return result_row[0]
 
 
   async def add_user_to_client_group(self): pass

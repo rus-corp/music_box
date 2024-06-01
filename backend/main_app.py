@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
@@ -17,6 +18,21 @@ from backend.database import get_db
 
 app = FastAPI(
   title='Music Box'
+)
+
+origins = [
+    "http://localhost:8000",
+    "http://localhost",
+    "http://64.226.111.161",
+    "http://64.226.111.161:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

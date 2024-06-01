@@ -1,0 +1,54 @@
+version: '3.9'
+
+volumes:
+  pg_data:
+
+
+networks:
+  music_box:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:15
+    container_name: db_app
+    volumes:
+      - .:/app
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - music_box
+
+
+  migrate:
+    build:
+      context: .
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - music_box
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    container_name: music_app
+    volumes:
+      - .:/app
+    command: gunicorn run:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - music_box

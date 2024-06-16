@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, status
 from backend.auth.security import super_user_permission
 from backend.auth.errors import access_denied_error
 from backend.database import get_db
-from ..schemas import ClientClusterShow, ClientClusterShow, ClientClusterShow_With_ClientGroups
+from ..schemas import ClientClusterShow, ClientClusterShow
+from backend.general_schemas import ClientClusterShow_With_ClientGroups
 
 from ..handlers.client_cluster_hand import (_create_client_cluster, _get_all_client_clusters_without_client_groups,
                                             _get_all_client_clusters_with_client_groups, _get_client_cluster_by_id_without_client_groups,

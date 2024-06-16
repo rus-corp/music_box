@@ -8,7 +8,7 @@ from fastapi.exceptions import HTTPException
 
 from config import SECRET_KEY, ALGORITHM
 from backend.database import get_db
-from backend.users.handlers import _get_user_by_email
+from backend.users.handlers import UserHandler
 from backend.users.models import User
 from .permissions import Permissions
 
@@ -49,7 +49,8 @@ async def get_current_user_from_token(
       raise credentials_exceptions
   except JWTError:
     raise credentials_exceptions
-  user = await _get_user_by_email(session=session, email=email)
+  user_handler = UserHandler(session)
+  user = await user_handler._get_user_by_email(email=email)
   if user is None:
     raise credentials_exceptions
   return user

@@ -11,7 +11,7 @@ class Permissions:
 
 
   async def superuser_permission(self):
-    if self.current_user.is_superuser == True:
+    if self.current_user.is_superuser:
       return True
     return False
 

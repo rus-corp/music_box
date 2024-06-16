@@ -58,7 +58,6 @@ class CreateUser(BaseModel):
   email: EmailStr
   password: str
   comment: Optional[str] = None
-  
   role_id: int
   
   

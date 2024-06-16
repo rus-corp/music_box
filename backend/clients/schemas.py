@@ -6,9 +6,6 @@ from datetime import date
 from backend.music.schemas import TrackCollectionShow
 
 
-# from backend.users.schemas import UserShowForClient
-
-
 
 # =================== CURRENCY ====================
 class CurrencyBase(BaseModel):
@@ -58,6 +55,8 @@ class ClientGroupShow(ClientGroupBase):
   id: int
   name: str
   comment: Optional[str] = None
+  
+  
 
 
 class ClientGroupCreate(ClientGroupBase):
@@ -129,15 +128,3 @@ class UpdateClientResponse(BaseClient):
   id: int
   currency_id: int
   user_id: int
-
-
-# ================ COMMON MODELS =================== 
-class ClientClusterShow_With_ClientGroups(ClientClusterShow):
-  client_groups: ClientGroupShow
-
-class ClientGroupShow_With_Clients(ClientGroupShow):
-  clients: Optional[ShowClient] = None
-
-
-# class ClientGroup_WithUsers(ClientGroupShow):
-#   users: Optional[List[UserShowForClient]] = None

@@ -13,6 +13,7 @@ DB_NAME = os.getenv('DB_NAME')
 
 DB_PORT_TEST = os.getenv('DB_PORT_TEST')
 DB_NAME_TEST = os.getenv('DB_NAME_TEST')
+DB_HOST_TEST = os.getenv('DB_HOST_TEST')
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = os.getenv('ALGORITHM')

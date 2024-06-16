@@ -1,9 +1,10 @@
 from sqlalchemy import select, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy.exc import IntegrityError
 
 from ..models import ClientGroup, user_client_group_association
+from backend.users.models import User
 
 
 
@@ -22,17 +23,48 @@ class ClientGroupDAL:
     return new_client_group
 
 
-  async def get_all_client_groups_with_clients(self):
-    query = select(ClientGroup).options(selectinload(ClientGroup.clients)).order_by(ClientGroup.id)
-    result = await self.db_session.execute(query)
-    return result.scalars().all()
-
-
-  async def get_only_clients_group(self):
+  async def get_only_clients_group_superuser(self):
     query = select(ClientGroup).order_by(ClientGroup.id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
+  
+  
+  async def get_only_client_groups_manager(self, user_id: int):
+    query = select(ClientGroup).join(user_client_group_association).join(User).filter(User.id == user_id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_client_groups_with_clients_superuser(self):
+    query = select(ClientGroup).options(selectinload(ClientGroup.clients)).order_by(ClientGroup.id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  async def get_client_groups_with_clients_manager(self, user_id: int):
+    query = select(ClientGroup).join(user_client_group_association).join(User).options(joinedload(ClientGroup.clients)).filter(User.id == user_id).distinct()
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  # async def get_only_clients_group_manager(self, user_id: int):
+  #   query = select(ClientGroup).options(joinedload(ClientGroup.users)).filter(ClientGroup.users.any_(
+  #     User.id == user_id
+  #   ))
+  #   result = await self.db_session.execute(query)
+  #   return result.scalars().all()
 
+
+  async def get_all_client_groups_with_clients_superuser(self):
+    query = select(ClientGroup).options(selectinload(ClientGroup.clients)).order_by(ClientGroup.id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_all_client_groups_with_clients_manager(self, user_id: int):
+    query = select(ClientGroup).join(user_client_group_association).join(User).filter(User.id == user_id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
 
   async def get_all_client_groups_with_users(self):
     query = select(ClientGroup).options(selectinload(ClientGroup.users)).order_by(ClientGroup.id)
@@ -112,9 +144,9 @@ class ClientGroupDAL:
 
 
   async def get_scalar_client_group_by_id(self, client_group_id: int):
-    query = select(ClientGroup).where(ClientGroup.id == client_group_id)
-    result = await self.db_session.scalar(query)
-    return result
+    query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(joinedload(ClientGroup.users))
+    result = await self.db_session.execute(query)
+    return result.scalar()
 
 
   async def get_user_client_groups_with_clients(self, user_id: int):

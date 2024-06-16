@@ -11,13 +11,13 @@ from sqlalchemy.orm import sessionmaker
 
 
 
-
+from backend.auth.security import create_access_token
 from backend.database import get_db, Base
-from config import DB_NAME_TEST, DB_PORT_TEST, DB_USER, DB_PASSWORD, DB_HOST
+from config import DB_NAME_TEST, DB_PORT_TEST, DB_USER, DB_PASSWORD, DB_HOST_TEST
 
 from backend.main_app import app
 
-DATABASE_URL_TEST = f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT_TEST}/{DB_NAME_TEST}'
+DATABASE_URL_TEST = f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}'
 
 
 
@@ -38,8 +38,10 @@ async def prepare_db():
   async with engine_test.begin() as conn:
     await conn.run_sync(Base.metadata.create_all)
   yield
+
   async with engine_test.begin() as conn:
     await conn.run_sync(Base.metadata.drop_all)
+    # conn.close()
 
 
 @pytest.fixture(scope='session')
@@ -49,7 +51,6 @@ def get_event_loop():
   loop.close()
 
 
-# client = TestClient(app)
 
 @pytest.fixture
 async def ac() -> AsyncGenerator[AsyncClient, None]:

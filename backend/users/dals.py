@@ -1,5 +1,5 @@
 from sqlalchemy import select, update, delete, and_
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -64,8 +64,8 @@ class UserRoleDAL:
 class UserDAL:
   def __init__(self, db_session: AsyncSession) -> None:
     self.db_session = db_session
-
-
+    
+    
   async def create_user(self, name: str, login: str, email: str,
                         password: str, comment: str = None, role: UserRole = None, is_superuser=False) -> ShowUser:
     new_user = User(
@@ -97,54 +97,53 @@ class UserDAL:
       return new_user, None
     except IntegrityError as e:
       return None, str(e)
-
-
+    
+    
   async def get_user_by_id(self, user_id):
     query = select(User).where(User.id == user_id).options(selectinload(User.client), selectinload(User.role))
     result = await self.db_session.execute(query)
     user_raw = result.fetchone()
     if user_raw is not None:
       return user_raw[0]
-
-
+    
+    
   async def get_users(self) -> list[ShowUser]:
     query = select(User, UserRole).join(User.role).options(selectinload(User.role)).order_by(User.id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
-
-
+  
+  
   async def get_user_by_id_with_role(self, user_id: int) -> ShowUser:
     query = select(User).where(User.id == user_id).options(selectinload(User.role))
     result = await self.db_session.execute(query)
     user_row = result.scalar()
     return user_row
-
-
+  
+  
   async def get_user_by_email(self, user_email):
     query = select(User).where(User.email == user_email).options(selectinload(User.role))
     result = await self.db_session.execute(query)
     user_row = result.fetchone()
     if user_row is not None:
       return user_row[0]
-
-
+    
+    
   async def update_user_by_id(self, user_id: int, kwargs):
     query = update(User).where(User.id == user_id).values(**kwargs).returning(User)
     query_total = query.options(selectinload(User.role))
     result = await self.db_session.execute(query_total)
     updated_user = result.scalar()
     return updated_user
-
-
+  
+  
   async def update_user_role(self, user_id, role_id):
     query = update(User).where(User.id == user_id).values(role_id=role_id).returning(User)
     query_total = query.options(selectinload(User.role))
     result = await self.db_session.execute(query_total)
     updated_user_role = result.scalar()
     return updated_user_role
-
-
-
+  
+  
   async def delete_user_by_id(self, user_id: int):
     stmt = update(User).where(
       and_(User.id == user_id, User.is_active == True)
@@ -153,15 +152,16 @@ class UserDAL:
     deleted_user_row = result.fetchone()
     if deleted_user_row is not None:
       return deleted_user_row[0]
-
-
+    
+    
   async def get_user_clients(self, user_id: int):
     query = select(User).where(User.id == user_id).options(selectinload(User.client))
     result = await self.db_session.execute(query)
     user_clients = result.scalar()
     return user_clients
-
+  
+  
   async def get_scalar_user(self, user_id: int):
-    query = select(User).where(User.id == user_id)
-    result = await self.db_session.scalar(query)
-    return result
+    query = select(User).where(User.id == user_id).options(joinedload(User.client_groups))
+    result = await self.db_session.execute(query)
+    return result.scalar()

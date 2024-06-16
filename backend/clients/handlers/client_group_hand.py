@@ -5,21 +5,22 @@ from backend.users.models import User
 
 from ..dals.client_cluster_dals import ClientClusterDAL
 from ..dals.client_group_dals import ClientGroupDAL
-from backend.auth.errors import not_Found_error
+from backend.auth.errors import not_Found_error, access_denied_error
 from backend.users.dals import UserDAL
 
 
 
-from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientClusterShow_With_ClientGroups,
-                       ClientGroupUpdate)
+from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientGroupUpdate)
+from backend.general_schemas import ClientGroup_WithUsers, ClientClusterShow_With_ClientGroups
 from backend.users.schemas import UserShowForClient
 
 
 
 
 class ClientGroupHandler:
-  def __init__(self, session: AsyncSession) -> None:
+  def __init__(self, session: AsyncSession, current_user: User = None) -> None:
     self.session = session
+    self.current_user = current_user
     self.roles = ['client', 'manager']
   
   async def _create_client_group(self, client_group_dal: ClientGroupDAL, name: str, comment: str):
@@ -57,34 +58,55 @@ class ClientGroupHandler:
       )
 
 
-  async def _get_only_clients_group(self, current_user: User):
+  async def _get_only_clients_group(self):
     async with self.session.begin():
       client_group_dal = ClientGroupDAL(self.session)
-      if current_user.is_superuser:
-        client_groups = await client_group_dal.get_only_clients_group()
-      elif current_user.role.role_name in self.roles:
-        client_groups = await client_group_dal.user_clients(user_id=current_user.id)
+      if self.current_user.is_superuser:
+        client_groups = await client_group_dal.get_only_clients_group_superuser()
+      elif self.current_user.role.role_name in self.roles:
+        client_groups = await client_group_dal.get_only_client_groups_manager(user_id=self.current_user.id)
+      else:
+        return access_denied_error
       return list(client_groups)
+  
+  
+  async def _get_client_groups_with_clients(self):
+    async with self.session.begin():
+      client_group_dal = ClientGroupDAL(self.session)
+      if self.current_user.is_superuser:
+        client_groups = await client_group_dal.get_client_groups_with_clients_superuser()
+      elif self.current_user.role.role_name in self.roles:
+        client_groups = await client_group_dal.get_client_groups_with_clients_manager(user_id=self.current_user.id)
+      else:
+        return access_denied_error
+      return list(client_groups)
+      
+
+
+
+
 
 
   async def _get_all_client_groups_with_clients(self, current_user: User):
     async with self.session.begin():
       client_group_dal = ClientGroupDAL(self.session)
       if current_user.is_superuser:
-        client_groups = await client_group_dal.get_all_client_groups_with_clients()
+        client_groups = await client_group_dal.get_all_client_groups_with_clients_superuser()
       elif current_user.role.role_name in self.roles:
-        client_groups = await client_group_dal.get_user_client_groups_with_clients(user_id=current_user.id)
+        client_groups = await client_group_dal.get_all_client_groups_with_clients_manager(user_id=current_user.id)
+      else:
+        return access_denied_error
       return list(client_groups)
 
 
-  # async def _get_all_client_groups_with_users(self, current_user: User):
-  #   async with self.session.begin():
-  #     client_group_dal = ClientGroupDAL(self.session)
-  #     if current_user.is_superuser:
-  #       client_groups = await client_group_dal.get_all_client_groups_with_users()
-  #     elif:
-  #       client_groups = await client_group_dal.
-  #     return list(client_groups)
+  async def _get_all_client_groups_with_users(self, current_user: User):
+    async with self.session.begin():
+      client_group_dal = ClientGroupDAL(self.session)
+      if current_user.is_superuser:
+        client_groups = await client_group_dal.get_all_client_groups_with_users()
+      elif current_user.role.role_name in self.roles:
+        client_groups = await client_group_dal.get_all_client_groups_with_clients_and_users()
+      return list(client_groups)
 
 
 
@@ -170,26 +192,26 @@ async def _append_user_to_client_group(session: AsyncSession, client_group_id: i
   async with session.begin():
     client_group_dal = ClientGroupDAL(session)
     user_dal = UserDAL(session)
-    client_group = client_group_dal.get_scalar_client_group_by_id(client_group_id)
-    user = user_dal.get_scalar_user(user_id)
+    client_group = await client_group_dal.get_scalar_client_group_by_id(client_group_id)
+    user = await user_dal.get_scalar_user(user_id)
     if client_group is None or user is None:
       return not_Found_error
-    client_group.users.append(user)
-    await session.commit()
+    user.client_groups.append(client_group)
+    await session.flush()
     
-    user = UserShowForClient(
-      id=user.id,
-      name=user.name,
-      comment=user.comment,
-      login=user.comment,
-      email=user.email,
-      is_active=user.is_active,
-      is_superuser=user.is_superuser
-    )
-    return None
-    # return ClientGroup_WithUsers(
-    #   id=client_group.id,
-    #   name=client_group.name,
-    #   comment=client_group.comment,
-    #   users=user
-    # )
+  users = [UserShowForClient(
+    id=user.id,
+    name=user.name,
+    comment=user.comment,
+    login=user.comment,
+    email=user.email,
+    is_active=user.is_active,
+    is_superuser=user.is_superuser
+  )]
+  client_group_show = ClientGroup_WithUsers(
+    id=client_group.id,
+    name=client_group.name,
+    comment=client_group.comment,
+    users=users
+  )
+  return client_group_show

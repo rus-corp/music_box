@@ -13,8 +13,9 @@ from backend.clients.schemas import CreateClient
 
 
 from .handlers import UserRoleHandler, UserHandler
-from .schemas import ShowUser, CreateUser, UserRoleShow, UpdateRoleShow, UserUpdate, CreateSuperUser, DeleteUserResponse
-
+from .schemas import (ShowUser, CreateUser, UserRoleShow, UpdateRoleShow, UserUpdateRequest,
+                      CreateSuperUser, DeleteUserResponse, UserUpdateResponse)
+from backend.general_schemas import UserWithClient
 
 
 
@@ -64,14 +65,14 @@ async def get_role_by_id(
 ):
   if permissions:
     role_handler = UserRoleHandler(session)
-    role = await role_handler._get_role_by_id(session, role_id)
+    role = await role_handler._get_role_by_id(role_id)
     return role
   else:
     return access_denied_error
   
 
 
-@router.patch('/roles/{role_id}', response_model=UpdateRoleShow)
+@router.patch('/roles/{role_id}', response_model=UpdateRoleShow, status_code=status.HTTP_200_OK)
 async def update_role_by_id(
   role_id: int, new_name: str,
   session: AsyncSession = Depends(get_db),
@@ -80,7 +81,7 @@ async def update_role_by_id(
   if permissions:
     role_handler = UserRoleHandler(session)
     updated_role = await role_handler._update_role_by_id(
-      session=session, role_id=role_id, new_name=new_name
+      role_id=role_id, new_name=new_name
     )
     return updated_role
   else:
@@ -96,7 +97,7 @@ async def delete_role_by_id(
 ):
   if permissions:
     role_handler = UserRoleHandler(session)
-    deleted_role = await role_handler._delete_role_by_id(session, role_id)
+    deleted_role = await role_handler._delete_role_by_id(role_id)
     return deleted_role
   else:
     return access_denied_error
@@ -136,7 +137,7 @@ async def get_users(
 ):
   if permissions:
     user_handler = UserHandler(session)
-    return await user_handler._get_users(session)
+    return await user_handler._get_users()
   else:
     return access_denied_error
 
@@ -151,7 +152,6 @@ async def get_user_by_id(
   if permissions:
     user_handler = UserHandler(session)
     user = await user_handler._get_user_by_id(
-      session=session,
       user_id=user_id
     )
     return user
@@ -160,21 +160,22 @@ async def get_user_by_id(
 
 
 
-@router.patch('/{user_id}', response_model=ShowUser)
+@router.patch('/{user_id}', response_model=UserUpdateResponse, status_code=status.HTTP_200_OK)
 async def update_user(
-  body: UserUpdate,
+  user_id: int,
+  body: UserUpdateRequest,
   session: AsyncSession = Depends(get_db),
   permissions: bool = Depends(super_user_permission)
 ):
   if permissions:
     user_handler = UserHandler(session)
-    updated_user = await user_handler._update_user(session=session, body=body)
+    updated_user = await user_handler._update_user(user_id=user_id, body=body)
     return updated_user
   else:
     return access_denied_error
 
 
-@router.delete('/{user_id}', response_model=DeleteUserResponse)
+@router.delete('/{user_id}', response_model=DeleteUserResponse, status_code=status.HTTP_200_OK)
 async def delete_user(
   user_id: int,
   session: AsyncSession = Depends(get_db),
@@ -183,7 +184,6 @@ async def delete_user(
   if permissions:
     user_handler = UserHandler(session)
     deleted_user = await user_handler._delete_user(
-      session=session,
       user_id=user_id
     )
     return deleted_user
@@ -192,7 +192,7 @@ async def delete_user(
 
 
 
-@router.get('/user_clients/{user_id}')
+@router.get('/user_clients/{user_id}', status_code=status.HTTP_200_OK, response_model=UserWithClient)
 async def get_user_clients(
   user_id: int,
   session: AsyncSession = Depends(get_db),
@@ -200,24 +200,7 @@ async def get_user_clients(
 ):
   if permissions:
     user_handler = UserHandler(session)
-    user_client = await user_handler._get_user_client(session=session, user_id=user_id)
+    user_client = await user_handler._get_user_client(user_id=user_id)
     return user_client
   else:
     return access_denied_error
-
-
-
-# @router.post('/user_clients/{user_id}')
-# async def add_user_client(
-#   user_id: int,
-#   body: CreateClient,
-#   session: AsyncSession = Depends(get_db),
-#   permissions: bool = Depends(super_user_permission)
-# ):
-#   if permissions:
-#     add_clients = await _add_user_clients(
-#       session=session, user_id=user_id, body=body
-#     )
-#     return add_clients
-#   else:
-#     return access_denied_error

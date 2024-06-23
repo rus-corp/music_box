@@ -42,7 +42,7 @@ class ShowUser(UserBase):
   is_superuser: bool
   
   role: UserRoleShow
-  client: Optional[List[ShowUserClients] | ShowUserClients] = None
+  
   
   
 class CreateSuperUser(BaseModel):
@@ -61,15 +61,28 @@ class CreateUser(BaseModel):
   role_id: int
   
   
-class UserUpdate(BaseModel):
-  id: int
+class UserUpdateRequest(BaseModel):
   name: Optional[constr(min_length=2)] = None # type: ignore
+  comment: Optional[constr(min_length=2)] = None # type: ignore
+  email: Optional[EmailStr] = None # type: ignore
   login: Optional[constr(min_length=2)] = None # type: ignore
   password: Optional[constr(min_length=6)] = None # type: ignore
   role_id: Optional[int] = None
 
 
-class DeleteUserResponse(BaseModel):
+
+class UserUpdateResponse(UserBase):
+  id: int
+  name: str
+  comment: str
+  login: str
+  email: str
+  is_active: bool
+  is_superuser: bool
+  role_id: int
+
+
+class DeleteUserResponse(UserBase):
   id: int
 
 

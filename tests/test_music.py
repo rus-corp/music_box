@@ -26,24 +26,7 @@ import pytest
 
 
 
-main_group_data = [
-  {'group_name': 'first group'},
-  {'group_name': 'second group'},
-  {'group_name': 'therd group'},
-  {'group_name': 'fourth group'},
-  {'group_name': 'fith group'},
-  {'group_name': ''}
-]
 
-track_group_data = [
-  {'track_collection_name': 'first', 'player_option': True, 'group_coollection_id': 1},
-  {'track_collection_name': 'second', 'player_option': False, 'group_coollection_id': 1},
-  {'track_collection_name': 'therd', 'player_option': True, 'group_coollection_id': 2},
-  {'track_collection_name': 'fourth', 'player_option': False, 'group_coollection_id': 2},
-  {'track_collection_name': 'sixten', 'group_coollection_id': 3},
-  {'track_collection_name': 'fifth', 'player_option': False, 'group_coollection_id': 23},
-  {'player_option': True, 'group_coollection_id': 1},
-]
 
 
 # async def test_create_collection(ac: AsyncClient):

@@ -1,16 +1,20 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
-
+from typing import List
 
 from backend.auth.security import super_user_permission
 from backend.auth.errors import access_denied_error
 from backend.database import get_db
 from ..schemas import ClientClusterShow, ClientClusterShow
-from backend.general_schemas import ClientClusterShow_With_ClientGroups
+from ..schemas import ClientClusterShow_With_ClientGroups
 
 from ..handlers.client_cluster_hand import (_create_client_cluster, _get_all_client_clusters_without_client_groups,
                                             _get_all_client_clusters_with_client_groups, _get_client_cluster_by_id_without_client_groups,
                                             _get_client_cluster_by_id_with_client_groups, _update_client_cluster, _delete_client_cluster_by_id)
+from ..handlers.client_cluster_hand import ClientClusterHandler
+
+
+
 
 
 router = APIRouter(
@@ -26,61 +30,71 @@ async def create_client_cluster(
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    client_cluster = await _create_client_cluster(
-      session, name
-    )
+    cluster_handler = ClientClusterHandler(session)
+    client_cluster = await cluster_handler._create_client_cluster(name)
     return client_cluster
   else:
     return access_denied_error
 
 
-@router.get('/without_client_groups', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
+
+@router.get('/without_client_groups', response_model=List[ClientClusterShow], status_code=status.HTTP_200_OK)
 async def get_all_client_clusters_without_client_groups(
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    client_cluster = await _get_all_client_clusters_without_client_groups(session)
-    return client_cluster
+    cluster_handler = ClientClusterHandler(session)
+    client_clusters = await cluster_handler._get_all_client_clusters_without_client_groups()
+    return client_clusters
   else:
     return access_denied_error
 
 
-@router.get('/with_client_groups', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
+@router.get('/with_client_groups', response_model=List[ClientClusterShow_With_ClientGroups], status_code=status.HTTP_200_OK)
 async def get_all_client_clusters_with_client_groups(
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    client_cluster = await _get_all_client_clusters_with_client_groups(session)
+    cluster_handler = ClientClusterHandler(session)
+    client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
     return client_cluster
   else:
     return access_denied_error
 
 
-@router.get('/cluster_with_client_group', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
-async def get_client_cluster_by_id_with_client_groups(
-  session: AsyncSession = Depends(get_db),
-  permission: bool = Depends(super_user_permission)
-):
-  if permission:
-    client_cluster = await _get_client_cluster_by_id_with_client_groups(session)
-    return client_cluster
-  else:
-    return
-  access_denied_error
 
-
-@router.get('/cluster_without_client_group', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
+@router.get('/cluster_without_client_group/{cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
 async def get_client_cluster_by_id_without_client_groups(
+  cluster_id: int,
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    client_cluster = await _get_client_cluster_by_id_without_client_groups(session)
+    cluster_handler = ClientClusterHandler(session)
+    client_cluster = await cluster_handler._get_client_cluster_by_id_without_client_groups(cluster_id)
     return client_cluster
   else:
     return access_denied_error
+
+
+
+@router.get('/cluster_with_client_group/{cluster_id}', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
+async def get_client_cluster_by_id_with_client_groups(
+  cluster_id: int,
+  session: AsyncSession = Depends(get_db),
+  permission: bool = Depends(super_user_permission)
+):
+  if permission:
+    cluster_handler = ClientClusterHandler(session)
+    client_cluster = await cluster_handler._get_client_cluster_by_id_with_client_groups(cluster_id)
+    return client_cluster
+  else:
+    return access_denied_error
+
+
+
 
 
 @router.patch('/{client_cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)

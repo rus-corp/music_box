@@ -128,3 +128,7 @@ class UpdateClientResponse(BaseClient):
   id: int
   currency_id: int
   user_id: int
+
+
+class ClientClusterShow_With_ClientGroups(ClientClusterShow):
+  client_groups: Optional[List[ClientGroupShow]] = None

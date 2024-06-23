@@ -1,11 +1,11 @@
 from typing import Optional, List
 
 from .clients.schemas import ClientClusterShow, ClientGroupShow, ShowClient
-from .users.schemas import UserShowForClient
+from .users.schemas import UserShowForClient, ShowUser
 
 
-class ClientClusterShow_With_ClientGroups(ClientClusterShow):
-  client_groups: ClientGroupShow
+
+
 
 
 class ClientGroupShow_With_Clients(ClientGroupShow):
@@ -17,3 +17,7 @@ class ClientGroup_WithUsers(ClientGroupShow):
   
   class Config:
     from_attributes = True
+
+
+class UserWithClient(ShowUser):
+  client_groups: Optional[List[ClientGroupShow]]

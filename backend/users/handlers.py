@@ -3,7 +3,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 
 from .dals import UserDAL, UserRoleDAL
-from .schemas import CreateUser, ShowUser, UpdateRoleShow, UserUpdate, UserRoleShow, CreateSuperUser
+from .schemas import (CreateUser, ShowUser, UpdateRoleShow, UserUpdateRequest,
+                      UserRoleShow, CreateSuperUser, UserUpdateResponse,
+                      DeleteUserResponse)
 from backend.auth.service import Hasher
 from backend.auth.errors import not_Found_error
 from backend.clients.handlers.clients_hand import _create_client_for_user
@@ -137,80 +139,35 @@ class UserHandler:
       return user
   
   
-  async def _update_user(self, body: UserUpdate):
+  async def _update_user(self, user_id: int, body: UserUpdateRequest):
     async with self.session.begin():
       user_data = body.model_dump(exclude_none=True)
-      user = await self.user_dal.get_user_by_id(user_data.get('id'))
+      user = await self.user_dal.get_user_by_id_with_role(user_id)
       if user is None:
         return not_Found_error
       update_user = await self.user_dal.update_user_by_id(
-        user_id=user_data.pop('id'),
+        user_id=user_id,
         kwargs=user_data
       )
-      user_role = UserRoleShow(
-        id=update_user.role.id,
-        role_name=update_user.role.role_name
-      )
-      return ShowUser(
-        id=update_user.id,
-        name=update_user.name,
-        login=update_user.login,
-        email=update_user.email,
-        is_active=update_user.is_active,
-        comment=update_user.comment,
-        is_superuser=update_user.is_superuser,
-        role=user_role
-      )
+      return update_user
   
   
   async def _delete_user(self, user_id: int):
     async with self.session.begin():
-      user = await self.user_dal.get_user_by_id(user_id=user_id)
+      user = await self.user_dal.get_user_by_id_with_role(user_id=user_id)
       if user is None:
         return not_Found_error
       deleted_user = await self.user_dal.delete_user_by_id(user_id=user_id)
-      return deleted_user
+      return DeleteUserResponse(id=deleted_user)
   
   
   async def _get_user_client(self, user_id: int):
     async with self.session.begin():
+      user = await self.user_dal.get_user_by_id_with_role(user_id=user_id)
+      if user is None:
+        return not_Found_error
       user_clients= await self.user_dal.get_user_clients(user_id=user_id)
       return user_clients
 
 
 
-
-# async def _add_user_clients(session: AsyncSession, user_id: int, body: CreateClient):
-#   async with session.begin():
-#     user_dal = UserDAL(session)
-#     user = await user_dal.get_user_by_id(user_id)
-#     new_client = await _create_client_for_user(
-#       session=session, body=body
-#     )
-#     user.client.append(new_client)
-#     await session.commit()
-#     client = ShowUserClients(
-#       client_id=new_client.id,
-#       name=new_client.name,
-#       full_name=new_client.full_name,
-#       certificate=new_client.certificate,
-#       contract_number=new_client.contract_number,
-#       contract_date=new_client.contract_date,
-#       city=new_client.city,
-#       address=new_client.address,
-#       email=new_client.email,
-#       phone=new_client.phone,
-#       price=new_client.price,
-#       currency=new_client.currency
-#     )
-#     return ShowUser(
-#       id=user.id,
-#       name=user.name,
-#       login=user.login,
-#       email=user.email,
-#       is_active=user.is_active,
-#       comment=user.comment,
-#       is_superuser=user.is_superuser,
-#       role=user.role,
-#       client=client
-#     )

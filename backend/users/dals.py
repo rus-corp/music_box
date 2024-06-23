@@ -130,18 +130,9 @@ class UserDAL:
     
   async def update_user_by_id(self, user_id: int, kwargs):
     query = update(User).where(User.id == user_id).values(**kwargs).returning(User)
-    query_total = query.options(selectinload(User.role))
-    result = await self.db_session.execute(query_total)
+    result = await self.db_session.execute(query)
     updated_user = result.scalar()
     return updated_user
-  
-  
-  async def update_user_role(self, user_id, role_id):
-    query = update(User).where(User.id == user_id).values(role_id=role_id).returning(User)
-    query_total = query.options(selectinload(User.role))
-    result = await self.db_session.execute(query_total)
-    updated_user_role = result.scalar()
-    return updated_user_role
   
   
   async def delete_user_by_id(self, user_id: int):
@@ -155,7 +146,7 @@ class UserDAL:
     
     
   async def get_user_clients(self, user_id: int):
-    query = select(User).where(User.id == user_id).options(selectinload(User.client))
+    query = select(User).where(User.id == user_id).options(selectinload(User.client_groups), selectinload(User.role))
     result = await self.db_session.execute(query)
     user_clients = result.scalar()
     return user_clients

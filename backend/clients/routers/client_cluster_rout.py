@@ -5,12 +5,9 @@ from typing import List
 from backend.auth.security import super_user_permission
 from backend.auth.errors import access_denied_error
 from backend.database import get_db
-from ..schemas import ClientClusterShow, ClientClusterShow
-from ..schemas import ClientClusterShow_With_ClientGroups
+from ..schemas import ClientClusterShow, ClientClusterShow, ClientClusterDeleteResponse, ClientClusterShow_With_ClientGroups
 
-from ..handlers.client_cluster_hand import (_create_client_cluster, _get_all_client_clusters_without_client_groups,
-                                            _get_all_client_clusters_with_client_groups, _get_client_cluster_by_id_without_client_groups,
-                                            _get_client_cluster_by_id_with_client_groups, _update_client_cluster, _delete_client_cluster_by_id)
+
 from ..handlers.client_cluster_hand import ClientClusterHandler
 
 
@@ -95,8 +92,6 @@ async def get_client_cluster_by_id_with_client_groups(
 
 
 
-
-
 @router.patch('/{client_cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
 async def update_client_cluster_by_id(
   cluster_id: int,
@@ -105,24 +100,24 @@ async def update_client_cluster_by_id(
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    updated_cluster = await _update_client_cluster(
-      session=session, cluster_id=cluster_id, name=name
+    cluster_handler = ClientClusterHandler(session)
+    updated_cluster = await cluster_handler._update_client_cluster(
+      cluster_id=cluster_id, name=name
     )
     return updated_cluster
   else:
     return access_denied_error
 
 
-@router.delete('/{client_cluster_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{cluster_id}', status_code=status.HTTP_200_OK, response_model=ClientClusterDeleteResponse)
 async def delete_client_cluster_by_id(
-  client_cluster_id: int,
+  cluster_id: int,
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
-    deleted_cluster = await _delete_client_cluster_by_id(
-      session=session, cluster_id=client_cluster_id
-    )
+    cluster_handler = ClientClusterHandler(session)
+    deleted_cluster = await cluster_handler._delete_client_cluster(cluster_id)
     return deleted_cluster
   else:
     return access_denied_error

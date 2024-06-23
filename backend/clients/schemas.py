@@ -42,7 +42,8 @@ class ClientClusterShow(ClientClusterBase):
 class ClientClusterCreate(ClientClusterBase):
   name: str
 
-
+class ClientClusterDeleteResponse(ClientClusterBase):
+  id: int
 
 
 # =================== CLIENT GROUP ====================

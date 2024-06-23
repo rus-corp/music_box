@@ -66,6 +66,7 @@ class ClientClusterDAL:
       return error_message
 
 
+
   async def get_client_cluster_for_client_group(self, client_cluster_id):
     query = select(ClientCluster).where(ClientCluster.id == client_cluster_id)
     result = await self.db_session.scalar(query)

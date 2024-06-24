@@ -11,7 +11,7 @@ from backend.users.dals import UserDAL
 
 
 from ..schemas import (ClientGroupShow, ClientGroupCreate, ClientGroupUpdate)
-from backend.general_schemas import ClientGroup_WithUsers, ClientClusterShow_With_ClientGroups
+from backend.general_schemas import ClientGroup_WithUsers
 from backend.users.schemas import UserShowForClient
 
 
@@ -51,11 +51,11 @@ class ClientGroupHandler:
         name=client_group.name,
         comment=client_group.comment
       )
-      return ClientClusterShow_With_ClientGroups(
-        id=client_cluster.id,
-        name=client_cluster.name,
-        client_groups=client_group_schema
-      )
+      # return ClientClusterShow_With_ClientGroups(
+      #   id=client_cluster.id,
+      #   name=client_cluster.name,
+      #   client_groups=client_group_schema
+      # )
 
 
   async def _get_only_clients_group(self):

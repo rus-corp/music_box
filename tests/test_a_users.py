@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 import pytest
 
 
-from .test_data import users_data, user_roles_data
+from .test_data import users_data, user_roles_data, client_clusters_data
 from backend.auth.security import create_access_token
 
 test_bad_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJydXNAZ21haWasdaffcWDasdaIiwicm9sZSI6InN1cGVydXNlciIsImV4cCI6MTcxOTEyOTcwMH0.dRML3C5z2LEr1d1Tlte6McgJ63bTkrG54IIYsHvzRWk'
@@ -148,12 +148,18 @@ async def test_delete_user(ac: AsyncClient, create_test_super_user_access_token,
   assert acces_denied_delete.status_code == 405
 
 
-async def test_add_user_to_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass
 
 
-async def test_get_user_clients(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  user_clients_list = await ac.get('user_clients/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
 
 
-async def test_remove_user_from_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass
-async def test_change_user_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass
+
+
+# async def test_add_user_to_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass
+
+
+# async def test_get_user_clients(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
+#   user_clients_list = await ac.get('user_clients/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
+
+
+# async def test_remove_user_from_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass
+# async def test_change_user_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token): pass

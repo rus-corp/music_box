@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth.errors import not_Found_error
 
 from ..dals.client_cluster_dals import ClientClusterDAL
+from ..schemas import ClientClusterDeleteResponse
 
 
 
@@ -46,7 +47,7 @@ class ClientClusterHandler:
   
   async def _update_client_cluster(self, cluster_id: int, name: str):
     async with self.session.begin():
-      client_cluster = await self._get_client_cluster_by_id_without_client_groups(cluster_id)
+      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups(cluster_id)
       if client_cluster is None:
         return not_Found_error
       updated_cluster = await self.cluster_dal.update_client_cluster_by_id(
@@ -57,8 +58,8 @@ class ClientClusterHandler:
   
   async def _delete_client_cluster(self, cluster_id: int):
     async with self.session.begin():
-      client_cluster = await self._get_client_cluster_by_id_without_client_groups(cluster_id)
+      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups(cluster_id)
       if client_cluster is None:
         return not_Found_error
       deleted_cluster = await self.cluster_dal.delete_client_cluster_by_id(cluster_id)
-      return deleted_cluster
+      return ClientClusterDeleteResponse(id=deleted_cluster)

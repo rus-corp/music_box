@@ -3,7 +3,8 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from ..models import ClientCluster
+from ..models import ClientCluster, ClientGroup, user_client_group_association
+from backend.users.models import User
 
 
 class ClientClusterDAL:
@@ -18,14 +19,27 @@ class ClientClusterDAL:
     return new_cluster
 
 
-  async def get_all_client_clusters_without_client_groups(self):
+  async def get_all_client_clusters_without_client_groups_superuser(self):
     query = select(ClientCluster).order_by(ClientCluster.id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_all_client_clusters_without_client_groups_manager(self, user_id: int):
+    query = select(ClientCluster).join(ClientCluster.client_groups).join(user_client_group_association).join(User).filter(User.id == user_id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
 
 
-  async def get_all_client_clusters_with_client_groups(self):
+  async def get_all_client_clusters_with_client_groups_superuser(self):
     query = select(ClientCluster).options(selectinload(ClientCluster.client_groups)).order_by(ClientCluster.id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_all_client_clusters_with_client_groups_manager(self, user_id: int):
+    query = select(ClientCluster).options(selectinload(ClientCluster.client_groups)).join(ClientGroup).join(user_client_group_association).join(User).where(User.id == user_id)
+    # query = select(ClientCluster).join(ClientCluster.client_groups).join(user_client_group_association).join(User).filter(User.id == user_id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
 

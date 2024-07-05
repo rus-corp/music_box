@@ -2,11 +2,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
 from typing import List
 
-from backend.auth.security import super_user_permission
+from backend.auth.security import super_user_permission, get_current_user_from_token
 from backend.auth.errors import access_denied_error
 from backend.database import get_db
 from ..schemas import ClientClusterShow, ClientClusterShow, ClientClusterDeleteResponse, ClientClusterShow_With_ClientGroups
-
+from backend.users.models import User
 
 from ..handlers.client_cluster_hand import ClientClusterHandler
 
@@ -38,27 +38,21 @@ async def create_client_cluster(
 @router.get('/without_client_groups', response_model=List[ClientClusterShow], status_code=status.HTTP_200_OK)
 async def get_all_client_clusters_without_client_groups(
   session: AsyncSession = Depends(get_db),
-  permission: bool = Depends(super_user_permission)
+  current_user: User = Depends(get_current_user_from_token)
 ):
-  if permission:
-    cluster_handler = ClientClusterHandler(session)
-    client_clusters = await cluster_handler._get_all_client_clusters_without_client_groups()
-    return client_clusters
-  else:
-    return access_denied_error
+  cluster_handler = ClientClusterHandler(session, current_user)
+  client_clusters = await cluster_handler._get_all_client_clusters_without_client_groups()
+  return client_clusters
 
 
-@router.get('/with_client_groups', response_model=List[ClientClusterShow_With_ClientGroups], status_code=status.HTTP_200_OK)
+
+@router.get('/with_client_groups', status_code=status.HTTP_200_OK)
 async def get_all_client_clusters_with_client_groups(
-  session: AsyncSession = Depends(get_db),
-  permission: bool = Depends(super_user_permission)
+  session: AsyncSession = Depends(get_db),  current_user: User = Depends(get_current_user_from_token)
 ):
-  if permission:
-    cluster_handler = ClientClusterHandler(session)
-    client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
-    return client_cluster
-  else:
-    return access_denied_error
+  cluster_handler = ClientClusterHandler(session, current_user)
+  client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
+  return client_cluster
 
 
 

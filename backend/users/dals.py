@@ -121,7 +121,7 @@ class UserDAL:
   
   
   async def get_user_by_email(self, user_email):
-    query = select(User).where(User.email == user_email).options(selectinload(User.role))
+    query = select(User).where(User.email == user_email).options(joinedload(User.role))
     result = await self.db_session.execute(query)
     user_row = result.fetchone()
     if user_row is not None:

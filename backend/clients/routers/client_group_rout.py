@@ -54,6 +54,12 @@ async def get_client_groups_with_clients(
   return client_groups
 
 
+
+
+
+
+
+
 # /clients/client_groups/append_user_to_client_group
 # @router.post('/append')
 # async def add_user_to_client_group():pass

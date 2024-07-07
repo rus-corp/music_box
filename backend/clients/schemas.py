@@ -132,4 +132,4 @@ class UpdateClientResponse(BaseClient):
 
 
 class ClientClusterShow_With_ClientGroups(ClientClusterShow):
-  client_groups: Optional[List[ClientGroupShow]] = None
+  client_groups: Optional[ClientGroupShow] = None

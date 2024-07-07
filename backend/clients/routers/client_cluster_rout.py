@@ -46,9 +46,10 @@ async def get_all_client_clusters_without_client_groups(
 
 
 
-@router.get('/with_client_groups', status_code=status.HTTP_200_OK)
+@router.get('/with_client_groups', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
 async def get_all_client_clusters_with_client_groups(
-  session: AsyncSession = Depends(get_db),  current_user: User = Depends(get_current_user_from_token)
+  session: AsyncSession = Depends(get_db),
+  current_user: User = Depends(get_current_user_from_token)
 ):
   cluster_handler = ClientClusterHandler(session, current_user)
   client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
@@ -60,14 +61,11 @@ async def get_all_client_clusters_with_client_groups(
 async def get_client_cluster_by_id_without_client_groups(
   cluster_id: int,
   session: AsyncSession = Depends(get_db),
-  permission: bool = Depends(super_user_permission)
+  current_user: User = Depends(get_current_user_from_token)
 ):
-  if permission:
-    cluster_handler = ClientClusterHandler(session)
-    client_cluster = await cluster_handler._get_client_cluster_by_id_without_client_groups(cluster_id)
-    return client_cluster
-  else:
-    return access_denied_error
+  cluster_handler = ClientClusterHandler(session, current_user)
+  client_cluster = await cluster_handler._get_client_cluster_by_id_without_client_groups(cluster_id)
+  return client_cluster
 
 
 

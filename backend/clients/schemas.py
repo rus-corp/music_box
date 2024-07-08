@@ -56,20 +56,28 @@ class ClientGroupShow(ClientGroupBase):
   id: int
   name: str
   comment: Optional[str] = None
-  
-  
 
 
-class ClientGroupCreate(ClientGroupBase):
+class ClientGroupShowDefault(ClientGroupShow):
+  client_cluster: ClientClusterShow
+
+
+class ClientGroupCreateRequest(ClientGroupBase):
   name: str
   comment: Optional[str] = None
   client_cluster_id: int
+
+
+class ClientGroupCreateResponse(ClientGroupShow):
+  client_cluster: ClientClusterShow
 
 
 class ClientGroupUpdate(ClientGroupBase):
   id: int
   name: Optional[str] = None
   comment: Optional[str] = None
+
+
 
 
 # =================== CLIENT ====================
@@ -94,6 +102,7 @@ class CreateClient(BaseClient):
   user_id: int
 
 
+
 class ShowClient(BaseClient):
   client_id: int
   user: int
@@ -105,6 +114,11 @@ class ShowUserClients(BaseClient):
   client_id: int
   currency: CurrencyShow = None
 
+
+class ClientShowForGroup(BaseModel):
+  id: int
+  name: str
+  
 
 class UpdateClientRequest(BaseModel):
   name: Optional[str] = None
@@ -133,3 +147,11 @@ class UpdateClientResponse(BaseClient):
 
 class ClientClusterShow_With_ClientGroups(ClientClusterShow):
   client_groups: Optional[ClientGroupShow] = None
+
+
+class ClientClusterShow_With_Listr_ClientGroups(ClientClusterShow):
+  client_groups: Optional[List[ClientGroupShow]] = None
+
+
+class ClientGroupWithClientShow(ClientGroupShow):
+  clients: Optional[List[ClientShowForGroup]] = None

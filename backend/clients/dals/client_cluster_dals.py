@@ -65,12 +65,18 @@ class ClientClusterDAL:
       return cluster_row[0]
   
   
-  async def get_client_cluster_by_id_with_client_groups(self, client_cluster_id: int):
-    query = select(ClientCluster).where(ClientCluster.id == client_cluster_id).options(selectinload(ClientCluster.client_groups))
+  async def get_client_cluster_by_id_with_client_groups_superuser(self, client_cluster_id: int):
+    query = select(ClientCluster).where(ClientCluster.id == client_cluster_id).join(ClientCluster.client_groups)
     reuslt = await self.db_session.execute(query)
-    client_cluster = reuslt.fetchone()
-    if client_cluster is not None:
-      return client_cluster[0]
+    client_cluster = reuslt.all()
+    return client_cluster
+  
+  
+  async def get_client_cluster_by_id_with_client_groups_manager(self, user_id: int, cluster_id: int):
+    query = select(ClientCluster, ClientGroup).join(ClientGroup).join(user_client_group_association).join(User).filter(and_(User.id == user_id, ClientCluster.id == cluster_id))
+    result = await self.db_session.execute(query)
+    res = result.scalar()
+    return res
 
 
   async def update_client_cluster_by_id(self, client_cluster_id: int, new_name: str):

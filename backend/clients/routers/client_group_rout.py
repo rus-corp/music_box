@@ -8,7 +8,7 @@ from backend.auth.security import super_user_permission, get_current_user_from_t
 from backend.auth.errors import access_denied_error
 from backend.users.models import User
 
-from ..schemas import ClientGroupCreate, ClientGroupShow
+from ..schemas import ClientGroupCreateRequest, ClientGroupShow, ClientGroupCreateResponse, ClientGroupShowDefault
 from ..handlers.client_group_hand import ClientGroupHandler
 from ..handlers.client_group_hand import _append_user_to_client_group
 
@@ -19,9 +19,9 @@ router = APIRouter(
 
 
 
-@router.post('/')
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=ClientGroupCreateResponse)
 async def create_client_group(
-  body: ClientGroupCreate,
+  body: ClientGroupCreateRequest,
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
@@ -33,7 +33,8 @@ async def create_client_group(
     return access_denied_error
 
 
-@router.get('/', response_model=List[ClientGroupShow])
+
+@router.get('/', response_model=List[ClientGroupShowDefault], status_code=status.HTTP_200_OK)
 async def get_only_client_groups(
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
@@ -44,13 +45,28 @@ async def get_only_client_groups(
 
 
 
-@router.get('/with_clients')
-async def get_client_groups_with_clients(
+@router.get('/{client_group_id}', status_code=status.HTTP_200_OK, response_model=ClientGroupShowDefault)
+async def get_client_group_by_id(
+  client_group_id: int,
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
 ):
   client_group_handler = ClientGroupHandler(session, current_user)
-  client_groups = await client_group_handler._get_client_groups_with_clients()
+  client_group = await client_group_handler._get_only_client_group_by_id(
+    client_group_id
+  )
+  return client_group
+
+
+
+
+@router.get('/with_clients/', status_code=status.HTTP_200_OK)
+async def get_all_client_groups_with_clients(
+  session: AsyncSession = Depends(get_db),
+  current_user = Depends(get_current_user_from_token)
+):
+  client_group_handler = ClientGroupHandler(session, current_user)
+  client_groups = await client_group_handler._get_all_client_groups_with_clients()
   return client_groups
 
 

@@ -76,9 +76,17 @@ class ClientClusterHandler:
   
   
   async def _get_client_cluster_by_id_with_client_groups(self, cluster_id: int):
-    async with self.session.begin():
-      client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups(cluster_id)
+    if self.current_user.is_superuser:
+      client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_superuser(cluster_id)
       return client_cluster
+    # elif self.current_user.role.role_name in self.roles:
+    #   client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_manager(
+    #     user_id=self.current_user.id, cluster_id=cluster_id
+    #   )
+    else:
+      return access_denied_error
+  
+  
   
   
   async def _update_client_cluster(self, cluster_id: int, name: str):

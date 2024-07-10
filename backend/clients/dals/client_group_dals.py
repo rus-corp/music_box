@@ -51,124 +51,46 @@ class ClientGroupDAL:
   
   
   async def get_all_client_groups_with_clients_superuser(self):
-    ClientAlias = aliased(Client)
-    query = select(ClientGroup.id, ClientGroup.name, ClientGroup.comment, Client.id, Client.name).join(ClientGroup.clients).order_by(ClientGroup.id)
+    query = select(ClientGroup).options(joinedload(ClientGroup.clients)).order_by(ClientGroup.id)
     result = await self.db_session.execute(query)
-    res = result.all()
-    return res
+    return result.unique().scalars().all()
   
   
-  async def get_all_client_groups_with_clients_manager(self, user_id: int): pass
-  
-  async def get_client_group_by_id_with_clients_superuser(self): pass
-  
-  async def get_client_group_by_id_with_clients_manager(self): pass
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # async def get_client_groups_with_clients_superuser(self):
-  #   query = select(ClientGroup).options(selectinload(ClientGroup.clients)).order_by(ClientGroup.id)
-  #   result = await self.db_session.execute(query)
-  #   return result.scalars().all()
-  
-  
-  # async def get_client_groups_with_clients_manager(self, user_id: int):
-  #   query = select(ClientGroup).join(user_client_group_association).join(User).options(joinedload(ClientGroup.clients)).filter(User.id == user_id).distinct()
-  #   result = await self.db_session.execute(query)
-  #   return result.scalars().all()
-  
-
-
-  # async def get_all_client_groups_with_clients_superuser(self):
-  #   query = select(ClientGroup).options(selectinload(ClientGroup.clients)).order_by(ClientGroup.id)
-  #   result = await self.db_session.execute(query)
-  #   return result.scalars().all()
-  
-  
-  # async def get_all_client_groups_with_clients_manager(self, user_id: int):
-  #   query = select(ClientGroup).join(user_client_group_association).join(User).filter(User.id == user_id)
-  #   result = await self.db_session.execute(query)
-  #   return result.scalars().all()
-  
-  
-
-  async def get_all_client_groups_with_users(self):
-    query = select(ClientGroup).options(selectinload(ClientGroup.users)).order_by(ClientGroup.id)
+  async def get_all_client_groups_with_clients_manager(self, user_id: int):
+    query = select(ClientGroup).options(joinedload(ClientGroup.clients))\
+      .join(user_client_group_association)\
+        .join(User)\
+          .filter(User.id == user_id)
     result = await self.db_session.execute(query)
-    return result.scalars().all()
-
-
-  async def get_all_client_groups_with_clients_and_users(self):
-    query = select(ClientGroup).options(selectinload(ClientGroup.clients), selectinload(ClientGroup.users)).order_by(ClientGroup.id)
-    result = await self.db_session.execute(query)
-    return result.scalars().all()
-
-
-  async def get_only_client_group_by_id(self, client_group_id: int):
-    query = select(ClientGroup).where(ClientGroup.id == client_group_id)
+    return result.unique().scalars().all()
+  
+  
+  async def get_client_group_by_id_with_clients_superuser(self, client_group_id: int):
+    query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(joinedload(ClientGroup.clients))
     result = await self.db_session.execute(query)
     client_group = result.fetchone()
     if client_group is not None:
       return client_group[0]
-
-
-  async def get_client_group_by_id_with_clients(self, client_group_id: int):
-    query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(selectinload(ClientGroup.clients))
+  
+  
+  async def get_client_group_by_id_with_clients_manager(self, group_id: int, user_id: int):
+    query = select(ClientGroup)\
+      .options(joinedload(ClientGroup.clients))\
+        .join(user_client_group_association)\
+          .join(User)\
+            .filter(and_(ClientGroup.id == group_id, User.id == user_id))
     result = await self.db_session.execute(query)
-    client_group = result.fetchone()
+    client_group = result.unique().fetchone()
     if client_group is not None:
       return client_group[0]
-
-
-  async def get_client_group_by_id_with_users(self, client_group_id: int):
-    query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(selectinload(ClientGroup.users))
-    result = await self.db_session.execute(query)
-    client_group = result.fetchone()
-    if client_group is not None:
-      return client_group[0]
-
-
-  async def get_client_group_by_id_with_users_and_clients(self, client_group_id: int):
-    query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(selectinload(ClientGroup.clients), selectinload(ClientGroup.users))
-    result = await self.db_session.execute(query)
-    client_group = result.fetchone()
-    if client_group is not None:
-      return client_group[0]
-
-
-  async def update_client_group_by_id(self, client_group_id: int, **kwargs):
+  
+  
+  async def update_client_group_by_id(self, client_group_id: int, kwargs):
     stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(kwargs).returning(ClientGroup)
     result = await self.db_session.execute(stmt)
     updated_client_group = result.fetchone()
     if updated_client_group is not None:
       return updated_client_group[0]
-
-
-
-
-
-
-
-  async def change_cluster_of_clients_group(self, client_group_id: int, new_client_cluster_id: int):
-    query = select(ClientGroup).where(
-      and_(ClientGroup.id == client_group_id, ClientGroup.client_cluster_id == new_client_cluster_id)
-    )
-    result = await self.db_session.execute(query)
-    if result.fetchone() is not None:
-      stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(client_cluster_id = new_client_cluster_id).returning(ClientGroup)
-      result = await self.db_session.execute(stmt)
-      updated_client_group = result.fetchone()
-      if updated_client_group is not None:
-        return updated_client_group[0]
-    return 'Relationship exist'
     
 
 
@@ -176,9 +98,11 @@ class ClientGroupDAL:
     try:
       stmt = delete(ClientGroup).where(ClientGroup.id == client_group_id).returning(ClientGroup.id)
       result = await self.db_session.execute(stmt)
+      await self.db_session.commit()
       return result.scalar()
     except IntegrityError as e:
       error_message = 'Невозможно удалить ClientGroup из-за наличия зависимых записей.'
+      await self.db_session.rollback()
       return error_message
 
 

@@ -72,23 +72,30 @@ class ClientGroupCreateResponse(ClientGroupShow):
   client_cluster: ClientClusterShow
 
 
-class ClientGroupUpdate(ClientGroupBase):
-  id: int
+class ClientGroupUpdateRequset(ClientGroupBase):
   name: Optional[str] = None
   comment: Optional[str] = None
+  client_cluster_id: Optional[int] = None
 
 
+class ClientGroupUpdateResponse(BaseModel):
+  id: int
+  name: str
+  comment: str
+  client_cluster: int
+  old_client_cluster: ClientClusterShow
 
+
+class ClientGroupDeleteResponse(BaseModel):
+  id: int
+
+class CleintGroupDeleteMessage(BaseModel):
+  message: str
 
 # =================== CLIENT ====================
 class BaseClient(BaseModel):
   name: str
-  full_name: str
-  certificate: str
-  contract_number: str
-  contract_date: date
   city: str
-  address: str
   email: EmailStr
   phone: str
   price: float
@@ -153,5 +160,5 @@ class ClientClusterShow_With_Listr_ClientGroups(ClientClusterShow):
   client_groups: Optional[List[ClientGroupShow]] = None
 
 
-class ClientGroupWithClientShow(ClientGroupShow):
+class ClientGroupWithClientShow(ClientGroupShowDefault):
   clients: Optional[List[ClientShowForGroup]] = None

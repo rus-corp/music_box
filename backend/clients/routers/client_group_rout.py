@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
 
@@ -8,9 +8,11 @@ from backend.auth.security import super_user_permission, get_current_user_from_t
 from backend.auth.errors import access_denied_error
 from backend.users.models import User
 
-from ..schemas import ClientGroupCreateRequest, ClientGroupShow, ClientGroupCreateResponse, ClientGroupShowDefault
+from ..schemas import (ClientGroupCreateRequest, ClientGroupCreateResponse,
+                       ClientGroupShowDefault, ClientGroupWithClientShow, ClientGroupUpdateRequset, ClientGroupUpdateResponse,
+                       ClientGroupDeleteResponse, CleintGroupDeleteMessage)
 from ..handlers.client_group_hand import ClientGroupHandler
-from ..handlers.client_group_hand import _append_user_to_client_group
+
 
 router = APIRouter(
   prefix='/client_groups',
@@ -60,7 +62,7 @@ async def get_client_group_by_id(
 
 
 
-@router.get('/with_clients/', status_code=status.HTTP_200_OK)
+@router.get('/with_clients/', status_code=status.HTTP_200_OK, response_model=List[ClientGroupWithClientShow])
 async def get_all_client_groups_with_clients(
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
@@ -71,8 +73,50 @@ async def get_all_client_groups_with_clients(
 
 
 
+@router.get('/with_clients/{client_group_id}', status_code=status.HTTP_200_OK, response_model=ClientGroupWithClientShow)
+async def get_client_group_by_id_with_clients(
+  client_group_id: int,
+  session: AsyncSession = Depends(get_db),
+  current_user: User = Depends(get_current_user_from_token)
+):
+  client_group_handler = ClientGroupHandler(session, current_user)
+  client_group = await client_group_handler._get_client_group_by_id_with_clients(
+    client_group_id=client_group_id
+  )
+  return client_group
 
 
+@router.patch('/{client_group_id}', status_code=status.HTTP_200_OK, response_model=ClientGroupUpdateResponse)
+async def change_client_group_data(
+  client_group_id: int,
+  body: ClientGroupUpdateRequset,
+  session: AsyncSession = Depends(get_db),
+  permission: bool = Depends(super_user_permission)
+):
+  if permission:
+    clientHandlers = ClientGroupHandler(session)
+    updated_group = await clientHandlers._update_client_group(
+      client_group_id=client_group_id, body=body
+    )
+    return updated_group
+  else:
+    return access_denied_error
+
+
+@router.delete('/{client_group_id}', status_code=status.HTTP_200_OK, response_model=Union[ClientGroupDeleteResponse,CleintGroupDeleteMessage])
+async def delete_client_group_by_id(
+  client_group_id: int,
+  session: AsyncSession = Depends(get_db),
+  permission: bool = Depends(super_user_permission)
+):
+  if permission:
+    clientHandlers = ClientGroupHandler(session)
+    deleted_group = await clientHandlers._delete_client_group_by_id(
+      client_group_id=client_group_id
+    )
+    return deleted_group
+  else:
+    return access_denied_error
 
 
 

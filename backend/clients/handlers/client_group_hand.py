@@ -10,8 +10,8 @@ from backend.users.dals import UserDAL
 
 
 
-from ..schemas import (ClientGroupShow, ClientGroupCreateRequest, ClientGroupCreateResponse,ClientGroupUpdate, ClientClusterShow,
-                       ClientGroupWithClientShow, ClientShowForGroup)
+from ..schemas import (ClientGroupShow, ClientGroupCreateRequest, ClientGroupCreateResponse, ClientClusterShow,
+                      ClientGroupUpdateRequset, ClientGroupUpdateResponse, ClientClusterShow, CleintGroupDeleteMessage, ClientGroupDeleteResponse)
 from backend.general_schemas import ClientGroup_WithUsers
 from backend.users.schemas import UserShowForClient
 
@@ -87,32 +87,73 @@ class ClientGroupHandler:
       return client_group
   
   
-  
-  
-  
-  
   async def _get_all_client_groups_with_clients(self):
     if self.current_user.is_superuser:
-      client_groups = await self.client_group_dal.get_all_client_groups_with_clients_superuser()
+      client_groups_data = await self.client_group_dal.get_all_client_groups_with_clients_superuser()
     elif self.current_user.role.role_name in self.roles:
-      client_groups = await self.client_group_dal.get_all_client_groups_with_clients_manager(
+      client_groups_data = await self.client_group_dal.get_all_client_groups_with_clients_manager(
         user_id=self.current_user.id
       )
     else:
       return access_denied_error
-    from collections import defaultdict
-    client_group_dict = defaultdict(lambda: {'id': None, 'group_name': None, 'comment': None, 'clients': []})
-    clients_data = []
-    for row in client_groups:
-      client_group_id, client_group_name, client_group_comment, client_id, client_name = row
-      if client_group_dict[client_group_id]['id'] is None:
-        client_group_dict[client_group_id]['id'] = client_group_id
-        client_group_dict[client_group_id]['group_name'] = client_group_name
-        client_group_dict[client_group_id]['comment'] = client_group_comment
-        client_group_dict[client_group_id]['clients'].append({'id': client_id, 'name': client_name})
-    for group_id, group_data in client_group_dict.items():
-      clients_data.append(group_data)
-    return clients_data
+    return client_groups_data
+  
+  
+  async def _get_client_group_by_id_with_clients(self, client_group_id: int):
+    if self.current_user.is_superuser:
+      cleint_group = await self.client_group_dal.get_client_group_by_id_with_clients_superuser(client_group_id)
+    elif self.current_user.role.role_name in self.roles:
+      cleint_group = await self.client_group_dal.get_client_group_by_id_with_clients_manager(
+        group_id=client_group_id, user_id=self.current_user.id
+      )
+    else:
+      return access_denied_error
+    if cleint_group is None:
+      return not_Found_error
+    return cleint_group
+  
+  
+  async def _update_client_group(self, client_group_id: int, body: ClientGroupUpdateRequset):
+    async with self.session.begin():
+      body_data = body.model_dump(exclude_none=True)
+      client_group = await self.client_group_dal.get_client_group_by_id_superuser(
+        group_id=client_group_id
+      )
+      if client_group is None:
+        return not_Found_error
+      updated_group = await self.client_group_dal.update_client_group_by_id(
+        client_group_id=client_group_id, kwargs=body_data
+      )
+      client_cluster = ClientClusterShow(
+        id=updated_group.client_cluster.id,
+        name=updated_group.client_cluster.name
+      )
+      return ClientGroupUpdateResponse(
+        id=updated_group.id,
+        name=updated_group.name,
+        comment=updated_group.comment,
+        client_cluster=updated_group.client_cluster_id,
+        old_client_cluster=client_cluster
+      )
+  
+  
+  async def _delete_client_group_by_id(self, client_group_id: int):
+    async with self.session.begin():
+      client_group = await self.client_group_dal.get_client_group_by_id_superuser(client_group_id)
+      if client_group is None:
+        return not_Found_error
+      deleted_client_group = await self.client_group_dal.delete_client_group_by_id(client_group_id)
+      if type(deleted_client_group) == str:
+        return CleintGroupDeleteMessage(
+          message=deleted_client_group
+        )
+      else:
+        return ClientGroupDeleteResponse(
+          id=deleted_client_group
+        )
+    
+  
+  
   
   
   
@@ -174,28 +215,10 @@ async def _get_client_group_by_id_with_users_and_clients(session: AsyncSession, 
     return client_group
 
 
-async def _update_client_group_by_id(session: AsyncSession, body: ClientGroupUpdate):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    model_data = body.model_dump(exclude_none=True)
-    client_group = await client_group_dal.get_only_client_group_by_id(model_data['id'])
-    if client_group is None:
-      return not_Found_error
-    updated_client_group = await client_group_dal.update_client_group_by_id(
-      client_group_id=model_data.pop('id'),
-      kwargs=model_data
-    )
-    return updated_client_group
 
 
-async def _delete_client_group_by_id(session: AsyncSession, client_group_id: int):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_group = await client_group_dal.get_only_client_group_by_id(client_group_id)
-    if client_group is None:
-      return not_Found_error
-    deleted_client_group = await client_group_dal.delete_client_group_by_id(client_group_id)
-    return deleted_client_group
+
+
 
 
 async def _change_cluster_of_clients_group(session: AsyncSession, client_group_id: int, new_client_cluster_id: int) -> ClientGroupShow:

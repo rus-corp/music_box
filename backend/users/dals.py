@@ -146,7 +146,7 @@ class UserDAL:
     
     
   async def get_user_clients(self, user_id: int):
-    query = select(User).where(User.id == user_id).options(selectinload(User.client_groups), selectinload(User.role))
+    query = select(User).where(User.id == user_id).options(selectinload(User.client_groups), joinedload(User.role))
     result = await self.db_session.execute(query)
     user_clients = result.scalar()
     return user_clients

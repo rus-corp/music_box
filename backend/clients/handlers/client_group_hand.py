@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import JSONResponse
+
 
 from backend.users.models import User
 
@@ -12,7 +14,7 @@ from backend.users.dals import UserDAL
 
 from ..schemas import (ClientGroupShow, ClientGroupCreateRequest, ClientGroupCreateResponse, ClientClusterShow,
                       ClientGroupUpdateRequset, ClientGroupUpdateResponse, ClientClusterShow, CleintGroupDeleteMessage, ClientGroupDeleteResponse)
-from backend.general_schemas import ClientGroup_WithUsers
+from backend.general_schemas import ClientGroupAppendUserResponse
 from backend.users.schemas import UserShowForClient
 
 
@@ -151,115 +153,78 @@ class ClientGroupHandler:
         return ClientGroupDeleteResponse(
           id=deleted_client_group
         )
-    
   
   
-  
-  
-  
-  # async def _get_all_client_groups_with_clients(self, current_user: User):
-  #   async with self.session.begin():
-  #     client_group_dal = ClientGroupDAL(self.session)
-  #     if current_user.is_superuser:
-  #       client_groups = await client_group_dal.get_all_client_groups_with_clients_superuser()
-  #     elif current_user.role.role_name in self.roles:
-  #       client_groups = await client_group_dal.get_all_client_groups_with_clients_manager(user_id=current_user.id)
-  #     else:
-  #       return access_denied_error
-  #     return list(client_groups)
-
-
-  # async def _get_all_client_groups_with_users(self, current_user: User):
-  #   async with self.session.begin():
-  #     client_group_dal = ClientGroupDAL(self.session)
-  #     if current_user.is_superuser:
-  #       client_groups = await client_group_dal.get_all_client_groups_with_users()
-  #     elif current_user.role.role_name in self.roles:
-  #       client_groups = await client_group_dal.get_all_client_groups_with_clients_and_users()
-  #     return list(client_groups)
-
-
-
-
-
-
-
-async def _get_all_client_groups_with_clients_and_users(session: AsyncSession):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_groups = await client_group_dal.get_all_client_groups_with_clients_and_users()
-    return list(client_groups)
-
-
-
-
-
-async def _get_client_group_by_id_with_clients(session: AsyncSession, client_group_id: int):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_group = await client_group_dal.get_client_group_by_id_with_clients(client_group_id)
-    return client_group
-
-
-async def _get_client_group_by_id_with_users(session: AsyncSession, client_group_id: int):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_group = await client_group_dal.get_client_group_by_id_with_users(client_group_id)
-    return client_group
-
-
-async def _get_client_group_by_id_with_users_and_clients(session: AsyncSession, client_group_id: int):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_group = await client_group_dal.get_client_group_by_id_with_users_and_clients(client_group_id)
-    return client_group
-
-
-
-
-
-
-
-
-async def _change_cluster_of_clients_group(session: AsyncSession, client_group_id: int, new_client_cluster_id: int) -> ClientGroupShow:
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    client_cluster_dal = ClientClusterDAL(session)
-    has_client_group = await client_group_dal.get_only_client_group_by_id(client_group_id)
-    has_client_cluster = client_cluster_dal.get_all_client_clusters_without_client_groups(new_client_cluster_id)
-    if has_client_group is None or has_client_cluster is None:
-      return not_Found_error
-    changed_cluster_of_client_group = await client_group_dal.change_cluster_of_clients_group(
-      client_group_id=client_group_id,
-      new_client_cluster_id=new_client_cluster_id
+  async def _append_user_to_client_group(self, client_group_id: int, user_id: int):
+    async with self.session.begin():
+      client_group = await self.client_group_dal.get_scalar_client_group_by_id(
+        client_group_id
+      )
+      user_dal = UserDAL(self.session)
+      user = await user_dal.get_scalar_user(user_id)
+      
+      
+      if client_group is None or user is None:
+        return not_Found_error
+      
+      if client_group in user.client_groups:
+        return JSONResponse(
+          content=f'User with id {user_id} has in group {client_group_id}',
+          status_code=400
+        )
+      user.client_groups.append(client_group)
+      
+      await self.session.commit()
+      
+      user_data = UserShowForClient(
+      id=user.id,
+      name=user.name,
+      comment=user.comment,
+      login=user.comment,
+      email=user.email,
+      is_active=user.is_active,
+      is_superuser=user.is_superuser
     )
-    return changed_cluster_of_client_group
+      
+    return ClientGroupAppendUserResponse(
+      id=client_group.id,
+      name=client_group.name,
+      comment=client_group.comment,
+      user=user_data
+    )
+  
+  
+  async def _delete_user_from_client_group(self, client_group_id: int, user_id: int):
+    async with self.session.begin():
+      client_group = await self.client_group_dal.get_scalar_client_group_by_id(
+        client_group_id
+      )
+      user_dal = UserDAL(self.session)
+      user = await user_dal.get_scalar_user(user_id)
+      if client_group is None or user is None:
+        return not_Found_error
+      
+      if client_group not in user.client_groups:
+        return JSONResponse(
+          content=f'User with id {user_id} has not in group {client_group_id}',
+          status_code=400
+        )
+      
+      user.client_groups.remove(client_group)
+      await self.session.commit()
+      return JSONResponse(f'User with id {user_id} deleted from group {client_group_id}',
+                          status_code=200)
+      
+      
+        
 
 
-async def _append_user_to_client_group(session: AsyncSession, client_group_id: int, user_id: int):
-  async with session.begin():
-    client_group_dal = ClientGroupDAL(session)
-    user_dal = UserDAL(session)
-    client_group = await client_group_dal.get_scalar_client_group_by_id(client_group_id)
-    user = await user_dal.get_scalar_user(user_id)
-    if client_group is None or user is None:
-      return not_Found_error
-    user.client_groups.append(client_group)
-    await session.flush()
-    
-  users = [UserShowForClient(
-    id=user.id,
-    name=user.name,
-    comment=user.comment,
-    login=user.comment,
-    email=user.email,
-    is_active=user.is_active,
-    is_superuser=user.is_superuser
-  )]
-  client_group_show = ClientGroup_WithUsers(
-    id=client_group.id,
-    name=client_group.name,
-    comment=client_group.comment,
-    users=users
-  )
-  return client_group_show
+
+
+
+
+
+
+
+
+

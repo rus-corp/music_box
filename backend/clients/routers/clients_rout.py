@@ -69,6 +69,25 @@ async def get_all_clients(
   return client_item
 
 
+@router.patch('/{client_id}', status_code=status.HTTP_200_OK,
+              response_model=ShowClient, responses={
+                404: {'model': CleintGroupDeleteMessage}
+              })
+async def update_client_by_id(
+  client_id: int,
+  body: UpdateClientRequest,
+  session: AsyncSession = Depends(get_db),
+  permission: bool = Depends(super_user_permission)
+):
+  if permission:
+    client_handler_dal = ClientHandler(session)
+    updated_client = await client_handler_dal._update_client_by_id(
+      client_id=client_id, body=body
+    )
+    return updated_client
+  else:
+    return access_denied_error
+  
 
 
 

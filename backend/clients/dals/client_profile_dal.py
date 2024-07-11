@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy import update
 
 from ..schemas import ClientProfileBase
 
@@ -29,7 +29,12 @@ class ClientProfileDAL:
   
   async def get_cliene_profile(self):pass
   
-  async def update_client_profile(self, body):pass
+  async def update_client_profile(self, client_id: int, body):
+    stmt = update(ClientProfile).where(ClientProfile.client_id == client_id).values(**body).returning(ClientProfile)
+    result = await self.db_session.execute(stmt)
+    profile_row = result.fetchone()
+    if profile_row is not None:
+      return profile_row[0]
   
   
   async def delete_client_profile_by_id(self, profile_id): pass

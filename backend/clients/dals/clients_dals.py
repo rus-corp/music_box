@@ -12,8 +12,14 @@ from backend.users.models import User
 class ClientDAL:
   def __init__(self, db_session: AsyncSession) -> None:
     self.db_session = db_session
-
-
+  
+  
+  async def check_client_in_db(self, client_id: int):
+    query = select(Client).where(Client.id == client_id)
+    result = await self.db_session.execute(query)
+    return result.scalar()
+    
+    
   async def create_client(self, name: str, city: str, email: str, phone: str,
                           price, currency: Currency) -> Client:
     new_client = Client(
@@ -59,20 +65,21 @@ class ClientDAL:
     client_row = result.fetchone()
     if client_row is not None:
       return client_row[0]
-
-
-
-
-
-
-
-
-
-  async def update_client_by_id(self, client_id, kwargs):
+  
+  
+  async def update_client_by_id(self, client_id: int, kwargs: dict):
     stmt = update(Client).where(Client.id == client_id).values(**kwargs).returning(Client)
     result = await self.db_session.execute(stmt)
-    updated_client = result.scalar()
-    return updated_client
+    updated_client = result.fetchone()
+    if updated_client is not None:
+      return updated_client[0]
+
+
+
+
+
+
+
 
 
   async def get_client_for_append(self, client_id: int):

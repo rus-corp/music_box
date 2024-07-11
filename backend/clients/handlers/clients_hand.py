@@ -92,10 +92,36 @@ class ClientHandler:
     else:
       return errors.access_denied_error
     if client is None:
-      return JSONResponse(content=f'relationship between user {self.current_user.id} and client {client_id} not found', status_code=400)
+      return JSONResponse(content=f'relationship between user {self.current_user.id}\
+        and client {client_id} not found', status_code=400)
     return client
-
-
+  
+  
+  async def _update_client_by_id(self, client_id: int, body: UpdateClientRequest):
+    async with self.session.begin():
+      body_data = body.model_dump(exclude_none=True)
+      profile_data = body_data.pop('profile', None)
+      client_data = await self.client_dal.check_client_in_db(client_id)
+      
+      if client_data is None:
+        return errors.not_Found_error
+      
+      if profile_data is not None:
+        client_profile_dal = ClientProfileDAL(self.session)
+        updated_profile = await client_profile_dal.update_client_profile(
+          client_id=client_data.id, body=profile_data
+        )
+        if updated_profile is None:
+          return JSONResponse(
+            content=f'Client Profile for client {client_data.id} no found',
+            status_code=404
+          )
+          
+      updated_client = await self.client_dal.update_client_by_id(
+        client_id=client_data.id, kwargs=body_data
+      )
+      return updated_client
+      
 
 
 

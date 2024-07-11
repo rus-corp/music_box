@@ -110,6 +110,13 @@ class ClientProfileDefaultResponse(ClientProfileBase):
   id: int
 
 
+class ClientProfileUpdateRequest(BaseModel):
+  address: Optional[str] = None
+  full_name: Optional[str] = None
+  certificate: Optional[str] = None
+  contract_number: Optional[str] = None
+  contract_date: Optional[date] = None
+
 
 
 # =================== CLIENT ====================
@@ -154,17 +161,12 @@ class ClientShowForGroup(BaseModel):
 
 class UpdateClientRequest(BaseModel):
   name: Optional[str] = None
-  full_name: Optional[str] = None
-  certificate: Optional[str] = None
-  contract_number: Optional[str] = None
-  contract_date: Optional[date] = None
   city: Optional[str] = None
-  address: Optional[str] = None
   email: Optional[EmailStr] = None
   phone: Optional[str] = None
   price: Optional[float] = None
-  currency: Optional[int] = None
-  user_id: Optional[int] = None
+  currency_id: Optional[int] = None
+  profile: Optional[ClientProfileUpdateRequest] = None
   
   class Config:
     from_attributes = True

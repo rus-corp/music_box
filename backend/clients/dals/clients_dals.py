@@ -1,9 +1,11 @@
 from sqlalchemy import select, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy.exc import IntegrityError
 
 from ..models import Client, AnotherContracts, Currency
+from ..models import user_client_group_association
+from backend.users.models import User
 
 
 
@@ -12,59 +14,58 @@ class ClientDAL:
     self.db_session = db_session
 
 
-  async def create_client(self, name: str, full_name: str, certificate: str, contract_number: str,
-                          contract_date, city: str, address: str, email: str, phone: str, price, currency: Currency, user_id: int) -> Client:
+  async def create_client(self, name: str, city: str, email: str, phone: str,
+                          price, currency: Currency) -> Client:
     new_client = Client(
       name=name,
-      full_name=full_name,
-      certificate=certificate,
-      contract_number=contract_number,
-      contract_date=contract_date,
       city=city,
-      address=address,
       email=email,
       phone=phone,
       price=price,
       currency=currency,
-      user_id=user_id
     )
     self.db_session.add(new_client)
-    # await self.db_session.commit()
+    await self.db_session.flush()
     return new_client
-
-
-  async def create_client_for_add_to_user(self, name: str, full_name: str, certificate: str, contract_number: str,
-                          contract_date, city: str, address: str, email: str, phone: str, price, currency: Currency, user_id: int):
-    new_client = Client(
-      name=name,
-      full_name=full_name,
-      certificate=certificate,
-      contract_number=contract_number,
-      contract_date=contract_date,
-      city=city,
-      address=address,
-      email=email,
-      phone=phone,
-      price=price,
-      currency=currency,
-      user_id=user_id
-    )
-    self.db_session.add(new_client)
-    return new_client
-
-
-  async def get_all_clients(self):
-    query = select(Client).order_by(Client.id)
+  
+  
+  async def get_all_clients_with_profiles_superuser(self):
+    query = select(Client).options(joinedload(Client.client_group), selectinload(Client.track_collections)).order_by(Client.id)
     result = await self.db_session.execute(query)
     return result.scalars().all()
-
-
-  async def get_client_by_id(self, client_id):
-    query = select(Client).where(Client.id == client_id)
-    res = await self.db_session.execute(query)
-    client_row = res.fetchone()
+  
+  
+  async def get_all_clients_with_profiles_manager(self, user_id: int):
+    query = select(Client).options(selectinload(Client.track_collections)).join(Client.client_group).join(user_client_group_association).join(User).filter(User.id == user_id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_client_by_id_superuser(self, client_id: int):
+    query = select(Client).where(Client.id == client_id).options(joinedload(Client.client_group), selectinload(Client.track_collections))
+    result = await self.db_session.execute(query)
+    client_row = result.fetchone()
+    if client_row is not None:
+      return client_row[0] 
+  
+  
+  async def get_client_by_id_manager(self, client_id: int, user_id: int):
+    query = select(Client).options(selectinload(Client.track_collections))\
+      .join(Client.client_group)\
+        .join(user_client_group_association)\
+          .join(User)\
+            .filter(and_(User.id == user_id, Client.id == client_id))
+    result = await self.db_session.execute(query)
+    client_row = result.fetchone()
     if client_row is not None:
       return client_row[0]
+
+
+
+
+
+
+
 
 
   async def update_client_by_id(self, client_id, kwargs):

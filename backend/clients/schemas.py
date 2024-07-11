@@ -3,6 +3,7 @@ from pydantic import BaseModel, constr, EmailStr
 from typing import Optional, List
 from datetime import date
 
+
 from backend.music.schemas import TrackCollectionShow
 
 
@@ -92,13 +93,33 @@ class ClientGroupDeleteResponse(BaseModel):
 class CleintGroupDeleteMessage(BaseModel):
   message: str
 
+
+# =================== CLIENT PROFILE ====================
+class ClientProfileBase(BaseModel):
+  address: str
+  full_name: str
+  certificate: str
+  contract_number: str
+  contract_date: date
+  
+  class Config:
+    from_attributes = True
+
+
+class ClientProfileDefaultResponse(ClientProfileBase):
+  id: int
+
+
+
+
 # =================== CLIENT ====================
 class BaseClient(BaseModel):
   name: str
   city: str
   email: EmailStr
   phone: str
-  price: float
+  price: int
+  client_group_id: int
   
   class Config:
     from_attributes = True
@@ -106,13 +127,17 @@ class BaseClient(BaseModel):
 
 class CreateClient(BaseClient):
   currency_id: int
-  user_id: int
+  profile: ClientProfileBase
 
+
+class ClientProfileCreateResponse(BaseClient):
+  id: int
+  profile: ClientProfileDefaultResponse
 
 
 class ShowClient(BaseClient):
-  client_id: int
-  user: int
+  id: int
+  profile: ClientProfileDefaultResponse
   track_collections: List[TrackCollectionShow] = None
   currency: CurrencyShow = None
 

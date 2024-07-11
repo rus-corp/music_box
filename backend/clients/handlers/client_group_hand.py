@@ -7,7 +7,7 @@ from backend.users.models import User
 
 from ..dals.client_cluster_dals import ClientClusterDAL
 from ..dals.client_group_dals import ClientGroupDAL
-from backend.auth.errors import not_Found_error, access_denied_error
+from backend.auth.errors import not_Found_error, access_denied_error, relation_exist
 from backend.users.dals import UserDAL
 
 
@@ -18,9 +18,12 @@ from backend.general_schemas import ClientGroupAppendUserResponse
 from backend.users.schemas import UserShowForClient
 
 
+from .mixin_handlers import ClientGroupMixins
 
 
-class ClientGroupHandler:
+
+
+class ClientGroupHandler(ClientGroupMixins):
   def __init__(self, session: AsyncSession, current_user: User = None) -> None:
     self.session = session
     self.client_group_dal = ClientGroupDAL(self.session)
@@ -157,21 +160,16 @@ class ClientGroupHandler:
   
   async def _append_user_to_client_group(self, client_group_id: int, user_id: int):
     async with self.session.begin():
-      client_group = await self.client_group_dal.get_scalar_client_group_by_id(
-        client_group_id
-      )
-      user_dal = UserDAL(self.session)
-      user = await user_dal.get_scalar_user(user_id)
-      
+      client_group = await self.get_client_group_from_db(client_group_id)
+      user = await self.get_user_from_db(user_id)
       
       if client_group is None or user is None:
+        await self.session.rollback()
         return not_Found_error
       
       if client_group in user.client_groups:
-        return JSONResponse(
-          content=f'User with id {user_id} has in group {client_group_id}',
-          status_code=400
-        )
+        await self.session.rollback()
+        return relation_exist(user_id, client_group_id)
       user.client_groups.append(client_group)
       
       await self.session.commit()
@@ -196,28 +194,21 @@ class ClientGroupHandler:
   
   async def _delete_user_from_client_group(self, client_group_id: int, user_id: int):
     async with self.session.begin():
-      client_group = await self.client_group_dal.get_scalar_client_group_by_id(
-        client_group_id
-      )
-      user_dal = UserDAL(self.session)
-      user = await user_dal.get_scalar_user(user_id)
+      client_group = await self.get_client_group_from_db(client_group_id)
+      user = await self.get_user_from_db(user_id)
+      
       if client_group is None or user is None:
+        await self.session.rollback()
         return not_Found_error
       
       if client_group not in user.client_groups:
-        return JSONResponse(
-          content=f'User with id {user_id} has not in group {client_group_id}',
-          status_code=400
-        )
+        await self.session.rollback()
+        return relation_exist(user_id, client_group_id, status=False)
       
       user.client_groups.remove(client_group)
       await self.session.commit()
       return JSONResponse(f'User with id {user_id} deleted from group {client_group_id}',
                           status_code=200)
-      
-      
-        
-
 
 
 

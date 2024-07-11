@@ -139,7 +139,6 @@ async def delete_client_group_by_id(
 
 
 
-# response_model=ClientGroupAppendUserResponse
 @router.post('/append_user_to_client_group/{client_group_id}', status_code=status.HTTP_201_CREATED,
              response_model=ClientGroupAppendUserResponse,
              responses= {
@@ -178,49 +177,6 @@ async def delete_user_from_client_group(
   else:
     return access_denied_error
 
-
-
-
-# /clients/client_groups/append_user_to_client_group
-# @router.post('/append')
-# async def add_user_to_client_group():pass
-# @router.post('/user_clients/{user_id}')
-# async def add_user_to_client_group(
-#   user_id: int,
-#   body: CreateClient,
-#   session: AsyncSession = Depends(get_db),
-#   permissions: bool = Depends(super_user_permission)
-# ):
-#   if permissions:
-#     user_handler = UserHandler(session)
-#     add_clients = await _add_user_clients(
-#       user_id=user_id, body=body
-#     )
-#     return add_clients
-#   else:
-#     return access_denied_error
-
-
-
-# @router.post('/append_user_to_client_group')
-# async def append_user_to_client_group(
-#   client_group_id: int,
-#   user_id: int,
-#   session: AsyncSession = Depends(get_db)
-# ):
-#   append_client = await _append_user_to_client_group(
-#     session, client_group_id, user_id
-#   )
-#   return append_client
-
-
-
-
-
-async def remove_user_from_client_group():pass
-
-
-async def change_users_client_group():pass
 
 
 

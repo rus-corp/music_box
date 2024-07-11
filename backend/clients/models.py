@@ -79,16 +79,18 @@ class Client(Base):
   phone:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
   price:Mapped[int] = mapped_column(nullable=True)
   
-  profile: Mapped['ClientProfile'] = relationship(back_populates='client')
+  profile: Mapped['ClientProfile'] = relationship(back_populates='client', lazy='joined')
   
   currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'))
-  currency: Mapped[Currency] = relationship(back_populates='clients')
+  currency: Mapped[Currency] = relationship(back_populates='clients', lazy='joined')
   
   client_group_id = mapped_column(sqlalchemy.ForeignKey('client_group.id'))
   client_group: Mapped['ClientGroup'] = relationship('ClientGroup', back_populates='clients')
   
   another_contract: Mapped[List['AnotherContracts']] = relationship(back_populates='client')
   track_collections: Mapped[List['TrackCollection']] = relationship(secondary='trackCollections_client_association', back_populates='clients')
+
+
 
 
 class ClientProfile(Base):

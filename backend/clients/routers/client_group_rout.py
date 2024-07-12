@@ -89,6 +89,7 @@ async def get_client_group_by_id_with_clients(
   return client_group
 
 
+
 @router.patch('/{client_group_id}', status_code=status.HTTP_200_OK, response_model=ClientGroupUpdateResponse)
 async def change_client_group_data(
   client_group_id: int,
@@ -106,6 +107,7 @@ async def change_client_group_data(
     return access_denied_error
 
 
+
 @router.delete('/{client_group_id}', status_code=status.HTTP_200_OK,
                response_model=Union[ClientGroupDeleteResponse,CleintGroupDeleteMessage])
 async def delete_client_group_by_id(
@@ -121,21 +123,6 @@ async def delete_client_group_by_id(
     return deleted_group
   else:
     return access_denied_error
-
-
-
-# @router.get('/client_group_with_users/{client_group_id}', status_code=status.HTTP_200_OK)
-# async def get_client_group_with_users(
-#   client_group_id: int,
-#   session: AsyncSession = Depends(get_db),
-#   permission: bool = Depends(super_user_permission)
-# ):
-#   if permission:
-#     clientHandlers = ClientGroupHandler(session)
-#     client_groups = await clientHandlers.
-#     return client_groups
-#   else:
-#     return access_denied_error
 
 
 
@@ -160,6 +147,7 @@ async def append_user_to_client_group(
     return access_denied_error
 
 
+
 @router.delete('/delete_user_grom_client_group/{client_group_id}',
                status_code=status.HTTP_200_OK, response_model=CleintGroupDeleteMessage)
 async def delete_user_from_client_group(
@@ -177,6 +165,19 @@ async def delete_user_from_client_group(
   else:
     return access_denied_error
 
+
+# @router.get('/client_group_with_users/{client_group_id}', status_code=status.HTTP_200_OK)
+# async def get_client_group_with_users(
+#   client_group_id: int,
+#   session: AsyncSession = Depends(get_db),
+#   permission: bool = Depends(super_user_permission)
+# ):
+#   if permission:
+#     clientHandlers = ClientGroupHandler(session)
+#     client_groups = await clientHandlers.
+#     return client_groups
+#   else:
+#     return access_denied_error
 
 
 

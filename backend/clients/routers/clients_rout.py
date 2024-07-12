@@ -106,69 +106,6 @@ async def delete_client_group_by_id(
 
 
 
-# @router.get('/', response_model=List[ShowClient])
-# async def get_all_clients(
-#   session: AsyncSession = Depends(get_db),
-#   permissions: bool = Depends(super_user_permission)
-# ):
-#   if permissions:
-#     result = await _get_all_clients(session)
-#     return result
-#   else:
-#     return access_denied_error
-
-
-
-# @router.get('/{client_id}', response_model=ShowClient)
-# async def get_client_by_id(
-#   client_id: int,
-#   session: AsyncSession = Depends(get_db),
-#   current_user: User = Depends(get_current_user_from_token)
-# ):
-#   permission = Permissions(current_user=current_user)
-#   permission_role = await permission.superuser_permission()
-#   if permission_role:
-#     client = await _get_client_by_id(
-#       session=session, client_id=client_id
-#     )
-#     return client
-#   else:
-#     return access_denied_error
-
-
-
-# @router.patch('/{client_id}', response_model=UpdateClientResponse)
-# async def update_client_by_id(
-#   body: UpdateClientRequest,
-#   session: AsyncSession = Depends(get_db),
-#   permissions: User = Depends(super_user_permission)
-# ):
-#   if permissions:
-#     updated_client = await _update_client_by_id(session=session, body=body)
-#     return updated_client
-#   else:
-#     return access_denied_error
-
-
-
-# @router.delete('/{client_id}', status_code=status.HTTP_204_NO_CONTENT)
-# async def delete_client_by_id(
-#   client_id: int,
-#   session: AsyncSession = Depends(get_db),
-#   permissions: User = Depends(super_user_permission)
-# ):
-#   if permissions:
-#     deleted_client = await _delete_client_by_id(session=session, client_id=client_id)
-#     return deleted_client
-#   else:
-#     return access_denied_error
-
-
-
-
-# @router.post('')
-# async def add_currency_to_user(): pass
-
 
 
 

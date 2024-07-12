@@ -73,27 +73,27 @@ class ClientDAL:
     updated_client = result.fetchone()
     if updated_client is not None:
       return updated_client[0]
-
-
-
-
-
-
-
-
-
-  async def get_client_for_append(self, client_id: int):
-    query = select(Client).where(Client.id == client_id)
-    client = await self.db_session.scalar(query)
-    return client
-
-
+  
+  
   async def delete_client(self, client_id):
     stmt = delete(Client).where(Client.id == client_id)
     deleted_client = await self.db_session.execute(stmt)
     await self.db_session.commit()
     if deleted_client is not None:
       return True
+
+
+
+
+
+
+
+
+  # async def get_client_for_append(self, client_id: int):
+  #   query = select(Client).where(Client.id == client_id)
+  #   client = await self.db_session.scalar(query)
+  #   return client
+
 
 
   # async def check_group_access(self, user_id: int, client_group_id: int) -> bool:

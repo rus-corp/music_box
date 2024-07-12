@@ -92,8 +92,7 @@ class ClientHandler:
     else:
       return errors.access_denied_error
     if client is None:
-      return JSONResponse(content=f'relationship between user {self.current_user.id}\
-        and client {client_id} not found', status_code=400)
+      return errors.not_Found_error
     return client
   
   
@@ -121,8 +120,16 @@ class ClientHandler:
         client_id=client_data.id, kwargs=body_data
       )
       return updated_client
-      
-
+  
+  
+  async def _delete_client_group_by_id(self, client_id: int):
+    async with self.session.begin():
+      client_data = await self.client_dal.check_client_in_db(client_id)
+      if client_data is None:
+        return errors.not_Found_error
+      deleted_client = await self.client_dal.delete_client(client_id)
+      if deleted_client:
+        return {'message': f'Client with id {client_id} deleted'}
 
 
 

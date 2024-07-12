@@ -55,9 +55,9 @@ async def get_all_clients(
 
 @router.get('/{client_id}', status_code=status.HTTP_200_OK,
             response_model=ShowClient, responses={
-              400: {'model': CleintGroupDeleteMessage}
+              404: {'model': CleintGroupDeleteMessage}
             })
-async def get_all_clients(
+async def get_client_by_id(
   client_id: int,
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
@@ -87,8 +87,22 @@ async def update_client_by_id(
     return updated_client
   else:
     return access_denied_error
-  
 
+
+@router.delete('/{client_id}', status_code=200, response_model=CleintGroupDeleteMessage)
+async def delete_client_group_by_id(
+  client_id: int,
+  session: AsyncSession = Depends(get_db),
+  permission: bool = Depends(super_user_permission)
+):
+  if permission:
+      client_handler_dal = ClientHandler(session)
+      deleted_client_group = await client_handler_dal._delete_client_group_by_id(
+        client_id=client_id
+      )
+      return deleted_client_group
+  else:
+    return access_denied_error
 
 
 

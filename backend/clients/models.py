@@ -79,7 +79,7 @@ class Client(Base):
   phone:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
   price:Mapped[int] = mapped_column(nullable=True)
   
-  profile: Mapped['ClientProfile'] = relationship(back_populates='client', lazy='joined')
+  profile: Mapped['ClientProfile'] = relationship(back_populates='client', lazy='joined', cascade='all, delete')
   
   currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'))
   currency: Mapped[Currency] = relationship(back_populates='clients', lazy='joined')
@@ -102,7 +102,7 @@ class ClientProfile(Base):
   contract_number: Mapped[str] = mapped_column(nullable=True)
   contract_date: Mapped[datetime] = mapped_column(nullable=True)
   
-  client_id:Mapped[int] = mapped_column(ForeignKey('client.id'))
+  client_id:Mapped[int] = mapped_column(ForeignKey('client.id', ondelete='CASCADE'))
   client: Mapped[Client] = relationship(back_populates='profile')
 
 

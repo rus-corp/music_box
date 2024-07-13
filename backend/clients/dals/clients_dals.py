@@ -21,7 +21,7 @@ class ClientDAL:
     
     
   async def create_client(self, name: str, city: str, email: str, phone: str,
-                          price, currency: Currency) -> Client:
+                          price, currency: Currency, client_group_id: int) -> Client:
     new_client = Client(
       name=name,
       city=city,
@@ -29,6 +29,8 @@ class ClientDAL:
       phone=phone,
       price=price,
       currency=currency,
+      client_group_id=client_group_id
+      
     )
     self.db_session.add(new_client)
     await self.db_session.flush()

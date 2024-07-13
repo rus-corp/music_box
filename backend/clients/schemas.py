@@ -94,6 +94,11 @@ class CleintGroupDeleteMessage(BaseModel):
   message: str
 
 
+class AppendUserToGroupRequest(BaseModel):
+  client_group_id: int
+  user_id: int
+
+
 # =================== CLIENT PROFILE ====================
 class ClientProfileBase(BaseModel):
   address: str

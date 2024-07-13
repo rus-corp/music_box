@@ -91,7 +91,7 @@ class ClientClusterHandler:
   
   async def _update_client_cluster(self, cluster_id: int, name: str):
     async with self.session.begin():
-      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups(cluster_id)
+      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups_superuser(cluster_id)
       if client_cluster is None:
         return not_Found_error
       updated_cluster = await self.cluster_dal.update_client_cluster_by_id(
@@ -102,7 +102,7 @@ class ClientClusterHandler:
   
   async def _delete_client_cluster(self, cluster_id: int):
     async with self.session.begin():
-      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups(cluster_id)
+      client_cluster = await self.cluster_dal.get_client_cluster_by_id_without_client_groups_superuser(cluster_id)
       if client_cluster is None:
         return not_Found_error
       deleted_cluster = await self.cluster_dal.delete_client_cluster_by_id(cluster_id)

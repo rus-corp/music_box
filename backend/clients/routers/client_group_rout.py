@@ -10,7 +10,7 @@ from backend.users.models import User
 
 from ..schemas import (ClientGroupCreateRequest, ClientGroupCreateResponse,
                        ClientGroupShowDefault, ClientGroupWithClientShow, ClientGroupUpdateRequset, ClientGroupUpdateResponse,
-                       ClientGroupDeleteResponse, CleintGroupDeleteMessage)
+                       ClientGroupDeleteResponse, CleintGroupDeleteMessage, AppendUserToGroupRequest)
 
 from backend.general_schemas import (ClientGroupAppendUserResponse)
 
@@ -126,21 +126,20 @@ async def delete_client_group_by_id(
 
 
 
-@router.post('/append_user_to_client_group/{client_group_id}', status_code=status.HTTP_201_CREATED,
+@router.post('/append_user_to_client_group', status_code=status.HTTP_201_CREATED,
              response_model=ClientGroupAppendUserResponse,
              responses= {
                400: {'model': CleintGroupDeleteMessage}
              })
 async def append_user_to_client_group(
-  client_group_id: int,
-  user_id: int,
+  body: AppendUserToGroupRequest,
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
     clientHandlers = ClientGroupHandler(session)
     appended_user = await clientHandlers._append_user_to_client_group(
-      client_group_id=client_group_id, user_id=user_id
+      body=body
     )
     return appended_user
   else:
@@ -148,18 +147,17 @@ async def append_user_to_client_group(
 
 
 
-@router.delete('/delete_user_grom_client_group/{client_group_id}',
+@router.delete('/delete_user_grom_client_group',
                status_code=status.HTTP_200_OK, response_model=CleintGroupDeleteMessage)
 async def delete_user_from_client_group(
-  client_group_id: int,
-  user_id: int,
+  body: AppendUserToGroupRequest,
   session: AsyncSession = Depends(get_db),
   permission: bool = Depends(super_user_permission)
 ):
   if permission:
     clientHandlers = ClientGroupHandler(session)
     deleted_user = await clientHandlers._delete_user_from_client_group(
-      client_group_id=client_group_id, user_id=user_id
+      body=body
     )
     return deleted_user
   else:

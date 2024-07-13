@@ -89,7 +89,7 @@ class DeleteUserResponse(UserBase):
 class UserShowForClient(UserBase):
   id: int
   name: str
-  comment: str
+  comment: str | None
   login: str
   email: str
   is_active: bool

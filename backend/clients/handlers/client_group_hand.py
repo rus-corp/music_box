@@ -13,7 +13,8 @@ from backend.users.dals import UserDAL
 
 
 from ..schemas import (ClientGroupShow, ClientGroupCreateRequest, ClientGroupCreateResponse, ClientClusterShow,
-                      ClientGroupUpdateRequset, ClientGroupUpdateResponse, ClientClusterShow, CleintGroupDeleteMessage, ClientGroupDeleteResponse)
+                      ClientGroupUpdateRequset, ClientGroupUpdateResponse, ClientClusterShow,
+                      CleintGroupDeleteMessage, ClientGroupDeleteResponse, AppendUserToGroupRequest)
 from backend.general_schemas import ClientGroupAppendUserResponse
 from backend.users.schemas import UserShowForClient
 
@@ -29,6 +30,7 @@ class ClientGroupHandler(ClientGroupMixins):
     self.client_group_dal = ClientGroupDAL(self.session)
     self.current_user = current_user
     self.roles = ['client', 'manager']
+  
   
   async def _create_client_group(self, name: str, comment: str, client_cluster_id: int):
     client_group_cerated = await self.client_group_dal.create_client_group(
@@ -158,10 +160,11 @@ class ClientGroupHandler(ClientGroupMixins):
         )
   
   
-  async def _append_user_to_client_group(self, client_group_id: int, user_id: int):
+  async def _append_user_to_client_group(self, body: AppendUserToGroupRequest):
     async with self.session.begin():
-      client_group = await self.get_client_group_from_db(client_group_id)
-      user = await self.get_user_from_db(user_id)
+      body_data = body.model_dump()
+      client_group = await self.get_client_group_from_db(body_data['client_group_id'])
+      user = await self.get_user_from_db(body_data['user_id'])
       
       if client_group is None or user is None:
         await self.session.rollback()
@@ -169,7 +172,7 @@ class ClientGroupHandler(ClientGroupMixins):
       
       if client_group in user.client_groups:
         await self.session.rollback()
-        return relation_exist(user_id, client_group_id)
+        return relation_exist(body_data['user_id'], body_data['client_group_id'])
       user.client_groups.append(client_group)
       
       await self.session.commit()
@@ -178,7 +181,7 @@ class ClientGroupHandler(ClientGroupMixins):
       id=user.id,
       name=user.name,
       comment=user.comment,
-      login=user.comment,
+      login=user.login,
       email=user.email,
       is_active=user.is_active,
       is_superuser=user.is_superuser
@@ -192,10 +195,11 @@ class ClientGroupHandler(ClientGroupMixins):
     )
   
   
-  async def _delete_user_from_client_group(self, client_group_id: int, user_id: int):
+  async def _delete_user_from_client_group(self, body: AppendUserToGroupRequest):
     async with self.session.begin():
-      client_group = await self.get_client_group_from_db(client_group_id)
-      user = await self.get_user_from_db(user_id)
+      body_data = body.model_dump()
+      client_group = await self.get_client_group_from_db(body_data['client_group_id'])
+      user = await self.get_user_from_db(body_data['user_id'])
       
       if client_group is None or user is None:
         await self.session.rollback()
@@ -203,11 +207,11 @@ class ClientGroupHandler(ClientGroupMixins):
       
       if client_group not in user.client_groups:
         await self.session.rollback()
-        return relation_exist(user_id, client_group_id, status=False)
+        return relation_exist(body_data['user_id'], body_data['client_group_id'], status=False)
       
       user.client_groups.remove(client_group)
       await self.session.commit()
-      return JSONResponse(f'User with id {user_id} deleted from group {client_group_id}',
+      return JSONResponse(f'User with id {body_data["user_id"]} deleted from group {body_data["client_group_id"]}',
                           status_code=200)
 
 

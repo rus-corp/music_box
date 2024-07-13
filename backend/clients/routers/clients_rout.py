@@ -106,7 +106,21 @@ async def delete_client_group_by_id(
 
 
 
+@router.post('/append_track_collection_to_client', status_code=status.HTTP_201_CREATED)
+async def append_track_collection_to_client(
+  session: AsyncSession = Depends(get_db),
+  current_user = Depends(get_db),
+):
+  client_handler_dal = ClientHandler(session, current_user)
 
+
+
+@router.delete('/delete_track_collection_from_client')
+async def delete_track_collection_from_client(
+  session: AsyncSession = Depends(get_db),
+  current_user = Depends(get_db),
+):
+  client_handler_dal = ClientHandler(session, current_user)
 
 
 # @router.post('/add_client_to_track_collection/{track_collection_id}', response_model=ShowClient)

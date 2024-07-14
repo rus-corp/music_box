@@ -5,7 +5,8 @@ from typing import List
 from backend.auth.security import super_user_permission, get_current_user_from_token
 from backend.auth.errors import access_denied_error
 from backend.database import get_db
-from ..schemas import ClientClusterShow, ClientClusterShow, ClientClusterDeleteResponse, ClientClusterShow_With_ClientGroups, ClientClusterShow_With_Listr_ClientGroups
+from ..schemas import (ClientClusterShow, ClientClusterShow, ClientClusterDeleteResponse,
+                       ClientClusterShow_With_ClientGroups, ClientClusterShow_With_Listr_ClientGroups, CleintGroupDeleteMessage)
 from backend.users.models import User
 
 from ..handlers.client_cluster_hand import ClientClusterHandler
@@ -46,17 +47,6 @@ async def get_all_client_clusters_without_client_groups(
 
 
 
-# @router.get('/with_client_groups', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
-# async def get_all_client_clusters_with_client_groups(
-#   session: AsyncSession = Depends(get_db),
-#   current_user: User = Depends(get_current_user_from_token)
-# ):
-#   cluster_handler = ClientClusterHandler(session, current_user)
-#   client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
-#   return client_cluster
-
-
-
 @router.get('/cluster_without_client_group/{cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
 async def get_client_cluster_by_id_without_client_groups(
   cluster_id: int,
@@ -66,18 +56,6 @@ async def get_client_cluster_by_id_without_client_groups(
   cluster_handler = ClientClusterHandler(session, current_user)
   client_cluster = await cluster_handler._get_client_cluster_by_id_without_client_groups(cluster_id)
   return client_cluster
-
-
-
-# @router.get('/cluster_with_client_group/{cluster_id}', response_model=ClientClusterShow_With_Listr_ClientGroups, status_code=status.HTTP_200_OK)
-# async def get_client_cluster_by_id_with_client_groups(
-#   cluster_id: int,
-#   session: AsyncSession = Depends(get_db),
-#   current_user: User = Depends(get_current_user_from_token)
-# ):
-#   cluster_handler = ClientClusterHandler(session, current_user)
-#   client_cluster = await cluster_handler._get_client_cluster_by_id_with_client_groups(cluster_id)
-#   return client_cluster
 
 
 
@@ -98,7 +76,10 @@ async def update_client_cluster_by_id(
     return access_denied_error
 
 
-@router.delete('/{cluster_id}', status_code=status.HTTP_200_OK, response_model=ClientClusterDeleteResponse)
+@router.delete('/{cluster_id}', status_code=status.HTTP_200_OK, response_model=ClientClusterDeleteResponse,
+               responses={
+                 400: {'model': CleintGroupDeleteMessage}
+               })
 async def delete_client_cluster_by_id(
   cluster_id: int,
   session: AsyncSession = Depends(get_db),
@@ -113,6 +94,25 @@ async def delete_client_cluster_by_id(
 
 
 
+# @router.get('/with_client_groups', response_model=ClientClusterShow_With_ClientGroups, status_code=status.HTTP_200_OK)
+# async def get_all_client_clusters_with_client_groups(
+#   session: AsyncSession = Depends(get_db),
+#   current_user: User = Depends(get_current_user_from_token)
+# ):
+#   cluster_handler = ClientClusterHandler(session, current_user)
+#   client_cluster = await cluster_handler._get_all_client_clusters_with_client_groups()
+#   return client_cluster
+
+
+# @router.get('/cluster_with_client_group/{cluster_id}', response_model=ClientClusterShow_With_Listr_ClientGroups, status_code=status.HTTP_200_OK)
+# async def get_client_cluster_by_id_with_client_groups(
+#   cluster_id: int,
+#   session: AsyncSession = Depends(get_db),
+#   current_user: User = Depends(get_current_user_from_token)
+# ):
+#   cluster_handler = ClientClusterHandler(session, current_user)
+#   client_cluster = await cluster_handler._get_client_cluster_by_id_with_client_groups(cluster_id)
+#   return client_cluster
 
 
 

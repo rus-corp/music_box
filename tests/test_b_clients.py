@@ -1,9 +1,10 @@
 from httpx import AsyncClient
-
+import json
 
 from .test_data import (client_clusters_data, client_groups_data, currency_data,
                         client_data, client_profile, append_user_to_client_group_list)
-from .test_a_users import test_bad_token, create_test_super_user_access_token, create_test_user_token
+from .test_a_users import (test_bad_token, create_test_super_user_access_token,
+                           create_test_user_token, create_test_empty_user_token)
 
 
 
@@ -104,75 +105,71 @@ async def test_append_client_to_client_group(ac: AsyncClient, create_test_super_
     assert len(user_clients) == len(counter)
 
 
+async def test_filter_user_clusters(ac: AsyncClient, create_test_empty_user_token, create_test_user_token):
+  client_clusters = await ac.get('/clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
+  assert client_clusters.status_code == 200
+  client_clusters_db = client_clusters.json()
+  for cluster in client_clusters_db:
+    id = cluster['id']
+    assert cluster['name'] == client_clusters_data[id - 1]['name']
+  empty_client_clusters = await ac.get('/clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_empty_user_token["access_token"]}'})
+  assert empty_client_clusters.status_code == 200
+  empty_client_clusters_db = empty_client_clusters.json()
+  assert len(empty_client_clusters_db) == 0
+    
 
 
-# async def test_get_client_group_with_clients(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-#   client_groups = await ac.get('clients/client_groups/with_clients/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-#   assert client_groups.status_code == 200
-#   client_groups_list = client_groups.json()
-#   for item in client_groups_list:
-#     assert item['clients']
+
+async def test_filter_client_groups(ac: AsyncClient, create_test_empty_user_token, create_test_user_token):
+  client_groups = await ac.get('/clients/client_groups/', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
+  assert client_groups.status_code == 200
+  client_groups_db = client_groups.json()
+  for item in client_groups_db:
+    id = item['id']
+    assert item['name'] == client_groups_data[id - 1]['name']
+    assert item['client_cluster']['id'] == client_groups_data[id - 1]['client_cluster_id']
+  emty_client_groups = await ac.get('/clients/client_groups/', headers={'Authorization': f'Bearer {create_test_empty_user_token["access_token"]}'})
+  assert emty_client_groups.status_code == 200
+  emty_client_groups_db = emty_client_groups.json()
+  assert len(emty_client_groups_db) == 0
+
+
+
+
+async def test_filter_client_groups_with_clients(ac: AsyncClient, create_test_empty_user_token, create_test_user_token):
+  client_groups = await ac.get('/clients/client_groups/with_clients/', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
+  assert client_groups.status_code == 200
+  client_groups_db = client_groups.json()
+  assert len(client_groups_db) == 3
+  for group in client_groups_db:
+    group_id = group['id']
+    clients = group['clients']
+    for client in clients:
+      client_id = client['id']
+      assert client_data[client_id - 1]['client_group_id'] == group_id
+  empty_clients = await ac.get('/clients/client_groups/with_clients/', headers={'Authorization': f'Bearer {create_test_empty_user_token["access_token"]}'})
+  assert empty_clients.status_code == 200
+  empty_clients_db = empty_clients.json()
+  assert len(empty_clients_db) == 0
+
+b'{"detail":[{"type":"int_parsing","loc":["path","client_group_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"delete_user_grom_client_group","url":"https://errors.pydantic.dev/2.5/v/int_parsing"}]}'
+async def test_delete_client_from_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
+  user_clients_group = await ac.get('/users/user_clients/2', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
+  assert user_clients_group.status_code == 200
+  user_clients_group_db = user_clients_group.json()
+  user_clients = user_clients_group_db['client_groups']
+  assert len(user_clients) == 3
+  body = {'client_group_id': 1, 'user_id': 2}
+  delete_user_from_group = await ac.request(method='DELETE', url='/clients/client_groups/delete_user_from_client_group/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'}, json=body)
+  assert delete_user_from_group.status_code == 200
+  user_clients_group_after = await ac.get('/users/user_clients/2', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
+  assert user_clients_group_after.status_code == 200
+  user_clients_after_del = user_clients_group_after.json()
+  user_clients_group_after_del = user_clients_after_del['client_groups']
+  clients_len_after = len(user_clients_group_after_del)
+  assert clients_len_after + 1 == len(user_clients)
   
 
 
-async def test_update_client_cluster(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  body = {'cluster_id': 1, 'name': 'new name'}
-  cluster_update = await ac.patch('clients/client_cluster/1', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'}, params=body)
-  assert cluster_update.status_code == 200
-  cluster_db = cluster_update.json()
-  assert cluster_db['id'] == 1
-  assert cluster_db['name'] == body['name']
-  cluster_bad_req = await ac.patch('clients/client_cluster/1', params=body, headers={'Authorization': f'Bearer {test_bad_token}'})
-  assert cluster_bad_req.status_code == 401
-  cluster_access_denied = await ac.patch('clients/client_cluster/1', params=body, headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
-  assert cluster_access_denied.status_code == 405
+# async def test_filter_clients(ac: AsyncClient, create_test_empty_user_token, create_test_user_token): pass
 
-
-
-# async def test_delete_cluster(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-#   cluster_before_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-#   assert cluster_before_delete.status_code == 200
-#   cluster_before_db = cluster_before_delete.json()
-#   assert len(cluster_before_db) == len(client_clusters_data)
-#   delete_cluster = await ac.delete('clients/client_cluster/1', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-#   assert delete_cluster.status_code == 200
-#   cluster_after_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-#   assert cluster_after_delete.status_code == 200
-#   cluster_after_db = cluster_after_delete.json()
-#   assert len(cluster_after_db) == len(cluster_before_db) - 1
-
-
-
-
-
-
-
-
-
-# async def test_get_client_cluster_by_id(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-#   client_cluster = await ac.get('clients/client_cluster/cluster_without_client_group/1', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-#   assert client_cluster.status_code == 200
-#   cluster_db = client_cluster.json()
-#   assert cluster_db['name'] == client_clusters_data[0]['name']
-
-
-
-
-async def test_delete_cluster(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  cluster_before_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert cluster_before_delete.status_code == 200
-  cluster_before_db = cluster_before_delete.json()
-  assert len(cluster_before_db) == len(client_clusters_data)
-  delete_cluster = await ac.delete('clients/client_cluster/1', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert delete_cluster.status_code == 200
-  cluster_after_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert cluster_after_delete.status_code == 200
-  cluster_after_db = cluster_after_delete.json()
-  assert len(cluster_after_db) == len(cluster_before_db) - 1
-
-
-
-
-
-# (ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-# (ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):

@@ -29,6 +29,7 @@ users_data = [
   {"name": "ant", "login": "ant", "email": "ant@example.com", "password": "12345", "comment": "string", "role_id": 3},
   {"name": "and", "login": "and", "email": "and@example.com", "password": "12345", "role_id": 3},
   {"name": "kost", "login": "kost", "email": "kost@example.com", "password": "12345", "role_id": 2},
+  {"name": "Anatoliy", "login": "anat", "email": "anat@example.com", "password": "12345", "role_id": 3},
 ]
 
 currency_data = [
@@ -51,7 +52,7 @@ client_groups_data = [
   {'name': 'Вкусная планета', 'comment': '', 'client_cluster_id': 2},
   {'name': 'Еда в радость', 'comment': '', 'client_cluster_id': 3},
   {'name': 'Гастрономические путешествия', 'comment': 'комментарий', 'client_cluster_id': 4},
-  {'name': 'Сытый гость', 'comment': '', 'client_cluster_id': 5},
+  {'name': 'Сытый гость', 'comment': '', 'client_cluster_id': 1},
   {'name': 'Кулинарный рай', 'comment': '', 'client_cluster_id': 1},
   {'name': 'Традиции вкуса', 'comment': '', 'client_cluster_id': 1},
   {'name': 'Домашний очаг', 'comment': 'комментарий', 'client_cluster_id': 2},
@@ -65,6 +66,35 @@ client_groups_data = [
   {'name': 'Ели Сумели', 'comment': '', 'client_cluster_id': 4},
   {'name': 'Доби Хуеби', 'comment': 'комментарий', 'client_cluster_id': 4},
 ]
+
+
+append_user_to_client_group_list = [
+  {'client_group_id': 1, 'user_id': 2},
+  {'client_group_id': 2, 'user_id': 3},
+  {'client_group_id': 3, 'user_id': 4},
+  {'client_group_id': 4, 'user_id': 5},
+  {'client_group_id': 5, 'user_id': 6},
+  {'client_group_id': 6, 'user_id': 7},
+  {'client_group_id': 7, 'user_id': 8},
+  {'client_group_id': 8, 'user_id': 9},
+  {'client_group_id': 1, 'user_id': 10},
+  {'client_group_id': 2, 'user_id': 2},
+  {'client_group_id': 3, 'user_id': 3},
+  {'client_group_id': 4, 'user_id': 4},
+  {'client_group_id': 5, 'user_id': 5},
+  {'client_group_id': 6, 'user_id': 6},
+  {'client_group_id': 7, 'user_id': 7},
+  {'client_group_id': 8, 'user_id': 8},
+  {'client_group_id': 9, 'user_id': 9},
+  {'client_group_id': 10, 'user_id': 6},
+  {'client_group_id': 1, 'user_id': 7},
+  {'client_group_id': 2, 'user_id': 12},
+  {'client_group_id': 4, 'user_id': 2},
+  {'client_group_id': 5, 'user_id': 3},
+  {'client_group_id': 6, 'user_id': 4},
+  {'client_group_id': 7, 'user_id': 5},
+]
+
 
 
 client_data = [
@@ -156,11 +186,6 @@ client_profile = [
 ]
 
 
-# for ind, item in enumerate(client_data):
-#     params = {"name": item['name'], "city": item['city'], "email": item['email'], "phone": item['phone'], "price": item['price'], "client_group_id": item['client_group_id'], "currency_id": item['currency_id'],
-#               'profile': client_profile[ind]}
-#     print(params)
-
 
 
 
@@ -183,34 +208,9 @@ track_group_data = [
   {'player_option': True, 'group_coollection_id': 1},
 ]
 
-from collections import Counter
+# from collections import Counter
 
-append_user_to_client_group_list = [
-  {'client_group_id': 1, 'user_id': 2},
-  {'client_group_id': 2, 'user_id': 3},
-  {'client_group_id': 3, 'user_id': 4},
-  {'client_group_id': 4, 'user_id': 5},
-  {'client_group_id': 5, 'user_id': 6},
-  {'client_group_id': 6, 'user_id': 7},
-  {'client_group_id': 7, 'user_id': 8},
-  {'client_group_id': 8, 'user_id': 9},
-  {'client_group_id': 1, 'user_id': 10},
-  {'client_group_id': 2, 'user_id': 2},
-  {'client_group_id': 3, 'user_id': 3},
-  {'client_group_id': 4, 'user_id': 4},
-  {'client_group_id': 5, 'user_id': 5},
-  {'client_group_id': 6, 'user_id': 6},
-  {'client_group_id': 7, 'user_id': 7},
-  {'client_group_id': 8, 'user_id': 8},
-  {'client_group_id': 9, 'user_id': 9},
-  {'client_group_id': 10, 'user_id': 6},
-  {'client_group_id': 1, 'user_id': 7},
-  {'client_group_id': 2, 'user_id': 12},
-  {'client_group_id': 4, 'user_id': 2},
-  {'client_group_id': 5, 'user_id': 3},
-  {'client_group_id': 6, 'user_id': 4},
-  {'client_group_id': 7, 'user_id': 5},
-]
+
 
 # unqiue_items = [tuple(item.items()) for item in append_user_to_client_group_list]
 # print(unqiue_items is append_user_to_client_group_list)
@@ -220,9 +220,9 @@ append_user_to_client_group_list = [
 # else:
 #   print('not uniqu')
 
-filterd_clients = [entry['client_group_id'] for entry in append_user_to_client_group_list if entry['user_id'] == 2]
-counter = Counter(filterd_clients)
-count_len = len(counter)
+# filterd_clients = [entry['client_group_id'] for entry in append_user_to_client_group_list if entry['user_id'] == 2]
+# counter = Counter(filterd_clients)
+# count_len = len(counter)
 # print(count_len)
 
 

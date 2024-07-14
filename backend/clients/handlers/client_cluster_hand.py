@@ -1,11 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi.responses import JSONResponse
 
 
 from backend.auth.errors import not_Found_error
 
 from ..dals.client_cluster_dals import ClientClusterDAL
-from ..schemas import ClientClusterDeleteResponse, ClientClusterShow_With_ClientGroups, ClientClusterShow
+from ..schemas import (ClientClusterDeleteResponse, ClientClusterShow_With_ClientGroups,
+                       ClientClusterShow, CleintGroupDeleteMessage)
 
 from backend.users.models import User
 from backend.auth.errors import access_denied_error
@@ -38,28 +39,6 @@ class ClientClusterHandler:
       return access_denied_error
   
   
-  async def _get_all_client_clusters_with_client_groups(self):
-    if self.current_user.is_superuser:
-      client_clusters = await self.cluster_dal.get_all_client_clusters_with_client_groups_superuser()
-      return list(client_clusters)
-    elif self.current_user.role.role_name in self.roles:
-      client_clusters = await self.cluster_dal.get_all_client_clusters_with_client_groups_manager(
-        user_id=self.current_user.id
-      )
-      clusters= []
-      for cluster_data, group_data in client_clusters:
-        clusters.append(
-          ClientClusterShow_With_ClientGroups(
-            id = cluster_data.id,
-            name=cluster_data.name,
-            client_groups=[group_data]
-          )
-        )
-      return clusters
-    else:
-      return access_denied_error
-  
-  
   
   async def _get_client_cluster_by_id_without_client_groups(self, cluster_id: int):
     if self.current_user.is_superuser:
@@ -73,19 +52,6 @@ class ClientClusterHandler:
     if client_cluster is None:
       return not_Found_error
     return client_cluster
-  
-  
-  async def _get_client_cluster_by_id_with_client_groups(self, cluster_id: int):
-    if self.current_user.is_superuser:
-      client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_superuser(cluster_id)
-      return client_cluster
-    # elif self.current_user.role.role_name in self.roles:
-    #   client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_manager(
-    #     user_id=self.current_user.id, cluster_id=cluster_id
-    #   )
-    else:
-      return access_denied_error
-  
   
   
   
@@ -106,4 +72,41 @@ class ClientClusterHandler:
       if client_cluster is None:
         return not_Found_error
       deleted_cluster = await self.cluster_dal.delete_client_cluster_by_id(cluster_id)
+      if isinstance(deleted_cluster, str):
+        return JSONResponse(content=deleted_cluster, status_code=400)
       return ClientClusterDeleteResponse(id=deleted_cluster)
+  
+  
+  
+  # async def _get_all_client_clusters_with_client_groups(self):
+  #   if self.current_user.is_superuser:
+  #     client_clusters = await self.cluster_dal.get_all_client_clusters_with_client_groups_superuser()
+  #     return list(client_clusters)
+  #   elif self.current_user.role.role_name in self.roles:
+  #     client_clusters = await self.cluster_dal.get_all_client_clusters_with_client_groups_manager(
+  #       user_id=self.current_user.id
+  #     )
+  #     clusters= []
+  #     for cluster_data, group_data in client_clusters:
+  #       clusters.append(
+  #         ClientClusterShow_With_ClientGroups(
+  #           id = cluster_data.id,
+  #           name=cluster_data.name,
+  #           client_groups=[group_data]
+  #         )
+  #       )
+  #     return clusters
+  #   else:
+  #     return access_denied_error
+  
+  
+  # async def _get_client_cluster_by_id_with_client_groups(self, cluster_id: int):
+  #   if self.current_user.is_superuser:
+  #     client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_superuser(cluster_id)
+  #     return client_cluster
+  #   # elif self.current_user.role.role_name in self.roles:
+  #   #   client_cluster = await self.cluster_dal.get_client_cluster_by_id_with_client_groups_manager(
+  #   #     user_id=self.current_user.id, cluster_id=cluster_id
+  #   #   )
+  #   else:
+  #     return access_denied_error

@@ -147,7 +147,7 @@ async def append_user_to_client_group(
 
 
 
-@router.delete('/delete_user_grom_client_group',
+@router.delete('/delete_user_from_client_group/',
                status_code=status.HTTP_200_OK, response_model=CleintGroupDeleteMessage)
 async def delete_user_from_client_group(
   body: AppendUserToGroupRequest,

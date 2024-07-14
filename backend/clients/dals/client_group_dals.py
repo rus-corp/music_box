@@ -68,7 +68,7 @@ class ClientGroupDAL:
   async def get_client_group_by_id_with_clients_superuser(self, client_group_id: int):
     query = select(ClientGroup).where(ClientGroup.id == client_group_id).options(joinedload(ClientGroup.clients))
     result = await self.db_session.execute(query)
-    client_group = result.fetchone()
+    client_group = result.unique().fetchone()
     if client_group is not None:
       return client_group[0]
   

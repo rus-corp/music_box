@@ -27,6 +27,22 @@ def create_test_user_token():
   return {'access_token': token, 'token_type': 'bearer'}
 
 
+@pytest.fixture(scope='session')
+def create_test_empty_user_token():
+  user = users_data[12]
+  token = create_access_token(
+    data={'sub': user['email'], 'role': 'manager'}
+  )
+  return {'access_token': token, 'token_type': 'bearer'}
+
+
+
+
+
+
+
+
+
 
 async def test_create_super_user(ac: AsyncClient):
   super_create = await ac.post('/users/', json=users_data[0])
@@ -87,7 +103,7 @@ async def test_create_users(ac: AsyncClient, create_test_super_user_access_token
   user_list = await ac.get('/users/', headers={'Authorization': f'Bearer {token}'})
   assert user_list.status_code == 200
   db_users = user_list.json()
-  assert len(db_users) == 12
+  assert len(db_users) == len(users_data)
   acces_denied_response = await ac.get('/users/')
   assert acces_denied_response.status_code == 401
   

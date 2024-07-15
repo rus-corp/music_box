@@ -37,19 +37,35 @@ class ClientDAL:
     return new_client
   
   
-  async def get_all_clients_with_profiles_superuser(self):
-    query = select(Client).options(joinedload(Client.client_group), selectinload(Client.track_collections)).order_by(Client.id)
+  async def get_all_clients_with_profiles_and_track_collection_superuser(self):
+    query = select(Client).options(joinedload(Client.track_collections)).order_by(Client.id)
     result = await self.db_session.execute(query)
-    return result.scalars().all()
+    return result.unique().scalars().all()
   
   
-  async def get_all_clients_with_profiles_manager(self, user_id: int):
+  async def get_all_clients_with_profiles_and_track_collection_manager(self, user_id: int):
     query = select(Client).options(selectinload(Client.track_collections)).join(Client.client_group).join(user_client_group_association).join(User).filter(User.id == user_id)
     result = await self.db_session.execute(query)
+    return result.unique().scalars().all()
+  
+  
+  async def get_all_clients_with_client_group_superuser(self):
+    query = select(Client).options(joinedload(Client.client_group)).order_by(Client.id)
+    result = await self.db_session.execute(query)
     return result.scalars().all()
   
   
-  async def get_client_by_id_superuser(self, client_id: int):
+  async def get_all_clients_with_client_group_manager(self, user_id: int):
+    query = select(Client).options(joinedload(Client.client_group))\
+      .join(Client.client_group)\
+        .join(user_client_group_association)\
+          .join(User)\
+            .filter(User.id == user_id)
+    result = await self.db_session.execute(query)
+    return result.scalars().all()
+  
+  
+  async def get_client_with_track_collection_by_id_superuser(self, client_id: int):
     query = select(Client).where(Client.id == client_id).options(joinedload(Client.client_group), selectinload(Client.track_collections))
     result = await self.db_session.execute(query)
     client_row = result.fetchone()
@@ -57,8 +73,28 @@ class ClientDAL:
       return client_row[0] 
   
   
-  async def get_client_by_id_manager(self, client_id: int, user_id: int):
+  async def get_client_with_track_collection_by_id_manager(self, client_id: int, user_id: int):
     query = select(Client).options(selectinload(Client.track_collections))\
+      .join(Client.client_group)\
+        .join(user_client_group_association)\
+          .join(User)\
+            .filter(and_(User.id == user_id, Client.id == client_id))
+    result = await self.db_session.execute(query)
+    client_row = result.fetchone()
+    if client_row is not None:
+      return client_row[0]
+  
+  
+  async def get_client_by_id_with_client_group_superuser(self, client_id: int):
+    query = select(Client).options(joinedload(Client.client_group)).where(Client.id == client_id)
+    result = await self.db_session.execute(query)
+    client_row = result.fetchone()
+    if client_row is not None:
+      return client_row[0]
+  
+  
+  async def get_client_by_id_with_client_group_manager(self, client_id: int, user_id: int):
+    query = select(Client).options(joinedload(Client.client_group))\
       .join(Client.client_group)\
         .join(user_client_group_association)\
           .join(User)\

@@ -53,5 +53,3 @@ async def _delete_currency(session: AsyncSession, currency_id: int):
     return deleted_currency
 
 
-
-async def _add_currency_to_client(session: AsyncSession, client_id: int): pass

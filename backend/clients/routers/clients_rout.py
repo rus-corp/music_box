@@ -9,7 +9,7 @@ from backend.auth.permissions import Permissions
 from backend.database import get_db
 from backend.users.models import User
 from ..schemas import (CleintGroupDeleteMessage, ClientProfileCreateResponse, CreateClient, UpdateClientRequest,
-                       UpdateClientResponse, ShowClient)
+                       UpdateClientResponse, ShowClientWithTrackColections, ShowClientWithClientGroup)
 
 
 from ..handlers.clients_hand import ClientHandler
@@ -42,35 +42,63 @@ async def create_client(
 
 
 @router.get('/', status_code=status.HTTP_200_OK,
-            response_model=List[ShowClient])
-async def get_all_clients(
+            response_model=List[ShowClientWithTrackColections])
+async def get_all_clients_with_track_collection_and_currency(
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
 ):
   client_handler_dal = ClientHandler(session, current_user=current_user)
-  clients_list = await client_handler_dal._get_all_clients()
+  clients_list = await client_handler_dal._get_all_clients_with_track_collecions()
   return clients_list
 
 
 
-@router.get('/{client_id}', status_code=status.HTTP_200_OK,
-            response_model=ShowClient, responses={
-              404: {'model': CleintGroupDeleteMessage}
+@router.get('/clients_with_client_groups', status_code=status.HTTP_200_OK, response_model=List[ShowClientWithClientGroup])
+async def get_clients_with_client_groups(
+  session: AsyncSession = Depends(get_db),
+  current_user = Depends(get_current_user_from_token)
+):
+  client_handler_dal = ClientHandler(session, current_user=current_user)
+  clients_list = await client_handler_dal._get_all_clients_with_client_groups()
+  return clients_list
+
+
+
+@router.get('/clients_with_client_groups/{client_id}', status_code=status.HTTP_200_OK,
+            response_model= ShowClientWithClientGroup,
+            responses={
+              400: {'model': CleintGroupDeleteMessage}
             })
-async def get_client_by_id(
+async def get_client_by_id_with_client_group(
   client_id: int,
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
 ):
   client_handler_dal = ClientHandler(session, current_user=current_user)
-  client_item = await client_handler_dal._get_client_by_id(
+  client_item = await client_handler_dal._get_client_by_id_with_client_group(
+    client_id=client_id
+  )
+  return client_item
+
+
+@router.get('/{client_id}', status_code=status.HTTP_200_OK,
+            response_model=ShowClientWithTrackColections, responses={
+              404: {'model': CleintGroupDeleteMessage}
+            })
+async def get_client_by_id_with_track_collection_and_currency(
+  client_id: int,
+  session: AsyncSession = Depends(get_db),
+  current_user = Depends(get_current_user_from_token)
+):
+  client_handler_dal = ClientHandler(session, current_user=current_user)
+  client_item = await client_handler_dal._get_client_by_id_with_track_collecions(
     client_id=client_id
   )
   return client_item
 
 
 @router.patch('/{client_id}', status_code=status.HTTP_200_OK,
-              response_model=ShowClient, responses={
+              response_model=ShowClientWithTrackColections, responses={
                 404: {'model': CleintGroupDeleteMessage}
               })
 async def update_client_by_id(

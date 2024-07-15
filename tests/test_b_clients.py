@@ -15,7 +15,6 @@ async def test_create_client_cluster(ac: AsyncClient, create_test_super_user_acc
   client_cluster_req = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
   assert client_cluster_req.status_code == 200
   cluster_data = client_cluster_req.json()
-  print(cluster_data)
   assert len(cluster_data) == len(client_clusters_data)
   
   cluster_create_bad = await ac.post('/clients/client_cluster/', headers={'Authorization': f'Bearer {test_bad_token}'})
@@ -152,7 +151,7 @@ async def test_filter_client_groups_with_clients(ac: AsyncClient, create_test_em
   empty_clients_db = empty_clients.json()
   assert len(empty_clients_db) == 0
 
-b'{"detail":[{"type":"int_parsing","loc":["path","client_group_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"delete_user_grom_client_group","url":"https://errors.pydantic.dev/2.5/v/int_parsing"}]}'
+
 async def test_delete_client_from_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
   user_clients_group = await ac.get('/users/user_clients/2', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
   assert user_clients_group.status_code == 200

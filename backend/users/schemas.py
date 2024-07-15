@@ -3,9 +3,6 @@ from pydantic import BaseModel, constr, EmailStr
 from typing import Optional, List
 
 
-from backend.clients.schemas import ShowUserClients
-
-
 
 # =============== User Role Schemas ==================
 

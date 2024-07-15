@@ -8,6 +8,10 @@ from backend.database import get_db
 from backend.music import schemas
 
 
+
+from backend.auth.security import super_user_permission, get_current_user_from_token
+
+
 from backend.music.music_handlers.track_group_handlers import (_get_track_collections_without_trakcs,
                        _get_track_collection_by_id_without_trakcs, _update_track_collection,
                        _delete_track_collection, _create_track_and_group_collections,
@@ -125,3 +129,16 @@ async def delete_track_from_collection(track_id: int, track_collection_id: int, 
   )
   return JSONResponse(content=f'Track was deleted from track_collection_id = {result}',
                       status_code=204)
+
+
+@router.post('')
+async def append_track_collection_to_client(
+  sesion: AsyncSession = Depends(get_db),
+  current_user = Depends(get_current_user_from_token)
+):pass
+
+@router.delete('')
+async def delete_track_collection_from_client(
+  sesion: AsyncSession = Depends(get_db),
+  current_user = Depends(get_current_user_from_token)
+):pass

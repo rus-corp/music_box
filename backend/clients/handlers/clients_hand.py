@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 
 from backend.auth import errors
-from ..schemas import (CreateClient, ShowClient, CurrencyShow, UpdateClientRequest,
+from ..schemas import (CreateClient, ShowClientWithTrackColections, CurrencyShow, UpdateClientRequest,
                        UpdateClientResponse, ClientProfileCreateResponse, ClientProfileDefaultResponse)
 from ..dals.clients_dals import ClientDAL
 from ..dals.currency_dals import CurrencyDAL
@@ -71,11 +71,11 @@ class ClientHandler:
       )
   
   
-  async def _get_all_clients(self):
+  async def _get_all_clients_with_track_collecions(self):
     if self.current_user.is_superuser:
-      clients = await self.client_dal.get_all_clients_with_profiles_superuser()
+      clients = await self.client_dal.get_all_clients_with_profiles_and_track_collection_superuser()
     elif self.current_user.role.role_name in self.roles:
-      clients = await self.client_dal.get_all_clients_with_profiles_manager(
+      clients = await self.client_dal.get_all_clients_with_profiles_and_track_collection_manager(
         user_id=self.current_user.id
       )
     else:
@@ -83,11 +83,23 @@ class ClientHandler:
     return list(clients)
   
   
-  async def _get_client_by_id(self, client_id: int):
+  async def _get_all_clients_with_client_groups(self):
     if self.current_user.is_superuser:
-      client = await self.client_dal.get_client_by_id_superuser(client_id)
+      clients = await self.client_dal.get_all_clients_with_client_group_superuser()
     elif self.current_user.role.role_name in self.roles:
-      client = await self.client_dal.get_client_by_id_manager(
+      clients = await self.client_dal.get_all_clients_with_client_group_manager(
+        user_id=self.current_user.id
+      )
+    else:
+      return errors.access_denied_error
+    return list(clients)
+  
+  
+  async def _get_client_by_id_with_track_collecions(self, client_id: int):
+    if self.current_user.is_superuser:
+      client = await self.client_dal.get_client_with_track_collection_by_id_superuser(client_id)
+    elif self.current_user.role.role_name in self.roles:
+      client = await self.client_dal.get_client_with_track_collection_by_id_manager(
         client_id=client_id, user_id=self.current_user.id
       )
     else:
@@ -95,6 +107,20 @@ class ClientHandler:
     if client is None:
       return errors.not_Found_error
     return client
+  
+  
+  async def _get_client_by_id_with_client_group(self, client_id: int):
+    if self.current_user.is_superuser:
+      client_item = await self.client_dal.get_client_by_id_with_client_group_superuser(client_id)
+    elif self.current_user.role.role_name in self.roles:
+      client_item = await self.client_dal.get_client_by_id_with_client_group_manager(
+        client_id=client_id, user_id=self.current_user.id
+      )
+    else:
+      return errors.access_denied_error
+    if client_item is None:
+      return errors.relation_exist(user_id=self.current_user.id, client_group_id=client_id)
+    return client_item
   
   
   async def _update_client_by_id(self, client_id: int, body: UpdateClientRequest):

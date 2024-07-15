@@ -8,7 +8,7 @@ from .schemas import (CreateUser, ShowUser, UpdateRoleShow, UserUpdateRequest,
                       DeleteUserResponse)
 from backend.auth.service import Hasher
 from backend.auth.errors import not_Found_error
-from backend.clients.schemas import CreateClient, ShowUserClients
+
 
 
 

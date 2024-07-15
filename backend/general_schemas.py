@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from .clients.schemas import ClientClusterShow, ClientGroupShow, ShowClient
+from .clients.schemas import ClientClusterShow, ClientGroupShow, ShowClientWithTrackColections
 from .users.schemas import UserShowForClient, ShowUser
 
 
@@ -9,7 +9,7 @@ from .users.schemas import UserShowForClient, ShowUser
 
 
 class ClientGroupShow_With_Clients(ClientGroupShow):
-  clients: Optional[ShowClient] = None
+  clients: Optional[ShowClientWithTrackColections] = None
 
 
 class ClientGroupAppendUserResponse(ClientGroupShow):

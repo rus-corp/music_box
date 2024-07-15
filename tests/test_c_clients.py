@@ -57,9 +57,42 @@ async def test_update_client_group(ac: AsyncClient, create_test_super_user_acces
   assert updated_group_db['id'] == group_id
   assert updated_group_db['name'] == new_data['name']
   assert updated_group_db['client_cluster']['id'] == new_data['client_cluster_id']
+
+
+
+async def test_get_client_with_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
+  client_with_groups = await ac.get('/clients/clients_with_client_groups', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'}) #client_id = 2
+  assert client_with_groups.status_code == 200
+  client_with_groups_data = client_with_groups.json()
+  assert len(client_with_groups_data) == 8
+  for item in client_with_groups_data:
+    client_id = item['id']
+    client_group = item['client_group']
+    assert client_group['id'] == client_data[client_id - 1]['client_group_id']
+    
+  
   
 
-# async def test_update_client(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):pass
+
+# async def test_get_client_with_track_collections(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
+#   pass
+
+
+
+
+
+
+
+# async def test_update_client(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
+#   new_data = {
+#   "name": "Ebi da Ebi",
+#   "city": "Vladivostok",
+#   "price": 9999999999,
+#   "profile": {
+#     "address": "Lenina 1",
+#     "contract_number": "112"}}
+  
+#   client_before_cahnge = await ac.get()
 
 
 # async def test_delete_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):pass

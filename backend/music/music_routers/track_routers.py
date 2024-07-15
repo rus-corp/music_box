@@ -86,3 +86,5 @@ async def delete_track_by_id(track_id: int, session: AsyncSession = Depends(get_
   if deleted_track is None:
     raise HTTPException(status_code=404, detail='Track not found')
   return deleted_track
+
+

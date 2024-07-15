@@ -147,15 +147,17 @@ class ClientProfileCreateResponse(BaseClient):
   profile: ClientProfileDefaultResponse
 
 
-class ShowClient(BaseClient):
+class ShowClientWithTrackColections(BaseClient):
   id: int
   profile: ClientProfileDefaultResponse
   track_collections: List[TrackCollectionShow] = None
   currency: CurrencyShow = None
 
 
-class ShowUserClients(BaseClient):
-  client_id: int
+class ShowClientWithClientGroup(BaseClient):
+  id: int
+  profile: ClientProfileDefaultResponse
+  client_group: ClientGroupShowDefault
   currency: CurrencyShow = None
 
 

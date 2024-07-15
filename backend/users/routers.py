@@ -9,7 +9,7 @@ from backend.auth.security import super_user_permission, get_current_user_from_t
 from backend.auth.errors import access_denied_error
 from backend.auth.permissions import Permissions
 from config import super_user_email
-from backend.clients.schemas import CreateClient
+
 
 
 from .handlers import UserRoleHandler, UserHandler

@@ -1,10 +1,12 @@
 from typing import Optional, List
-
+from pydantic import BaseModel, EmailStr
 from .clients.schemas import ClientClusterShow, ClientGroupShow, ShowClientWithTrackColections
 from .users.schemas import UserShowForClient, ShowUser
+from .music.schemas import TrackCollectionShow
 
 
-
+class ErrorMessageResponse(BaseModel):
+  message: str
 
 
 
@@ -21,3 +23,15 @@ class ClientGroupAppendUserResponse(ClientGroupShow):
 
 class UserWithClient(ShowUser):
   client_groups: Optional[List[ClientGroupShow]]
+
+
+class ClientWithTrackCollection(BaseModel):
+  id: int
+  name: str
+  city: str
+  email: EmailStr
+  phone: str
+  price: int
+  
+  track_collection: TrackCollectionShow
+  

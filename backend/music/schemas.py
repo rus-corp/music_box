@@ -8,22 +8,25 @@ class GroupCollectionCreate(BaseModel):
   
   class Config:
     from_attributes = True
-  
 
-  
+
+
 class GroupCollectionShow(BaseModel):
   id: int
   group_name: str
   
   class Config:
     from_attributes = True
-  
+
 
 class DeletedGroupResponse(BaseModel):
   delete_group_id: int
-  
-    
-  
+
+
+class UpdateCollectiongroupRequest(BaseModel):
+  id: int
+  name: str
+
 
 # =========== TrackCollection Schemas ============
 class TrackCollectionCreate(BaseModel):
@@ -48,9 +51,12 @@ class TrackCollectionUpdateResponse(BaseModel):
 
 class TrackCollectionDeleteResponse(BaseModel):
   track_collection_id: int
-  
-  
-  
+
+
+class AppendTrackCollectionToClient(BaseModel):
+  track_collection_id: int
+  client_id: int
+
 # =========== Tracks Schemas ============
 class TrackShow(BaseModel):
   id: int
@@ -93,7 +99,7 @@ class DeletedTrackFromCollection(BaseModel):
  
 # ================ COMMON MODELS =================== 
 class GroupCollectionWithTrackCollectionCreate(GroupCollectionShow):
-  track_collections: 'TrackCollectionShow'
+  track_collection: 'TrackCollectionShow'
   
   
 class GroupCollectionWithTrackCollectionShow(GroupCollectionShow):

@@ -53,14 +53,14 @@ class UserRoleHandler:
         )
 
   
-  async def _delete_role_by_id(self, role_id: int):
-    async with self.session.begin():
-      role = await self.role_dal.get_user_role_by_id(role_id)
-      if role is None:
-        raise HTTPException(status_code=404, detail=f'Role with {role_id} not found')
-      deleted_role = await self.role_dal.delete_user_role(role_id)
-      if deleted_role is not None:
-        return deleted_role
+  # async def _delete_role_by_id(self, role_id: int):
+  #   async with self.session.begin():
+  #     role = await self.role_dal.get_user_role_by_id(role_id)
+  #     if role is None:
+  #       raise HTTPException(status_code=404, detail=f'Role with {role_id} not found')
+  #     deleted_role = await self.role_dal.delete_user_role(role_id)
+  #     if deleted_role is not None:
+  #       return deleted_role
 
 
 

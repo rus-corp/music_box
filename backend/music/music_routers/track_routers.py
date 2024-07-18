@@ -88,3 +88,47 @@ async def delete_track_by_id(track_id: int, session: AsyncSession = Depends(get_
   return deleted_track
 
 
+
+# @router.post('/append_track_to_collection')
+# async def append_track_to_collection(
+#   track_id: int,
+#   track_collection_id: int,
+#   session: AsyncSession = Depends(get_db),
+#   current_user: User = Depends(get_current_user_from_token)
+# ):
+#   track_group_handler = TrackGroupCollectionHandler(session, current_user)
+#   result = await track_group_handler._append_track_to_collection(
+#     session=session, track_collection_id=track_collection_id, track_id=track_id
+#   )
+#   return result
+
+
+
+# @router.delete('/delete_track_from_track_collection', response_model=schemas.DeletedTrackFromCollection)
+# async def delete_track_from_collection(
+#   track_id: int,
+#   track_collection_id: int,
+#   session: AsyncSession = Depends(get_db),
+#   current_user: User = Depends(get_current_user_from_token)
+# ):
+#   track_group_handler = TrackGroupCollectionHandler(session, current_user)
+#   result = await track_group_handler._delete_track_from_track_collection(
+#     session=session, track_id=track_id, track_collection_id=track_collection_id
+#   )
+#   return JSONResponse(content=f'Track was deleted from track_collection_id = {result}',
+#                       status_code=204)
+
+
+
+
+# @router.post('')
+# async def append_track_collection_to_client(
+#   sesion: AsyncSession = Depends(get_db),
+#   current_user = Depends(get_current_user_from_token)
+# ):pass
+
+# @router.delete('')
+# async def delete_track_collection_from_client(
+#   sesion: AsyncSession = Depends(get_db),
+#   current_user = Depends(get_current_user_from_token)
+# ):pass

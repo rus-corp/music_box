@@ -66,30 +66,19 @@ class TrackCollectionDAL:
     track_collection_row = res.fetchone()
     if track_collection_row is not None:
       return track_collection_row[0]
-
-
-  async def change_main_group_in_track_collection(self): pass
-
-
+  
+  
+  
   async def delete_track_collection(self, track_collcetion_id: int):
     query = delete(TrackCollection).where(
       TrackCollection.id == track_collcetion_id).returning(TrackCollection.id)
     result = await self.db_sesion.execute(query)
     return result.scalar()
-
-
-  async def delete_client_in_track_collection(self, track_collection_id, client_id):
-    stmt = delete(trackCollections_client_association).where(
-      and_(trackCollections_client_association.c.track_collection_id == track_collection_id,
-           trackCollections_client_association.c.client_id == client_id)
-    )
-    result = await self.db_sesion.execute(stmt)
-    deleted_client_in_trackcollection = result.rowcount
-    if deleted_client_in_trackcollection is not None:
-      return deleted_client_in_trackcollection
-
-
-  async def get_track_collection_for_append_track_to_group(self, track_group_id: int):
-    query = select(TrackCollection).where(TrackCollection.id == track_group_id).options(selectinload(TrackCollection.tracks))
+  
+  
+  async def get_track_collection_for_append_client(self, track_group_id: int):
+    query = select(TrackCollection)\
+      .where(TrackCollection.id == track_group_id)\
+      .options(selectinload(TrackCollection.clients))
     result = await self.db_sesion.scalar(query)
     return result

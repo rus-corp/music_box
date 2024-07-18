@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 
 
 
-from .music_routers.main_group import router as main_group_router
-from .music_routers.track_group import router as track_group_router
+from .music_routers.main_group_router import router as main_group_router
+from .music_routers.track_group_router import router as track_group_router
 from .music_routers.track_routers import router as tracks_routers
 
 

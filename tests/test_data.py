@@ -29,7 +29,8 @@ users_data = [
   {"name": "ant", "login": "ant", "email": "ant@example.com", "password": "12345", "comment": "string", "role_id": 3},
   {"name": "and", "login": "and", "email": "and@example.com", "password": "12345", "role_id": 3},
   {"name": "kost", "login": "kost", "email": "kost@example.com", "password": "12345", "role_id": 2},
-  {"name": "Anatoliy", "login": "anat", "email": "anat@example.com", "password": "12345", "role_id": 3},
+  {"name": "Ivan", "login": "ivan", "email": "ivan@example.com", "password": "12345", "role_id": 3},
+  {"name": "Anatoliy", "login": "anat", "email": "anat@example.com", "password": "12345", "role_id": 4},
 ]
 
 currency_data = [
@@ -190,22 +191,38 @@ client_profile = [
 
 
 main_group_data = [
-  {'group_name': 'first group'},
-  {'group_name': 'second group'},
-  {'group_name': 'therd group'},
-  {'group_name': 'fourth group'},
-  {'group_name': 'fith group'},
+  {'group_name': 'Рок-хиты'},
+  {'group_name': 'Электронная музыка'},
+  {'group_name': 'Джаз и блюз'},
+  {'group_name': 'Инструментальная музыка'},
+  {'group_name': 'Саундтреки к фильмам'},
   {'group_name': ''}
 ]
 
+# for item in main_group_data[:3]:
+#   print(item)
+
+my_d = {'id': 1, 'name': 'new_name', 'player': True, 'group_id': 4}
+
+if not my_d.get('new') or not my_d['id']:
+  print('no')
+else:
+  print('yes')
+
+
 track_group_data = [
-  {'track_collection_name': 'first', 'player_option': True, 'group_coollection_id': 1},
-  {'track_collection_name': 'second', 'player_option': False, 'group_coollection_id': 1},
-  {'track_collection_name': 'therd', 'player_option': True, 'group_coollection_id': 2},
-  {'track_collection_name': 'fourth', 'player_option': False, 'group_coollection_id': 2},
-  {'track_collection_name': 'sixten', 'group_coollection_id': 3},
-  {'track_collection_name': 'fifth', 'player_option': False, 'group_coollection_id': 23},
-  {'player_option': True, 'group_coollection_id': 1},
+  {'track_collection_name': 'Хиты 80-х', 'player_option': True, 'group_coollection_id': 1},
+  {'track_collection_name': 'Песни The Beatles', 'player_option': False, 'group_coollection_id': 1},
+  {'track_collection_name': 'Классика рока', 'player_option': True, 'group_coollection_id': 2},
+  {'track_collection_name': 'Дискотека 90-х', 'player_option': False, 'group_coollection_id': 2},
+  {'track_collection_name': 'Музыка из фильмов Квентина Тарантино', 'group_coollection_id': 3},
+  {'track_collection_name': 'Электронная танцевальная музыка', 'group_coollection_id': 3},
+  {'track_collection_name': 'Современный джаз', 'group_coollection_id': 4},
+  {'track_collection_name': 'Фортепианные композиции', 'group_coollection_id': 4},
+  {'track_collection_name': 'Звуки природы', 'group_coollection_id': 5},
+  
+  {'track_collection_name': 'Регги', 'player_option': False, 'group_coollection_id': 18},
+  {'name': '', 'player_option': True, 'group_coollection_id': 1},
 ]
 
 # from collections import Counter

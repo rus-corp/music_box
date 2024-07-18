@@ -74,10 +74,3 @@ class CollectionGroup(Base):
   group_name = Column(String, nullable=False)
   
   track_collections: Mapped[List['TrackCollection']] = relationship(secondary=group_track_collection_association, back_populates='group_collections')
-  
-  
-
-  
-  
-  
-  

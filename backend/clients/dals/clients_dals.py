@@ -119,18 +119,12 @@ class ClientDAL:
     await self.db_session.commit()
     if deleted_client is not None:
       return True
-
-
-
-
-
-
-
-
-  # async def get_client_for_append(self, client_id: int):
-  #   query = select(Client).where(Client.id == client_id)
-  #   client = await self.db_session.scalar(query)
-  #   return client
+  
+  
+  async def get_client_for_append(self, client_id: int):
+    query = select(Client).where(Client.id == client_id).options(selectinload(Client.track_collections))
+    client = await self.db_session.scalar(query)
+    return client
 
 
 

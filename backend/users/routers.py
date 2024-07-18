@@ -90,17 +90,17 @@ async def update_role_by_id(
 
 
 
-@router.delete('/roles/{role_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_role_by_id(
-  role_id: int, session: AsyncSession = Depends(get_db),
-  permissions: bool = Depends(super_user_permission)
-):
-  if permissions:
-    role_handler = UserRoleHandler(session)
-    deleted_role = await role_handler._delete_role_by_id(role_id)
-    return deleted_role
-  else:
-    return access_denied_error
+# @router.delete('/roles/{role_id}', status_code=status.HTTP_204_NO_CONTENT)
+# async def delete_role_by_id(
+#   role_id: int, session: AsyncSession = Depends(get_db),
+#   permissions: bool = Depends(super_user_permission)
+# ):
+#   if permissions:
+#     role_handler = UserRoleHandler(session)
+#     deleted_role = await role_handler._delete_role_by_id(role_id)
+#     return deleted_role
+#   else:
+#     return access_denied_error
 
 
 # =============== Users routers ================

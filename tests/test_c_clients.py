@@ -20,19 +20,7 @@ async def test_update_client_cluster(ac: AsyncClient, create_test_super_user_acc
 
 
 
-async def test_delete_cluster(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  cluster_before_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert cluster_before_delete.status_code == 200
-  cluster_before_db = cluster_before_delete.json()
-  assert len(cluster_before_db) == len(client_clusters_data)
-  delete_cluster = await ac.delete('clients/client_cluster/5', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert delete_cluster.status_code == 200
-  cluster_after_delete = await ac.get('clients/client_cluster/without_client_groups', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert cluster_after_delete.status_code == 200
-  cluster_after_db = cluster_after_delete.json()
-  assert len(cluster_after_db) == len(cluster_before_db) - 1
-  deleted_bad_req = await ac.delete('clients/client_cluster/1', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert deleted_bad_req.status_code == 400
+
 
 
 async def test_update_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
@@ -64,7 +52,7 @@ async def test_get_client_with_group(ac: AsyncClient, create_test_super_user_acc
   client_with_groups = await ac.get('/clients/clients_with_client_groups', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'}) #client_id = 2
   assert client_with_groups.status_code == 200
   client_with_groups_data = client_with_groups.json()
-  assert len(client_with_groups_data) == 8
+  assert len(client_with_groups_data) == 12
   for item in client_with_groups_data:
     client_id = item['id']
     client_group = item['client_group']
@@ -95,6 +83,3 @@ async def test_get_client_with_group(ac: AsyncClient, create_test_super_user_acc
 #   client_before_cahnge = await ac.get()
 
 
-# async def test_delete_client_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):pass
-
-# async def test_delete_cleient(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):pass

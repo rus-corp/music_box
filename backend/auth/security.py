@@ -59,10 +59,7 @@ async def get_current_user_from_token(
 
 async def super_user_permission(current_user: User = Depends(get_current_user_from_token)):
   permission = Permissions(current_user=current_user)
-  super_user = await permission.superuser_permission()
-  if super_user:
-    return True
-  return False
+  return await permission.superuser_permission()
 
 
 

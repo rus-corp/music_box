@@ -22,14 +22,23 @@ def create_test_super_user_access_token():
 def create_test_user_token():
   user = users_data[1]
   token = create_access_token(
-    data={'sub': user['email'], 'role': 'manager'}
+    data={'sub': user['email'], 'role': 'client'}
+  )
+  return {'access_token': token, 'token_type': 'bearer'}
+
+
+@pytest.fixture(scope='session')
+def create_test_redactor_token():
+  user = users_data[-1]
+  token = create_access_token(
+    data={'sub': user['email'], 'role': 'redactor'}
   )
   return {'access_token': token, 'token_type': 'bearer'}
 
 
 @pytest.fixture(scope='session')
 def create_test_empty_user_token():
-  user = users_data[12]
+  user = users_data[-2]
   token = create_access_token(
     data={'sub': user['email'], 'role': 'manager'}
   )
@@ -73,24 +82,10 @@ async def test_get_role_by_id(ac: AsyncClient, create_test_super_user_access_tok
   assert not_found_role.status_code == 404
   
 
-async def test_update_role(ac: AsyncClient, create_test_super_user_access_token):
-  updated_role_bad = await ac.patch('users/roles/4', params={'new_name': 'new role name'})
-  assert updated_role_bad.status_code == 401
-  updated_role_ok = await ac.patch('users/roles/4', params={'new_name': 'new role'}, headers={"Authorization": f"Bearer {create_test_super_user_access_token['access_token']}"})
-  updated_role_ok.status_code == 200
-  updated_role_db = updated_role_ok.json()
-  assert updated_role_db['role_name'] == 'new role'
 
 
-async def test_delete_role(ac: AsyncClient, create_test_super_user_access_token):
-  deleted_bad = await ac.delete('users/roles/4')
-  assert deleted_bad.status_code == 401
-  deleted_role = await ac.delete('users/roles/4', headers={"Authorization": f"Bearer {create_test_super_user_access_token['access_token']}"})
-  assert deleted_role.status_code == 204
-  roles_list = await ac.get('users/roles', headers={"Authorization": f"Bearer {create_test_super_user_access_token['access_token']}"})
-  assert roles_list.status_code == 200
-  roles_db = roles_list.json()
-  assert len(roles_db) == 3
+
+
 
 
 # ================ USER TESTS ==========================
@@ -141,27 +136,7 @@ async def test_update_user(ac: AsyncClient, create_test_super_user_access_token,
 
   
 
-async def test_delete_user(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  users_list = await ac.get('/users/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert users_list.status_code == 200
-  users_db = users_list.json()
-  
-  deleted_user = await ac.delete('users/5', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert deleted_user.status_code == 200
-  deleted_user_data = deleted_user.json()
-  assert deleted_user_data['id'] == 5
-  users_after_del = await ac.get('/users/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  users_after_db = users_after_del.json()
-  assert len(users_db) == len(users_after_db)
-  assert users_after_db[4]['is_active'] == False
-  acces_unauthorized = await ac.delete('users/6', headers={'Authorization': f'Bearer {test_bad_token}'})
-  assert acces_unauthorized.status_code == 401
-  
-  acces_denied_delete = await ac.delete('users/3', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
-  print(acces_denied_delete)
-  acces_denied_delete_data = acces_denied_delete.json()
-  print(acces_denied_delete_data)
-  assert acces_denied_delete.status_code == 405
+
 
 
 

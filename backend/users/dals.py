@@ -51,12 +51,12 @@ class UserRoleDAL:
       return updated_role_row[0]
 
 
-  async def delete_user_role(self, role_id: int):
-    stmt = delete(UserRole).where(UserRole.id == role_id)
-    deleted_role_row = await self.db_session.execute(stmt)
-    await self.db_session.commit()
-    if deleted_role_row is not None:
-      return True
+  # async def delete_user_role(self, role_id: int):
+  #   stmt = delete(UserRole).where(UserRole.id == role_id)
+  #   deleted_role_row = await self.db_session.execute(stmt)
+  #   await self.db_session.commit()
+  #   if deleted_role_row is not None:
+  #     return True
 
 
 

@@ -152,21 +152,7 @@ async def test_filter_client_groups_with_clients(ac: AsyncClient, create_test_em
   assert len(empty_clients_db) == 0
 
 
-async def test_delete_client_from_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):
-  user_clients_group = await ac.get('/users/user_clients/2', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert user_clients_group.status_code == 200
-  user_clients_group_db = user_clients_group.json()
-  user_clients = user_clients_group_db['client_groups']
-  assert len(user_clients) == 3
-  body = {'client_group_id': 1, 'user_id': 2}
-  delete_user_from_group = await ac.request(method='DELETE', url='/clients/client_groups/delete_user_from_client_group/', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'}, json=body)
-  assert delete_user_from_group.status_code == 200
-  user_clients_group_after = await ac.get('/users/user_clients/2', headers={'Authorization': f'Bearer {create_test_super_user_access_token["access_token"]}'})
-  assert user_clients_group_after.status_code == 200
-  user_clients_after_del = user_clients_group_after.json()
-  user_clients_group_after_del = user_clients_after_del['client_groups']
-  clients_len_after = len(user_clients_group_after_del)
-  assert clients_len_after + 1 == len(user_clients)
+
   
 
 

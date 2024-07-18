@@ -33,6 +33,8 @@ trackCollections_client_association = Table(
   Column('id', Integer, primary_key=True, autoincrement=True),
   Column('client_id', ForeignKey('client.id')),
   Column('track_collection_id', ForeignKey('track_collection.id')),
+  
+  UniqueConstraint('client_id', 'track_collection_id')
 )
 
 

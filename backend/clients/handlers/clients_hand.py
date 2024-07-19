@@ -127,35 +127,31 @@ class ClientHandler:
     async with self.session.begin():
       body_data = body.model_dump(exclude_none=True)
       profile_data = body_data.pop('profile', None)
-      client_data = await self.client_dal.check_client_in_db(client_id)
-      
-      if client_data is None:
+
+      updated_client = await self.client_dal.update_client_by_id(
+        client_id=client_id, kwargs=body_data
+      )
+      if updated_client is None:
         return errors.not_Found_error
-      
       if profile_data is not None:
         client_profile_dal = ClientProfileDAL(self.session)
         updated_profile = await client_profile_dal.update_client_profile(
-          client_id=client_data.id, body=profile_data
+          client_id=client_id, body=profile_data
         )
         if updated_profile is None:
           return JSONResponse(
-            content=f'Client Profile for client {client_data.id} no found',
+            content=f'Client Profile for client {client_id} no found',
             status_code=404
           )
-          
-      updated_client = await self.client_dal.update_client_by_id(
-        client_id=client_data.id, kwargs=body_data
-      )
       return updated_client
   
   
   async def _delete_client_group_by_id(self, client_id: int):
     async with self.session.begin():
-      client_data = await self.client_dal.check_client_in_db(client_id)
-      if client_data is None:
-        return errors.not_Found_error
       deleted_client = await self.client_dal.delete_client(client_id)
-      if deleted_client:
+      if deleted_client is None:
+        return errors.not_Found_error
+      else:
         return {'message': f'Client with id {client_id} deleted'}
   
   

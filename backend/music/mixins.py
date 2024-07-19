@@ -9,4 +9,4 @@ from backend.clients.dals.clients_dals import ClientDAL
 class MusicMixin:
   
   def check_body(self, body: dict) -> bool:
-    return len(body) < 2
+    return len(body) >= 2

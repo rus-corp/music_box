@@ -7,14 +7,7 @@ user_roles_data = [
   {'role_name': 'redactor'},
 ]
 
-# {
-#   "name": "string",
-#   "login": "string",
-#   "email": "user@example.com",
-#   "password": "string",
-#   "comment": "string",
-#   "role_id": 0
-# }
+
 
 users_data = [
   {"name": "rus", "login": "rus", "email": "rus@gmail.com", "password": "12345"},

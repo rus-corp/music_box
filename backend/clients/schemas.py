@@ -90,9 +90,6 @@ class ClientGroupUpdateResponse(BaseModel):
 class ClientGroupDeleteResponse(BaseModel):
   id: int
 
-class CleintGroupDeleteMessage(BaseModel):
-  message: str
-
 
 class AppendUserToGroupRequest(BaseModel):
   client_group_id: int

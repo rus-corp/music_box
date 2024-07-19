@@ -3,10 +3,11 @@ from fastapi import APIRouter, Depends, status
 from typing import List
 
 from backend.auth.security import super_user_permission, get_current_user_from_token
-from backend.auth.errors import access_denied_error
+from backend.auth.errors import access_denied_error, not_Found_error
 from backend.database import get_db
 from ..schemas import (ClientClusterShow, ClientClusterShow, ClientClusterDeleteResponse,
-                       ClientClusterShow_With_ClientGroups, ClientClusterShow_With_Listr_ClientGroups, CleintGroupDeleteMessage)
+                       ClientClusterShow_With_ClientGroups, ClientClusterShow_With_Listr_ClientGroups)
+from backend.general_schemas import ErrorMessageResponse
 from backend.users.models import User
 
 from ..handlers.client_cluster_hand import ClientClusterHandler
@@ -59,7 +60,10 @@ async def get_client_cluster_by_id_without_client_groups(
 
 
 
-@router.patch('/{client_cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK)
+@router.patch('/{client_cluster_id}', response_model=ClientClusterShow, status_code=status.HTTP_200_OK, 
+              responses={
+                404: {'model':ErrorMessageResponse}
+              })
 async def update_client_cluster_by_id(
   cluster_id: int,
   name: str,
@@ -71,6 +75,8 @@ async def update_client_cluster_by_id(
     updated_cluster = await cluster_handler._update_client_cluster(
       cluster_id=cluster_id, name=name
     )
+    if updated_cluster is None:
+      return not_Found_error
     return updated_cluster
   else:
     return access_denied_error
@@ -78,7 +84,8 @@ async def update_client_cluster_by_id(
 
 @router.delete('/{cluster_id}', status_code=status.HTTP_200_OK, response_model=ClientClusterDeleteResponse,
                responses={
-                 400: {'model': CleintGroupDeleteMessage}
+                 400: {'model': ErrorMessageResponse},
+                 404: {'model':ErrorMessageResponse}
                })
 async def delete_client_cluster_by_id(
   cluster_id: int,

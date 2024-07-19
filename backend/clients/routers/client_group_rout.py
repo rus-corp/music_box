@@ -10,9 +10,9 @@ from backend.users.models import User
 
 from ..schemas import (ClientGroupCreateRequest, ClientGroupCreateResponse,
                        ClientGroupShowDefault, ClientGroupWithClientShow, ClientGroupUpdateRequset, ClientGroupUpdateResponse,
-                       ClientGroupDeleteResponse, CleintGroupDeleteMessage, AppendUserToGroupRequest)
+                       ClientGroupDeleteResponse, AppendUserToGroupRequest)
 
-from backend.general_schemas import (ClientGroupAppendUserResponse)
+from backend.general_schemas import (ClientGroupAppendUserResponse, ErrorMessageResponse)
 
 from ..handlers.client_group_hand import ClientGroupHandler
 
@@ -109,7 +109,7 @@ async def change_client_group_data(
 
 
 @router.delete('/{client_group_id}', status_code=status.HTTP_200_OK,
-               response_model=Union[ClientGroupDeleteResponse,CleintGroupDeleteMessage])
+               response_model=Union[ClientGroupDeleteResponse,ErrorMessageResponse])
 async def delete_client_group_by_id(
   client_group_id: int,
   session: AsyncSession = Depends(get_db),
@@ -129,7 +129,7 @@ async def delete_client_group_by_id(
 @router.post('/append_user_to_client_group', status_code=status.HTTP_201_CREATED,
              response_model=ClientGroupAppendUserResponse,
              responses= {
-               400: {'model': CleintGroupDeleteMessage}
+               400: {'model': ErrorMessageResponse}
              })
 async def append_user_to_client_group(
   body: AppendUserToGroupRequest,
@@ -148,7 +148,7 @@ async def append_user_to_client_group(
 
 
 @router.delete('/delete_user_from_client_group/',
-               status_code=status.HTTP_200_OK, response_model=CleintGroupDeleteMessage)
+               status_code=status.HTTP_200_OK, response_model=ErrorMessageResponse)
 async def delete_user_from_client_group(
   body: AppendUserToGroupRequest,
   session: AsyncSession = Depends(get_db),

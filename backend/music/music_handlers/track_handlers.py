@@ -3,47 +3,61 @@ from fastapi.responses import JSONResponse
 
 
 from ..dals.tracks_dal import TrackDAL
+from backend.users.models import User
+from backend.auth.permissions import Permissions
+from backend.auth import errors
 
 
-async def _create_track(session: AsyncSession, body):
-  async with session.begin():
-    track_dal = TrackDAL(session)
-    create_track = await track_dal.create_track(**body)
-    return create_track
-
-
-async def _get_tracks(offset: int, limit: int, session: AsyncSession):
-  async with session.begin():
-    track_dal = TrackDAL(session)
-    tracks = await track_dal.get_tracks(limit=limit, offset=offset)
-    return list(tracks)
-  
-
-async def _get_track_by_id(session: AsyncSession, track_id: int):
-  async with session.begin():
-    track_dal = TrackDAL(session)
-    track = await track_dal.get_track_by_id(track_id)
-    return track
+class TrackHandler:
+  def __init__(self, session: AsyncSession, current_user: User) -> None:
+    self.session = session
+    self.track_dal = TrackDAL(self.session)
+    self.permission = Permissions(current_user)
   
   
-async def _update_track(session: AsyncSession, track_id: int, body):
-  async with session.begin():
-    track_dal = TrackDAL(session)
-    track = await track_dal.get_track_by_id(track_id)
-    if track is None:
-      return JSONResponse(content=f'Track with id {track_id} not found', status_code=404)
-    updated_track = await track_dal.update_track(track_id, body)
-    return updated_track
+  async def _create_track(self, body):
+    if self.permission.redactor_permission():
+      async with self.session.begin():
+        create_track = await self.track_dal.create_track(**body)
+        return create_track
+    else:
+      return errors.access_denied_error
   
-
-async def _delete_track_by_id(session: AsyncSession, track_id: int):
-  async with session.begin():
-    track_dal = TrackDAL(session)
-    track = await track_dal.get_track_by_id(track_id)
-    if track is None:
-      return JSONResponse(content=f'Track with id {track_id} not found', status_code=404)
-    deleted_track = await track_dal.delete_track_by_id(track_id)
-    return deleted_track
+  
+  async def _get_tracks(self, offset: int, limit: int):
+    async with self.session.begin():
+      tracks = await self.track_dal.get_tracks(limit=limit, offset=offset)
+      return list(tracks)
+  
+  
+  async def _get_track_by_id(self, track_id: int):
+    async with self.session.begin():
+      track = await self.track_dal.get_track_by_id(track_id)
+      return track
+  
+  
+  async def _update_track(self, track_id: int, body):
+    if self.permission.redactor_permission():
+      async with self.session.begin():
+        track = await self.track_dal.get_track_by_id(track_id)
+        if track is None:
+          return JSONResponse(content=f'Track with id {track_id} not found', status_code=404)
+        updated_track = await self.track_dal.update_track(track_id, body)
+        return updated_track
+    else:
+      return errors.access_denied_error
+  
+  
+  async def _delete_track_by_id(self, track_id: int):
+    if self.permission.redactor_permission():
+      async with self.session.begin():
+        track = await self.track_dal.get_track_by_id(track_id)
+        if track is None:
+          return JSONResponse(content=f'Track with id {track_id} not found', status_code=404)
+        deleted_track = await self.track_dal.delete_track_by_id(track_id)
+        return deleted_track
+    else:
+      return errors.access_denied_error
 
 
   # async def _append_track_to_collection(self, track_collection_id: int, track_id: int):

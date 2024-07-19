@@ -106,11 +106,9 @@ async def update_track_collection(
   session: AsyncSession = Depends(get_db),
   current_user: User = Depends(get_current_user_from_token)
 ):
-  if body.model_dump(exclude_none=True) == {}:
-    HTTPException(status_code=422, detail='At least one parameter is needed to change the collection')
   track_group_handler = TrackGroupCollectionHandler(session, current_user)
   updated_track_collection = await track_group_handler._update_track_collection(
-    session=session, track_collection_id=track_collection_id, body=body
+    track_collection_id=track_collection_id, body=body
   )
   if updated_track_collection is None:
     raise HTTPException(

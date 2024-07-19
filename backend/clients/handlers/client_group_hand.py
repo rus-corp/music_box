@@ -14,7 +14,8 @@ from backend.users.dals import UserDAL
 
 from ..schemas import (ClientGroupShow, ClientGroupCreateRequest, ClientGroupCreateResponse, ClientClusterShow,
                       ClientGroupUpdateRequset, ClientGroupUpdateResponse, ClientClusterShow,
-                      CleintGroupDeleteMessage, ClientGroupDeleteResponse, AppendUserToGroupRequest)
+                      ClientGroupDeleteResponse, AppendUserToGroupRequest)
+from backend.general_schemas import ErrorMessageResponse
 from backend.general_schemas import ClientGroupAppendUserResponse
 from backend.users.schemas import UserShowForClient
 
@@ -123,14 +124,11 @@ class ClientGroupHandler(ClientGroupMixins):
   async def _update_client_group(self, client_group_id: int, body: ClientGroupUpdateRequset):
     async with self.session.begin():
       body_data = body.model_dump(exclude_none=True)
-      client_group = await self.client_group_dal.get_client_group_by_id_superuser(
-        group_id=client_group_id
-      )
-      if client_group is None:
-        return not_Found_error
       updated_group = await self.client_group_dal.update_client_group_by_id(
         client_group_id=client_group_id, kwargs=body_data
       )
+      if updated_group is None:
+        return not_Found_error
       client_cluster = ClientClusterShow(
         id=updated_group.client_cluster.id,
         name=updated_group.client_cluster.name
@@ -146,12 +144,11 @@ class ClientGroupHandler(ClientGroupMixins):
   
   async def _delete_client_group_by_id(self, client_group_id: int):
     async with self.session.begin():
-      client_group = await self.client_group_dal.get_client_group_by_id_superuser(client_group_id)
-      if client_group is None:
-        return not_Found_error
       deleted_client_group = await self.client_group_dal.delete_client_group_by_id(client_group_id)
+      if deleted_client_group is None:
+        return not_Found_error
       if type(deleted_client_group) == str:
-        return CleintGroupDeleteMessage(
+        return ErrorMessageResponse(
           message=deleted_client_group
         )
       else:

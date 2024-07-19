@@ -61,7 +61,7 @@ class TrackCollectionDAL:
 
   async def update_track_collection(self, track_collection_id, **kwargs):
     query = update(TrackCollection).where(
-      TrackCollection.id == track_collection_id).values(kwargs).returning(TrackCollection.name)
+      TrackCollection.id == track_collection_id).values(kwargs).returning(TrackCollection)
     res = await self.db_sesion.execute(query)
     track_collection_row = res.fetchone()
     if track_collection_row is not None:

@@ -11,9 +11,16 @@ class TrackDAL:
     self.db_session = db_session
 
 
-  async def create_track(self, title: str,
-                         artist: str, label: str,
-                         open_name: str, path: str, album: str, genre: str):
+  async def create_track(
+    self,
+    title: str,
+    artist: str,
+    label: str,
+    open_name: str,
+    path: str,
+    album: str,
+    genre: str
+  ):
     new_track = Track(
       title=title,
       artist=artist,

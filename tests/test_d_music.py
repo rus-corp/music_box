@@ -1,6 +1,5 @@
 from httpx import AsyncClient
 import json
-from fastapi.exceptions import HTTPException
 import pytest
 
 
@@ -98,7 +97,7 @@ async def test_update_collection(ac: AsyncClient, create_test_super_user_access_
 
 
 
-async def test_create_track_collcetions(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token, create_test_redactor_token):
+async def test_create_track_collections(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token, create_test_redactor_token):
   for item in track_group_data[:5]:
     super_user_req = await ac.post('/music/track_group/',
                                    headers={"Authorization": f"Bearer {create_test_super_user_access_token['access_token']}"},
@@ -141,8 +140,25 @@ async def test_get_track_collections(ac: AsyncClient, create_test_super_user_acc
   redactor_req = await ac.get('/music/track_group/',
                               headers={"Authorization": f"Bearer {create_test_redactor_token['access_token']}"})
   assert redactor_req.status_code == 200
+  redactor_data = redactor_req.json()
+  assert len(redactor_data) == len(track_group_data) - 2
+
+
+
+async def test_update_track_collection(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token, create_test_redactor_token):
+  new_data = {'name': 'new_name'}
+  redactor_req = await ac.patch('/music/track_group/1',
+                              headers={"Authorization": f"Bearer {create_test_redactor_token['access_token']}"}, json=new_data)
+  assert redactor_req.status_code == 200
   
-  
+  redactor_req_db = await ac.get('/music/track_group/1',
+                                 headers={"Authorization": f"Bearer {create_test_redactor_token['access_token']}"})
+  assert redactor_req_db.status_code == 200
+  redactor_req_db_data = redactor_req_db.json()
+  assert redactor_req_db_data['name'] == new_data['name']
+
+
+
 
 
 

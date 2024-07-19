@@ -12,6 +12,13 @@ not_parameters = JSONResponse(content='Не переданы необходим�
 
 
 
+def found_error_in_db(data, id):
+  JSONResponse(content=f'{data} with {id} not found',
+               status_code=status.HTTP_404_NOT_FOUND)
+  
+
+
+
 
 def relation_exist(user_id: int, client_group_id: int, status: bool = True):
   if not status:

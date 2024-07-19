@@ -8,9 +8,9 @@ from backend.auth.errors import access_denied_error
 from backend.auth.permissions import Permissions
 from backend.database import get_db
 from backend.users.models import User
-from ..schemas import (CleintGroupDeleteMessage, ClientProfileCreateResponse, CreateClient, UpdateClientRequest,
+from ..schemas import (ClientProfileCreateResponse, CreateClient, UpdateClientRequest,
                        UpdateClientResponse, ShowClientWithTrackColections, ShowClientWithClientGroup)
-
+from backend.general_schemas import ErrorMessageResponse
 
 from ..handlers.clients_hand import ClientHandler
 
@@ -67,7 +67,7 @@ async def get_clients_with_client_groups(
 @router.get('/clients_with_client_groups/{client_id}', status_code=status.HTTP_200_OK,
             response_model= ShowClientWithClientGroup,
             responses={
-              400: {'model': CleintGroupDeleteMessage}
+              400: {'model': ErrorMessageResponse}
             })
 async def get_client_by_id_with_client_group(
   client_id: int,
@@ -83,7 +83,7 @@ async def get_client_by_id_with_client_group(
 
 @router.get('/{client_id}', status_code=status.HTTP_200_OK,
             response_model=ShowClientWithTrackColections, responses={
-              404: {'model': CleintGroupDeleteMessage}
+              404: {'model': ErrorMessageResponse}
             })
 async def get_client_by_id_with_track_collection_and_currency(
   client_id: int,
@@ -99,7 +99,7 @@ async def get_client_by_id_with_track_collection_and_currency(
 
 @router.patch('/{client_id}', status_code=status.HTTP_200_OK,
               response_model=ShowClientWithTrackColections, responses={
-                404: {'model': CleintGroupDeleteMessage}
+                404: {'model': ErrorMessageResponse}
               })
 async def update_client_by_id(
   client_id: int,
@@ -117,7 +117,7 @@ async def update_client_by_id(
     return access_denied_error
 
 
-@router.delete('/{client_id}', status_code=200, response_model=CleintGroupDeleteMessage)
+@router.delete('/{client_id}', status_code=200, response_model=ErrorMessageResponse)
 async def delete_client_group_by_id(
   client_id: int,
   session: AsyncSession = Depends(get_db),

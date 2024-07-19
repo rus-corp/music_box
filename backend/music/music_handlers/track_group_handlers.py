@@ -190,10 +190,6 @@ class TrackGroupCollectionHandler(MusicMixin):
           return errors.not_parameters
     else:
       return errors.access_denied_error
-        
-        
-        
-  
 
 
 

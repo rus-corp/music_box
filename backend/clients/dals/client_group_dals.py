@@ -86,7 +86,7 @@ class ClientGroupDAL:
   
   
   async def update_client_group_by_id(self, client_group_id: int, kwargs):
-    stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(kwargs).returning(ClientGroup)
+    stmt = update(ClientGroup).where(ClientGroup.id == client_group_id).values(kwargs).options(selectinload(ClientGroup.client_cluster)).returning(ClientGroup)
     result = await self.db_session.execute(stmt)
     updated_client_group = result.fetchone()
     if updated_client_group is not None:

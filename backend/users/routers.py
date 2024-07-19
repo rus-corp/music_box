@@ -113,7 +113,6 @@ async def create_user(
 ):
   user_handler = UserHandler(session)
   if body.email in super_user_email:
-    
     created_user = await user_handler._create_super_user(body=body)
   else:
     current_user = await get_current_user_from_token(
@@ -121,8 +120,7 @@ async def create_user(
       session=session
     )
     permission = Permissions(current_user=current_user)
-    permission_role = await permission.superuser_permission()
-    if permission_role:
+    if permission.superuser_permission():
       created_user = await user_handler._create_user(body=body)
     else:
       return access_denied_error

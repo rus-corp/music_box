@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
 from pydantic import BaseModel, constr
 from datetime import datetime
 
@@ -86,12 +86,14 @@ class TrackUpdate(BaseModel):
   
 
 class TrackError(BaseModel):
-  message: str
+  file: str
+  error: str
   
   
 class TrackCreateResponse(BaseModel):
-  error_tracks: Optional[List[Union[str, TrackError]]] = []
-  created_tracks: Optional[List[Union[str, TrackError]]] = []
+  # error_tracks: Optional[List[Dict[str, TrackError]]] = []
+  error_tracks: List[Dict[str, str]] = []
+  created_tracks: List[Union[str, TrackError]] = []
   
   
 class DeletedTrackFromCollection(BaseModel):

@@ -32,7 +32,7 @@ class TrackDAL:
     )
     try:
       self.db_session.add(new_track)
-      await self.db_session.commit()
+      # await self.db_session.commit()
       return new_track
     except IntegrityError as er:
       return str(er)

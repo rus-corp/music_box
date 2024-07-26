@@ -1,5 +1,5 @@
 from typing import List, TYPE_CHECKING
-from sqlalchemy import Table, Column, Integer, DateTime, String, ForeignKey, Boolean, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, DateTime, String, ForeignKey, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, relationship
 import datetime
 
@@ -48,7 +48,7 @@ class Track(Base):
   file_path = Column(String, nullable=False)
   album = Column(String, nullable=False)
   genre = Column(String, nullable=False)
-  created_at = Column(DateTime, default=datetime.datetime.utcnow)
+  created_at = Column(DateTime, server_default=func.now())
   
   track_collections: Mapped[List['TrackCollection']] = relationship(secondary=track_collection_tracks_association, back_populates='tracks')
   

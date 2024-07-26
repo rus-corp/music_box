@@ -38,7 +38,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-  return {'mes': 'hi'}
+  return {'mes': 'hello from'}
 
 
 

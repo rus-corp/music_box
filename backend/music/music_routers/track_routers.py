@@ -26,33 +26,17 @@ router = APIRouter(
 
 
 
-@router.post('/upload', response_model=TrackCreateResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/upload', status_code=status.HTTP_201_CREATED, response_model=TrackCreateResponse)
 async def upload_tracks(
   upload_files: List[UploadFile],
   session: AsyncSession = Depends(get_db),
   current_user: User = Depends(get_current_user_from_token)
 ):
-  track_handler = TrackHandler(session, current_user)
-  
-  tracks = {'error_tracks': [], 'created_tracks': []}
-  
-  media_directory = Path(__file__).resolve().parent.parent.parent / 'media'
-  file_data = FileProcessing(upload_files)
-  files_lst = await file_data.file_proc()
-  
-  created_track = 'IntegrityError'
-  for file in files_lst:
-    
-    created_track = await track_handler._create_track(body=file)
-    try:
-      if 'IntegrityError' in created_track:
-        error_message = created_track.split('DETAIL:')[1].split('.\n[SQL:')[0]
-        tracks['error_tracks'].append(error_message)
-    except:
-      tracks['created_tracks'].append(file.filename)
-  response_data = TrackCreateResponse(error_tracks=tracks['error_tracks'], created_tracks=tracks['created_tracks'])
-  return response_data
-
+  track_handler = TrackHandler(
+    session, current_user, upload_files
+  )
+  created_track = await track_handler._create_track()
+  return created_track
 
 
 @router.get('/', response_model=List[TrackShow])

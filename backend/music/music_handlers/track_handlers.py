@@ -6,20 +6,35 @@ from ..dals.tracks_dal import TrackDAL
 from backend.users.models import User
 from backend.auth.permissions import Permissions
 from backend.auth import errors
+from ..service import FileProcessing
 
 
 class TrackHandler:
-  def __init__(self, session: AsyncSession, current_user: User) -> None:
+  def __init__(self, session: AsyncSession, current_user: User, files=None) -> None:
     self.session = session
     self.track_dal = TrackDAL(self.session)
     self.permission = Permissions(current_user)
+    self.files = files
   
   
-  async def _create_track(self, body):
+  async def _create_track(self):
+    tracks = {'error_tracks': [], 'created_tracks': []}
     if self.permission.redactor_permission():
       async with self.session.begin():
-        create_track = await self.track_dal.create_track(**body)
-        return create_track
+        for track in self.files:
+          track_service = FileProcessing(track)
+          track_db = await track_service.file_proc()
+          if 'exceptions_errors' in track_db:
+            tracks['error_tracks'].append(
+              track_db['exceptions_errors']
+            )
+          else:
+            create_track = await self.track_dal.create_track(**track_db)
+            tracks['created_tracks'].append(
+              create_track.open_name
+            )
+        await self.session.commit()
+        return tracks
     else:
       return errors.access_denied_error
   

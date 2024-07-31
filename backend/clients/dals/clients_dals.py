@@ -122,7 +122,9 @@ class ClientDAL:
   
   
   async def get_client_for_append(self, client_id: int):
-    query = select(Client).where(Client.id == client_id).options(selectinload(Client.track_collections))
+    query = select(Client)\
+      .where(Client.id == client_id)\
+      .options(selectinload(Client.track_collections))
     client = await self.db_session.scalar(query)
     return client
 

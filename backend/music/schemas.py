@@ -91,7 +91,6 @@ class TrackError(BaseModel):
   
   
 class TrackCreateResponse(BaseModel):
-  # error_tracks: Optional[List[Dict[str, TrackError]]] = []
   error_tracks: List[Dict[str, str]] = []
   created_tracks: List[Union[str, TrackError]] = []
   

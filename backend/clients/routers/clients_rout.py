@@ -53,7 +53,11 @@ async def get_all_clients_with_track_collection_and_currency(
 
 
 
-@router.get('/clients_with_client_groups', status_code=status.HTTP_200_OK, response_model=List[ShowClientWithClientGroup])
+@router.get(
+  '/clients_with_client_groups',
+  status_code=status.HTTP_200_OK,
+  response_model=List[ShowClientWithClientGroup]
+)
 async def get_clients_with_client_groups(
   session: AsyncSession = Depends(get_db),
   current_user = Depends(get_current_user_from_token)
@@ -151,23 +155,3 @@ async def delete_track_collection_from_client(
   client_handler_dal = ClientHandler(session, current_user)
 
 
-# @router.post('/add_client_to_track_collection/{track_collection_id}', response_model=ShowClient)
-# async def add_client_to_track_collection(
-#   track_collection_id: int,
-#   client_id: int,
-#   session: AsyncSession = Depends(get_db)
-# ):
-#   aded_client_to_track_collection = await _add_client_to_collection(
-#     session=session, track_collection_id=track_collection_id, client_id=client_id
-#   )
-#   return aded_client_to_track_collection
-
-
-# @router.delete('/delete_client_in_track_collections/{track_collection_id}', )
-# async def delete_client_in_track_collection(track_collection_id: int,
-#                                             client_id: int,
-#                                             session: AsyncSession = Depends(get_db)):
-#   deleted_client_in_track_collection = await _delete_client_in_trackcollection(
-#     session, track_collection_id, client_id
-#   )
-#   return deleted_client_in_track_collection

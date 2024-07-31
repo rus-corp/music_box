@@ -25,6 +25,7 @@ class TrackGroupCollectionHandler(MusicMixin):
   def __init__(self, session: AsyncSession, current_user: User = None) -> None:
     self.session = session
     self.track_collection_dal = TrackCollectionDAL(self.session)
+    self.current_user = current_user
     self.permission = (Permissions(current_user))
   
   
@@ -79,33 +80,64 @@ class TrackGroupCollectionHandler(MusicMixin):
   
   async def _get_track_collections_without_trakcs(self):
     async with self.session.begin():
-      track_collections = await self.track_collection_dal.get_all_track_collections()
-      return list(track_collections)
+      if self.permission.redactor_permission():
+        track_collections = await self.track_collection_dal.get_all_track_collections_redactor()
+        return list(track_collections)
+      elif self.permission.client_permission():
+        track_collections = await self.track_collection_dal.get_all_track_collections_client(
+          user_id=self.current_user.id
+        )
+        return list(track_collections)
+      else:
+        return errors.access_denied_error
   
   
   
   async def _get_track_collection_by_id_without_trakcs(self, track_collection_id: int):
     async with self.session.begin():
-      track_collection_by_id = await self.track_collection_dal.get_track_collection_by_id(track_collection_id=track_collection_id)
-      return track_collection_by_id
+      if self.permission.redactor_permission():
+        track_collection_by_id = await self.track_collection_dal.get_track_collection_by_id_redactor(track_collection_id=track_collection_id)
+        return track_collection_by_id
+      elif self.permission.client_permission():
+        track_collection_by_id = await self.track_collection_dal.get_track_collection_by_id_client(
+          track_collection_id=track_collection_id, user_id=self.current_user.id
+        )
+        return track_collection_by_id
+      else:
+        return errors.access_denied_error
+  
   
   
   async def _get_track_collections_with_tracks(self):
     async with self.session.begin():
-      track_collections = await self.track_collection_dal.get_track_collections_with_tracks()
-      return list(track_collections)
-
-
-
+      if self.permission.redactor_permission():
+        track_collections = await self.track_collection_dal.get_track_collections_with_tracks_redactor()
+        return list(track_collections)
+      elif self.permission.client_permission():
+        track_collections = await self.track_collection_dal.get_track_collections_with_tracks_client(user_id=self.current_user.id)
+        return list(track_collections)
+      else:
+        return errors.access_denied_error
+  
+  
+  
   async def _get_track_collection_by_id_with_tracks(self, track_collection_id: int):
     async with self.session.begin():
-      track_collection = await self.track_collection_dal.get_track_group_by_id_with_tracks(
-        track_group_id=track_collection_id
-      )
-      return track_collection
-    
-    
-
+      if self.permission.redactor_permission():
+        track_collection = await self.track_collection_dal.get_track_collection_by_id_with_tracks_redactor(
+          track_group_id=track_collection_id
+        )
+        return track_collection
+      elif self.permission.client_permission():
+        track_collection = await self.track_collection_dal.get_track_collection_by_id_with_tracks_client(
+          user_id=self.current_user.id, track_collection_id=track_collection_id
+        )
+        return track_collection
+      else:
+        return errors.access_denied_error
+  
+  
+  
   async def _update_track_collection(self, track_collection_id: int, body: TrackCollectionUpdateResponse):
     async with self.session.begin():
       track_collection_group = await self.track_collection_dal.get_track_collection_by_id(track_collection_id)
@@ -135,31 +167,39 @@ class TrackGroupCollectionHandler(MusicMixin):
         body_data = body.model_dump(exclude_none=True)
         if self.check_body(body_data):
           client_dal = ClientDAL(self.session)
-          if client_dal.check_client_in_db(body_data['client_id']) and self.check_track_collection_in_db(body_data['track_collection_id']):
-            client = await client_dal.get_client_for_append(
-              client_id=body_data['client_id']
+          # if client_dal.check_client_in_db(body_data['client_id']) and self.check_track_collection_in_db(body_data['track_collection_id']):
+          client = await client_dal.get_client_for_append(
+            client_id=body_data['client_id']
+          )
+          
+          if client is None:
+            return errors.found_error_in_db(
+              'Client', body_data['client_id']
             )
-            track_collection = await self.track_collection_dal.get_track_collection_for_append(
-              track_group_id=body_data['track_collection_id']
-            )
-            client.track_collections.append(track_collection)
-            await self.session.commit()
-            track_collection_data = TrackCollectionShow(
-              id=track_collection.id,
-              name=track_collection.name,
-              player_option=track_collection.player_option
-            )
-            return ClientWithTrackCollection(
-              id=client.id,
-              name=client.name,
-              city=client.city,
-              email=client.email,
-              phone=client.phone,
-              price=client.price,
-              track_collection=track_collection_data
-            )
-          else:
-            return errors.not_Found_error
+          track_collection = await self.track_collection_dal.get_track_collection_for_append_client(
+            track_group_id=body_data['track_collection_id']
+          )
+          if track_collection is None:
+            return errors.found_error_in_db(
+              'Track collection', body_data['track_collection_id']
+            )  
+          
+          client.track_collections.append(track_collection)
+          await self.session.commit()
+          track_collection_data = TrackCollectionShow(
+            id=track_collection.id,
+            name=track_collection.name,
+            player_option=track_collection.player_option
+          )
+          return ClientWithTrackCollection(
+            id=client.id,
+            name=client.name,
+            city=client.city,
+            email=client.email,
+            phone=client.phone,
+            price=client.price,
+            track_collection=track_collection_data
+          )
         else:
           return errors.not_parameters
     else:

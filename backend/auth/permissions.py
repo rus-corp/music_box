@@ -34,7 +34,7 @@ class Permissions:
 
 
   def client_permission(self):
-    if self.current_user.role.role_name == c_role and self.current_user.is_superuser == True:
+    if self.current_user.role.role_name == c_role or self.current_user.role.role_name == m_role  or self.current_user.is_superuser == True:
       return True
     return False
 

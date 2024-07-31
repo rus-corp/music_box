@@ -40,7 +40,11 @@ async def create_track_group_collection(
 
 
 
-@router.get('/', response_model=List[schemas.TrackCollectionShow])
+@router.get(
+  '/',
+  response_model=List[schemas.TrackCollectionShow],
+  status_code=status.HTTP_200_OK
+)
 async def get_all_track_collections_without_tracks(
   session: AsyncSession = Depends(get_db),
   current_user: User = Depends(get_current_user_from_token)
@@ -51,9 +55,14 @@ async def get_all_track_collections_without_tracks(
 
 
 
-@router.get('/{track_collection_id}', response_model=schemas.TrackCollectionShow, responses={
+@router.get(
+  '/{track_collection_id}',
+  response_model=schemas.TrackCollectionShow,
+  responses={
   404: {'model': ErrorMessageResponse}
-})
+  },
+  status_code=status.HTTP_200_OK
+)
 async def get_track_collection_by_id_withouts_tracks(
   track_collection_id: int,
   session: AsyncSession = Depends(get_db),
@@ -71,7 +80,11 @@ async def get_track_collection_by_id_withouts_tracks(
 
 
 
-@router.get('/with_tracks', response_model=List[schemas.TrackCollectionWithTracks])
+@router.get(
+  '/collection_with_tracks/',
+  status_code=status.HTTP_200_OK,
+  response_model=List[schemas.TrackCollectionWithTracks]
+)
 async def get_all_track_collection_with_tracks(
   session: AsyncSession = Depends(get_db),
   current_user: User = Depends(get_current_user_from_token)
@@ -82,7 +95,11 @@ async def get_all_track_collection_with_tracks(
 
 
 
-@router.get('/with_tracks/{track_collection_id}', response_model=schemas.TrackCollectionWithTracks)
+@router.get(
+  '/track_collection_by_id/{track_collection_id}',
+  response_model=schemas.TrackCollectionWithTracks,
+  status_code=status.HTTP_200_OK
+)
 async def get_track_collection_by_id_with_trakcs(
   track_collection_id: int,
   session: AsyncSession = Depends(get_db),
@@ -97,9 +114,14 @@ async def get_track_collection_by_id_with_trakcs(
 
 
 
-@router.patch('/{track_collection_id}', response_model=schemas.TrackCollectionShow, responses={
+@router.patch(
+  '/{track_collection_id}',
+  response_model=schemas.TrackCollectionShow,
+  responses={
   404: {'model': ErrorMessageResponse}
-})
+  },
+  status_code=status.HTTP_200_OK
+)
 async def update_track_collection(
   track_collection_id: int,
   body: schemas.TrackCollectionUpdateResponse,
@@ -135,8 +157,11 @@ async def delete_track_collection(
 
 
 
-@router.post('/append_track_collection_to_client', status_code=status.HTTP_200_OK,
-             response_model=ClientWithTrackCollection)
+@router.post(
+  '/append_track_collection_to_client',
+  status_code=status.HTTP_200_OK,
+  response_model=ClientWithTrackCollection
+)
 async def append_track_collection_to_client(
   body: schemas.AppendTrackCollectionToClient,
   session: AsyncSession = Depends(get_db),
@@ -147,10 +172,14 @@ async def append_track_collection_to_client(
     body
   )
   return appended_track_collection
-  
 
-@router.delete('/delete_track_collection_from_client', status_code=status.HTTP_200_OK,
-               response_model=ErrorMessageResponse)
+
+
+@router.delete(
+  '/delete_track_collection_from_client', 
+  status_code=status.HTTP_200_OK,
+  response_model=ErrorMessageResponse
+)
 async def delete_track_collection_from_client(
   body: schemas.AppendTrackCollectionToClient,
   session: AsyncSession = Depends(get_db),

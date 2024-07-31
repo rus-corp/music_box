@@ -1,8 +1,7 @@
 from typing import List, TYPE_CHECKING
-import sqlalchemy
 from datetime import datetime
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from sqlalchemy import String, Column, ForeignKey, UniqueConstraint, Integer, Table
+from sqlalchemy import String, Column, ForeignKey, UniqueConstraint, Integer, Table, Date
 
 from backend.database import Base
 
@@ -41,8 +40,8 @@ trackCollections_client_association = Table(
 
 class Currency(Base):
   __tablename__ = 'currency'
-  id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-  cur_name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+  id = Column(Integer, primary_key=True)
+  cur_name = Column(String, nullable=False)
   
   clients: Mapped[List['Client']] = relationship(back_populates='currency')
 
@@ -81,16 +80,24 @@ class Client(Base):
   phone:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
   price:Mapped[int] = mapped_column(nullable=True)
   
-  profile: Mapped['ClientProfile'] = relationship(back_populates='client', lazy='joined', cascade='all, delete')
+  profile: Mapped['ClientProfile'] = relationship(
+    back_populates='client', lazy='joined', cascade='all, delete'
+  )
   
-  currency_id = mapped_column(sqlalchemy.ForeignKey('currency.id'))
-  currency: Mapped[Currency] = relationship(back_populates='clients', lazy='joined')
+  currency_id = mapped_column(ForeignKey('currency.id'))
+  currency: Mapped[Currency] = relationship(
+    back_populates='clients', lazy='joined'
+  )
   
-  client_group_id = mapped_column(sqlalchemy.ForeignKey('client_group.id'))
+  client_group_id = mapped_column(
+    ForeignKey('client_group.id')
+  )
   client_group: Mapped['ClientGroup'] = relationship('ClientGroup', back_populates='clients')
   
   another_contract: Mapped[List['AnotherContracts']] = relationship(back_populates='client')
-  track_collections: Mapped[List['TrackCollection']] = relationship(secondary='trackCollections_client_association', back_populates='clients')
+  track_collections: Mapped[List['TrackCollection']] = relationship(
+    secondary='trackCollections_client_association', back_populates='clients'
+  )
 
 
 
@@ -115,11 +122,11 @@ class ClientProfile(Base):
 class AnotherContracts(Base):
   __tablename__ = 'another_contracts'
   
-  id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-  contract_number = sqlalchemy.Column(sqlalchemy.Date)
-  payment_date = sqlalchemy.Column(sqlalchemy.Date)
+  id = Column(Integer, primary_key=True)
+  contract_number = Column(Date)
+  payment_date = Column(Date)
   
-  client_id = mapped_column(sqlalchemy.ForeignKey('client.id'))
+  client_id = mapped_column(ForeignKey('client.id'))
   client: Mapped['Client'] = relationship(back_populates='another_contract')
   
   

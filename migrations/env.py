@@ -11,6 +11,7 @@ from backend.database import Base
 from backend.users.models import UserRole, User
 from backend.clients.models import Currency, Client, ClientCluster, ClientGroup, AnotherContracts, ClientProfile
 from backend.music.models import TrackCollection, CollectionGroup, Track
+from backend.promo.models import PromotionAudo
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,11 +2,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 
 
+from ..models import TrackCollection
+
 from ..dals.tracks_dal import TrackDAL
 from backend.users.models import User
 from backend.auth.permissions import Permissions
 from backend.auth import errors
 from ..service import FileProcessing
+from ..schemas import TrackCollectionWithTracks
+from ..dals.track_group_dal import TrackCollectionDAL
 
 
 class TrackHandler:
@@ -75,44 +79,49 @@ class TrackHandler:
       return errors.access_denied_error
 
 
-  # async def _append_track_to_collection(self, track_collection_id: int, track_id: int):
-  #   async with self.session.begin():
-  #     track_collection = await self.track_collection_dal.get_track_collection_for_append_track_to_group(track_group_id=track_collection_id)
-  #     if track_collection is None:
-  #       return JSONResponse(content='track_collection not found', status_code=404)
-  #     track_dal = TrackDAL(self.session)
-  #     track = await track_dal.get_track_by_id(track_id=track_id)
-      
-  #     track_collection.tracks.append(track)
-  #     await self.session.commit()
-      
-  #     track = TrackShow(
-  #       id = track.id,
-  #       title = track.title,
-  #       artist = track.artist,
-  #       label= track.label,
-  #       open_name = track.open_name,
-  #       file_path = track.file_path,
-  #       created_at = track.created_at
-  #     )
-      
-  #     return TrackCollectionWithTracks(
-  #       id = track_collection.id,
-  #       name = track_collection.name,
-  #       player_option = track_collection.player_option,
-  #       tracks=track
-  #     )
-    
-    
-  # async def _delete_track_from_track_collection(self, track_id: int, track_collection_id: int):
-  #   async with self.session.begin():
-  #     track_collection = await self.track_collection_dal.get_track_collection_for_append_track_to_group(track_group_id=track_collection_id)
-  #     track_dal = TrackDAL(self.session)
-  #     track = await track_dal.get_track_by_id(track_id=track_id)
-  #     if track_collection is None or track is None:
-  #       return JSONResponse(content='track collection or track not found')
-      
-  #     deleted_track_from_collection = await track_dal.delete_track_from_collection(
-  #       track_id=track_id, track_collection_id=track_collection_id
-  #     )
-  #     return deleted_track_from_collection
+  async def _append_track_to_collection(self, track_collection_id: int, track_id: int):
+    if self.permission.redactor_permission():
+      async with self.session.begin():
+        track = await self.track_dal.get_track_for_append_to_group(track_id)
+        if track is None:
+          await self.session.rollback()
+          return errors.found_error_in_db('Track', track_id)
+        track_group_dal = TrackCollectionDAL(self.session)
+        track_group: TrackCollection = await track_group_dal.get_track_group_by_id_with_tracks(track_collection_id)
+        if track_group is None:
+          await self.session.rollback()
+          return errors.found_error_in_db('Track Group', track_collection_id)
+        track_group.tracks.append(track)
+        await self.session.commit()
+        return TrackCollectionWithTracks(
+          id=track_group.id,
+          name=track_group.name,
+          player_option=track_group.player_option,
+          tracks=[track]
+        )
+    else:
+      return errors.access_denied_error
+  
+  async def _delete_track_from_collection(self, track_id: int, track_collection_id: int):
+    if self.permission.redactor_permission():
+      async with self.session.begin():
+        track = await self.track_dal.get_track_for_append_to_group(track_id)
+        if track is None:
+          await self.session.rollback()
+          return errors.found_error_in_db('Track', track_id)
+        track_group_dal = TrackCollectionDAL(self.session)
+        track_group: TrackCollection = await track_group_dal.get_track_group_by_id_with_tracks(track_collection_id)
+        if track_group is None:
+          await self.session.rollback()
+          return errors.found_error_in_db('Track Group', track_collection_id)
+        try:
+          track_group.tracks.remove(track)
+          await self.session.commit()
+        except ValueError:
+          await self.session.rollback()
+          return JSONResponse(content=f'Track with id {track_id} not in Track Collection with id {track_collection_id}',
+                              status_code=404)
+        return JSONResponse(content=f'Track with id {track_id} deleted from Collection with id {track_collection_id}',
+                            status_code=200)
+    else:
+      return errors.access_denied_error

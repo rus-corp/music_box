@@ -48,7 +48,7 @@ class Track(Base):
   file_path = Column(String, nullable=False)
   album = Column(String, nullable=False)
   genre = Column(String, nullable=False)
-  created_at = Column(DateTime, server_default=func.now())
+  created_at = Column(DateTime, default=func.now())
   
   track_collections: Mapped[List['TrackCollection']] = relationship(secondary=track_collection_tracks_association, back_populates='tracks')
   

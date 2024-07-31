@@ -12,8 +12,8 @@ not_parameters = JSONResponse(content='Не переданы необходим�
 
 
 
-def found_error_in_db(data, id):
-  JSONResponse(content=f'{data} with {id} not found',
+def found_error_in_db(data: str, id: int):
+  return JSONResponse(content=f'{data} with id = {id} not found',
                status_code=status.HTTP_404_NOT_FOUND)
   
 

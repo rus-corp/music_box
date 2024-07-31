@@ -29,7 +29,7 @@ class CollectionGroupDAL:
   async def get_all_group_collections_with_track_collections(self):
     query = select(CollectionGroup).options(joinedload(CollectionGroup.track_collections)).order_by(CollectionGroup.id)
     result = await self.db_session.execute(query)
-    return result.scalars().all()
+    return result.unique().scalars().all()
   
   
   async def get_group_collection_by_id_without_track_collections(self, group_id: int):

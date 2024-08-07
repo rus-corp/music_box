@@ -10,8 +10,8 @@ from backend.database import Base
 
 
 
-class PromotionAudo(Base):
-  _tablename__ = 'promo_audio'
+class PromotionAudio(Base):
+  __tablename__ = 'promo_audio'
   
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   name:Mapped[str] = mapped_column(nullable=False)

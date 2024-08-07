@@ -1,42 +1,18 @@
 from typing import List, TYPE_CHECKING
-from sqlalchemy import Table, Column, Integer, DateTime, String, ForeignKey, Boolean, UniqueConstraint, func
+from sqlalchemy import Table, Column, Integer, DateTime, String, ForeignKey, Boolean, func
 from sqlalchemy.orm import Mapped, relationship
-import datetime
+
 
 
 
 from backend.database import Base
-
-
-
-
-if TYPE_CHECKING:
-  from backend.clients.models import Client, trackCollections_client_association
-
-
-group_track_collection_association = Table(
-  'group_track_collection_association',
-  Base.metadata,
-  Column('id', Integer, primary_key=True),
-  Column('group_collection_id', ForeignKey('group_collection.id')),
-  Column('track_collection_id', ForeignKey('track_collection.id'))
-)
-
-
-track_collection_tracks_association = Table(
-  'track_collection_tracks_association',
-  Base.metadata,
-  Column('id', Integer, primary_key=True),
-  Column('track_id', ForeignKey('track.id')),
-  Column('track_collection_id', ForeignKey('track_collection.id'))
-)
+from backend.clients.models import Client
+from .association_models import track_collection_tracks_association, group_track_collection_association
 
 
 
 
 
-
-  
 class Track(Base):
   __tablename__ = 'track'
   

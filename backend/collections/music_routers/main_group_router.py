@@ -5,8 +5,8 @@ from fastapi.exceptions import HTTPException
 
 from backend.database import get_db
 
-from backend.music import schemas
-from backend.music.music_handlers.main_group_handlers import MainGroupHandler
+from backend.collections import schemas
+from backend.collections.music_handlers.main_group_handlers import MainGroupHandler
 from backend.auth.security import get_current_user_from_token
 
 
@@ -14,7 +14,7 @@ from backend.auth.security import get_current_user_from_token
 
 
 router = APIRouter(
-  prefix='/main_group',
+  prefix='/main_collection',
   # tags=['MainGroup']
 )
 

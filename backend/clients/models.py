@@ -9,7 +9,7 @@ from backend.database import Base
 
 
 if TYPE_CHECKING:
-  from backend.music.models import TrackCollection
+  from backend.collections.models import TrackCollection
   from backend.users.models import User
 
 

@@ -8,8 +8,8 @@ from ..schemas import (CreateClient, ShowClientWithTrackColections, CurrencyShow
 from ..dals.clients_dals import ClientDAL
 from ..dals.currency_dals import CurrencyDAL
 from ..dals.client_profile_dal import ClientProfileDAL
-from backend.music.dals.track_group_dal import TrackCollectionDAL
-from backend.music.schemas import TrackCollectionShow
+from backend.collections.dals.track_group_dal import TrackCollectionDAL
+from backend.collections.schemas import TrackCollectionShow
 from backend.users.models import User
 
 

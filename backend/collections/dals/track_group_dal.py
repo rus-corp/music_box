@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, update, exists, and_
 from sqlalchemy.orm import selectinload, joinedload
 
-from backend.music.models import TrackCollection
+from backend.collections.models import TrackCollection
 from backend.clients.models import trackCollections_client_association, Client, user_client_group_association
 from backend.users.models import User
 

@@ -9,6 +9,9 @@ from .handlers import _authenticate_user
 from .security import create_access_token
 from backend.database import get_db
 from config import ACCESS_TOKEN_EXPIRE_MINUTES
+from .schemas import LoginData
+
+
 
 
 login_router = APIRouter(

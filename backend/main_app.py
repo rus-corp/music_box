@@ -8,7 +8,7 @@ from os import path
 
 
 from .users.routers import router as users_routers
-from .music.app_main_routers import router as music_routers
+from .collections.app_main_routers import router as music_routers
 from .auth.routers import login_router
 from .clients.main_router import router as client_router
 
@@ -21,10 +21,11 @@ app = FastAPI(
 )
 
 origins = [
+    "*",
     "http://localhost:8000",
     "http://localhost",
-    "http://64.226.111.161",
-    "http://64.226.111.161:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(

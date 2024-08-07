@@ -4,8 +4,8 @@ from fastapi.responses import JSONResponse
 from backend.users.models import User
 
 from backend.clients.dals.clients_dals import ClientDAL
-from backend.music.dals.track_group_dal import TrackCollectionDAL
-from backend.music.dals.main_group_dal import CollectionGroupDAL
+from backend.collections.dals.track_group_dal import TrackCollectionDAL
+from backend.collections.dals.main_group_dal import CollectionGroupDAL
 from backend.auth import errors
 from backend.auth.permissions import Permissions
 from ..mixins import MusicMixin
@@ -14,7 +14,7 @@ from ..mixins import MusicMixin
 
 
 from backend.general_schemas import ClientWithTrackCollection
-from backend.music.schemas import (TrackCollectionCreate, TrackCollectionShow,
+from backend.collections.schemas import (TrackCollectionCreate, TrackCollectionShow,
                                    GroupCollectionWithTrackCollectionCreate,
                                    TrackCollectionUpdateResponse,
                                    AppendTrackCollectionToClient)

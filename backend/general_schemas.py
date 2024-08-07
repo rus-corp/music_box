@@ -2,7 +2,7 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from .clients.schemas import ClientClusterShow, ClientGroupShow, ShowClientWithTrackColections
 from .users.schemas import UserShowForClient, ShowUser
-from .music.schemas import TrackCollectionShow
+from .collections.schemas import TrackCollectionShow
 
 
 class ErrorMessageResponse(BaseModel):

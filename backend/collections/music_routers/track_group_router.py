@@ -5,19 +5,19 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 
 from backend.database import get_db
-from backend.music import schemas
+from backend.collections import schemas
 
 
 
 from backend.auth.security import get_current_user_from_token
 
 from backend.general_schemas import ErrorMessageResponse, ClientWithTrackCollection
-from backend.music.music_handlers.track_group_handlers import TrackGroupCollectionHandler
+from backend.collections.music_handlers.track_group_handlers import TrackGroupCollectionHandler
 from backend.users.models import User
 
 
 router = APIRouter(
-  prefix='/track_group',
+  prefix='/track_collection',
   # tags=['TrackGroup']
 )
 

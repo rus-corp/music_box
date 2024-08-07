@@ -10,8 +10,12 @@ from config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 from backend.database import Base
 from backend.users.models import UserRole, User
 from backend.clients.models import Currency, Client, ClientCluster, ClientGroup, AnotherContracts, ClientProfile
-from backend.music.models import TrackCollection, CollectionGroup, Track
-from backend.promo.models import PromotionAudo
+from backend.collections.models.models import Track, TrackCollection, CollectionGroup
+from backend.collections.models.association_models import (group_track_collection_association, 
+                                                           track_collection_tracks_association,
+                                                           trackCollection_baseCollection_association)
+from backend.bases.models import MainBase, BaseCollection
+from backend.promo.models import PromotionAudio
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

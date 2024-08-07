@@ -4,7 +4,7 @@ from typing import Optional, List
 from datetime import date
 
 
-from backend.music.schemas import TrackCollectionShow
+from backend.collections.schemas import TrackCollectionShow
 
 
 

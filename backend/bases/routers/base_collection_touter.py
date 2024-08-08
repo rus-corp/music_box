@@ -39,7 +39,7 @@ async def create_base_collection(
 @router.get(
   '/',
   status_code=status.HTTP_200_OK,
-  response_model=schemas.ShowBaseCollection
+  response_model=List[schemas.ShowBaseCollection]
 )
 async def get_all_base_collections(
   session: AsyncSession = Depends(get_db),
@@ -52,4 +52,59 @@ async def get_all_base_collections(
   return base_collections
 
 
-@router.get
+@router.get(
+  '/{collection_id}',
+  status_code=status.HTTP_200_OK,
+  response_model=schemas.ShowBaseCollection
+)
+async def get_base_collection_by_id(
+  collection_id: int,
+  session: AsyncSession = Depends(get_db),
+  current_user: User = Depends(get_current_user_from_token)
+):
+  collection_handler = BaseCollectionHandler(
+    session=session, current_user=current_user
+  )
+  base_collection = await collection_handler._get_base_collection_by_id(
+    collection_id=collection_id
+  )
+  return base_collection
+
+
+
+@router.get(
+  '/with_tracks/{collection_id}',
+  status_code=status.HTTP_200_OK,
+  # response_model=schemas.
+)
+async def get_base_collection_with_tracks(
+  collection_id: int,
+  session: AsyncSession = Depends(get_db),
+  current_user: User = Depends(get_current_user_from_token)
+):
+  collection_handler = BaseCollectionHandler(
+    session=session, current_user=current_user
+  )
+  base_collection = await collection_handler._get_base_collection_by_id_with_tracks(
+    collection_id=collection_id
+  )
+  return base_collection
+
+
+@router.patch(
+  '/{collection_id}',
+  status_code=status.HTTP_200_OK,
+)
+async def update_base_collection_by_id(
+  collection_id: int,
+  body: schemas.BaseCollectionUpdateRequest,
+  session: AsyncSession = Depends(get_db),
+  current_user: User = Depends(get_current_user_from_token)
+):
+  collection_handler = BaseCollectionHandler(
+    session=session, current_user=current_user
+  )
+  updated_collection = await collection_handler._update_base_collection(
+    collection_id=collection_id, body=body
+  )
+  return updated_collection

@@ -80,12 +80,16 @@ class MainGroupHandler:
   
   async def _delete_group_collection_by_id(self, group_id: int):
     if self.permission.redactor_permission():
-      has_group = await self._check_group_collection_in_db(group_id)
-      if has_group:
         deleted_group = await self.colection_dal.delete_collection_group(group_id)
+        if isinstance(deleted_group, str):
+          return JSONResponse(
+            content=deleted_group, status_code=400
+          )
+        if deleted_group is None:
+          return errors.found_error_in_db(
+            data='Collection Group', id=group_id
+          )
         return deleted_group
-      else:
-        return errors.not_Found_error
     else:
       return errors.access_denied_error
   

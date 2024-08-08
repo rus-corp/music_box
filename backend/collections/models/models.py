@@ -9,6 +9,8 @@ from backend.database import Base
 from backend.clients.models import Client
 from .association_models import track_collection_tracks_association, group_track_collection_association
 
+if TYPE_CHECKING:
+  from backend.bases.models import BaseCollection
 
 
 
@@ -26,10 +28,16 @@ class Track(Base):
   genre = Column(String, nullable=False)
   created_at = Column(DateTime, default=func.now())
   
-  track_collections: Mapped[List['TrackCollection']] = relationship(secondary=track_collection_tracks_association, back_populates='tracks')
-  
-  
-  
+  track_collections: Mapped[List['TrackCollection']] = relationship(
+    secondary=track_collection_tracks_association,
+    back_populates='tracks'
+  )
+  base_collections: Mapped[List['BaseCollection']] = relationship(
+    secondary='trackBaseCollectionAssociation',
+    back_populates='tracks'
+  )
+
+
 class TrackCollection(Base):
   __tablename__ = 'track_collection'
   
@@ -37,16 +45,32 @@ class TrackCollection(Base):
   name = Column(String, nullable=False)
   player_option = Column(Boolean, default=True, info={'desc': 'true - играет по порядку'})
   
-  tracks: Mapped[List['Track']] = relationship(secondary=track_collection_tracks_association, back_populates='track_collections')
-  group_collections: Mapped[List['CollectionGroup']] = relationship(secondary=group_track_collection_association, back_populates='track_collections')
+  tracks: Mapped[List['Track']] = relationship(
+    secondary=track_collection_tracks_association,
+    back_populates='track_collections'
+  )
+  group_collections: Mapped[List['CollectionGroup']] = relationship(
+    secondary=group_track_collection_association,
+    back_populates='track_collections'
+  )
   
-  clients: Mapped[List['Client']] = relationship(secondary='trackCollections_client_association', back_populates='track_collections')
-   
-   
-   
+  clients: Mapped[List['Client']] = relationship(
+    secondary='trackCollections_client_association',
+    back_populates='track_collections'
+  )
+
+  base_collections: Mapped[List['BaseCollection']] = relationship(
+    secondary='trackCollection_baseCollection_association',
+    back_populates='track_collections'
+  )
+
+
 class CollectionGroup(Base):
   __tablename__ = 'group_collection'
   id = Column(Integer, primary_key=True, autoincrement=True)
   group_name = Column(String, nullable=False)
   
-  track_collections: Mapped[List['TrackCollection']] = relationship(secondary=group_track_collection_association, back_populates='group_collections')
+  track_collections: Mapped[List['TrackCollection']] = relationship(
+    secondary=group_track_collection_association,
+    back_populates='group_collections'
+  )

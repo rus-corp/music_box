@@ -11,6 +11,7 @@ from .users.routers import router as users_routers
 from .collections.app_main_routers import router as music_routers
 from .auth.routers import login_router
 from .clients.main_router import router as client_router
+from .bases.app_main_router import router as base_router
 
 from backend.database import get_db
 
@@ -66,5 +67,6 @@ app.include_router(users_routers)
 app.include_router(music_routers)
 app.include_router(login_router)
 app.include_router(client_router)
+app.include_router(base_router)
 
 

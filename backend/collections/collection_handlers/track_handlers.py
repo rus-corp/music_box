@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 
 
-from ..models import TrackCollection
+from ..models.models import TrackCollection
 
 from ..dals.tracks_dal import TrackDAL
 from backend.users.models import User

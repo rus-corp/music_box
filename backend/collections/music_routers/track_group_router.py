@@ -12,7 +12,7 @@ from backend.collections import schemas
 from backend.auth.security import get_current_user_from_token
 
 from backend.general_schemas import ErrorMessageResponse, ClientWithTrackCollection
-from backend.collections.music_handlers.track_group_handlers import TrackGroupCollectionHandler
+from backend.collections.collection_handlers.track_group_handlers import TrackGroupCollectionHandler
 from backend.users.models import User
 
 

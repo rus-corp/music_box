@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, update, delete, and_
 from sqlalchemy.orm import selectinload, joinedload
 
-from ..models import Track, track_collection_tracks_association
+from ..models.models import Track
 
 
 class TrackDAL:

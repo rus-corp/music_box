@@ -31,32 +31,32 @@ class MainBaseDAL:
     return result.scalars().all()
     
   
-  async def get_main_base_by_id_without_collection(self, main_group_id: int):
-    query = select(MainBase).where(MainBase.id == main_group_id)
+  async def get_main_base_by_id_without_collection(self, base_id: int):
+    query = select(MainBase).where(MainBase.id == base_id)
     result = await self.db_session.execute(query)
     group_row = result.fetchone()
     if group_row is not None:
       return group_row[0]
   
-  async def get_main_base_by_id_with_collection(self, main_group_id: int):
-    query = select(MainBase).where(MainBase.id == main_group_id).options(joinedload(MainBase.collection))
+  async def get_main_base_by_id_with_collection(self, base_id: int):
+    query = select(MainBase).where(MainBase.id == base_id).options(joinedload(MainBase.collection))
     result = await self.db_session.execute(query)
     group_row = result.fetchone()
     if group_row is not None:
       return group_row[0]
   
   
-  async def update_main_base(self, main_group_id: int, new_name: str):
-    stmt = update(MainBase).where(MainBase.id == main_group_id).values(name=new_name).returning(MainBase)
+  async def update_main_base(self, base_id: int, new_name: str):
+    stmt = update(MainBase).where(MainBase.id == base_id).values(name=new_name).returning(MainBase)
     result = await self.db_session.execute(stmt)
     group_row = result.fetchone()
     if group_row is not None:
       return group_row[0]
   
   
-  async def delete_main_base(self, main_group_id: int):
+  async def delete_main_base(self, base_id: int):
     try:
-      stmt = delete(MainBase).where(MainBase.id == main_group_id)
+      stmt = delete(MainBase).where(MainBase.id == base_id).returning(MainBase)
       result = await self.db_session.execute(stmt)
       await self.db_session.commit()
       return result.scalar()

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 
-from ..music_handlers.track_handlers import TrackHandler
+from ..collection_handlers.track_handlers import TrackHandler
 from ..schemas import (TrackCreateResponse, TrackShow,
                        TrackUpdate, TrackCollectionWithTracks,
                        AppendTrackToCollection)

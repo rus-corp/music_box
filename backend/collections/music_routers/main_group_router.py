@@ -6,7 +6,7 @@ from fastapi.exceptions import HTTPException
 from backend.database import get_db
 
 from backend.collections import schemas
-from backend.collections.music_handlers.main_group_handlers import MainGroupHandler
+from backend.collections.collection_handlers.main_collection_handler import MainGroupHandler
 from backend.auth.security import get_current_user_from_token
 
 

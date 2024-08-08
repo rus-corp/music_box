@@ -3,7 +3,8 @@ from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from backend.collections.models import CollectionGroup, group_track_collection_association
+
+from backend.collections.models.models import CollectionGroup
 
 
 class CollectionGroupDAL:

@@ -36,7 +36,7 @@ class BaseCollectionModel(BaseModel):
 class ShowBaseCollection(BaseCollectionModel):
   id: int
   name: str
-  base_id: int
+  main_base_id: int
 
 class BaseCollectionCreateRequest(BaseCollectionModel):
   name: str

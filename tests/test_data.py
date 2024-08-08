@@ -195,12 +195,12 @@ main_group_data = [
 # for item in main_group_data[:3]:
 #   print(item)
 
-my_d = {'id': 1, 'name': 'new_name', 'player': True, 'group_id': 4}
+# my_d = {'id': 1, 'name': 'new_name', 'player': True, 'group_id': 4}
 
-if not my_d.get('new') or not my_d['id']:
-  print('no')
-else:
-  print('yes')
+# if not my_d.get('new') or not my_d['id']:
+#   print('no')
+# else:
+#   print('yes')
 
 
 track_group_data = [
@@ -218,7 +218,30 @@ track_group_data = [
   {'name': '', 'player_option': True, 'group_coollection_id': 1},
 ]
 
-# from collections import Counter
+base_data = [
+  {'name': 'Audio Sparks'},
+  {'name': 'Chill House'},
+  {'name': 'Disco'},
+  {'name': 'Exclusive'},
+  {'name': 'Hip Hop'},
+  {'name': 'Hokidays'},
+  {'name': ''}
+]
+
+base_collection_data = [
+  {'name': 'Bosa Nova', 'base_id': 1},
+  {'name': 'Jazz', 'base_id': 2},
+  {'name': 'Pop', 'base_id': 3},
+  {'name': 'Hip', 'base_id': 4},
+  {'name': 'Bra', 'base_id': 1},
+  {'name': 'Bor', 'base_id': 2},
+  {'name': 'Asd', 'base_id': 3},
+  {'name': 'Hsas', 'base_id': 4},
+  {'name': 'Qasdas', 'base_id': 1},
+  {'name': 'Lsasd', 'base_id': 2},
+  {'name': 'Jsas', 'base_id': 3},
+  {'name': 'Vasda', 'base_id': 1}
+]
 
 
 

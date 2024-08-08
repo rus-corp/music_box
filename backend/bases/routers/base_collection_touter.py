@@ -13,12 +13,11 @@ from ..handlers.base_collection_handler import BaseCollectionHandler
 from .. import schemas
 
 router = APIRouter(
-  prefix='/collection',
   tags=['BaseCollection']
 )
 
 @router.post(
-  '/',
+  '/collection',
   status_code=status.HTTP_201_CREATED,
   response_model=schemas.ShowBaseCollection
 )
@@ -37,7 +36,7 @@ async def create_base_collection(
 
 
 @router.get(
-  '/',
+  '/collection',
   status_code=status.HTTP_200_OK,
   response_model=List[schemas.ShowBaseCollection]
 )
@@ -53,7 +52,7 @@ async def get_all_base_collections(
 
 
 @router.get(
-  '/{collection_id}',
+  '/collection/{collection_id}',
   status_code=status.HTTP_200_OK,
   response_model=schemas.ShowBaseCollection
 )
@@ -73,7 +72,7 @@ async def get_base_collection_by_id(
 
 
 @router.get(
-  '/with_tracks/{collection_id}',
+  '/collection/with_tracks/{collection_id}',
   status_code=status.HTTP_200_OK,
   # response_model=schemas.
 )
@@ -92,7 +91,7 @@ async def get_base_collection_with_tracks(
 
 
 @router.patch(
-  '/{collection_id}',
+  '/collection/{collection_id}',
   status_code=status.HTTP_200_OK,
 )
 async def update_base_collection_by_id(

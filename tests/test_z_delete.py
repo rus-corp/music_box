@@ -35,7 +35,7 @@ async def test_delete_user(ac: AsyncClient, create_test_super_user_access_token,
   print(acces_denied_delete)
   acces_denied_delete_data = acces_denied_delete.json()
   print(acces_denied_delete_data)
-  assert acces_denied_delete.status_code == 405
+  assert acces_denied_delete.status_code == 403
 
 
 async def test_delete_client_from_group(ac: AsyncClient, create_test_super_user_access_token, create_test_user_token):

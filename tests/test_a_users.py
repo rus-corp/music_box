@@ -130,7 +130,7 @@ async def test_update_user(ac: AsyncClient, create_test_super_user_access_token,
   assert updated_user_data['comment'] == body['comment']
   
   access_denied_request = await ac.patch('users/4', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'}, json=body)
-  assert access_denied_request.status_code == 405
+  assert access_denied_request.status_code == 403
 
   
 

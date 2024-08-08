@@ -16,7 +16,7 @@ async def test_update_client_cluster(ac: AsyncClient, create_test_super_user_acc
   cluster_bad_req = await ac.patch('clients/client_cluster/1', params=body, headers={'Authorization': f'Bearer {test_bad_token}'})
   assert cluster_bad_req.status_code == 401
   cluster_access_denied = await ac.patch('clients/client_cluster/1', params=body, headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
-  assert cluster_access_denied.status_code == 405
+  assert cluster_access_denied.status_code == 403
 
 
 

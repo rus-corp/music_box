@@ -140,9 +140,6 @@ class TrackGroupCollectionHandler(MusicMixin):
   
   async def _update_track_collection(self, track_collection_id: int, body: TrackCollectionUpdateResponse):
     async with self.session.begin():
-      track_collection_group = await self.track_collection_dal.get_track_collection_by_id(track_collection_id)
-      if track_collection_group is None:
-        return None
       body_data = body.model_dump(exclude_none=True)
       updated_track_collection = await self.track_collection_dal.update_track_collection(track_collection_id, **body_data)
       return updated_track_collection
@@ -151,14 +148,12 @@ class TrackGroupCollectionHandler(MusicMixin):
   
   async def _delete_track_collection(self, track_collection_id: int):
     async with self.session.begin():
-      track_collection_group = await self.track_collection_dal.get_track_collection_by_id(track_collection_id)
-      if track_collection_group is None:
-        return None
       has_client = await self.track_collection_dal.collection_has_client(track_collection_id=track_collection_id)
       if has_client:
         return JSONResponse(content=f'Track collection {track_collection_id} has a client', status_code=403)
       deleted_track_collection = await self.track_collection_dal.delete_track_collection(track_collection_id)
       return deleted_track_collection
+  
   
   
   async def _append_track_collection_to_client(self, body: AppendTrackCollectionToClient):
@@ -167,7 +162,6 @@ class TrackGroupCollectionHandler(MusicMixin):
         body_data = body.model_dump(exclude_none=True)
         if self.check_body(body_data):
           client_dal = ClientDAL(self.session)
-          # if client_dal.check_client_in_db(body_data['client_id']) and self.check_track_collection_in_db(body_data['track_collection_id']):
           client = await client_dal.get_client_for_append(
             client_id=body_data['client_id']
           )

@@ -21,7 +21,7 @@ async def test_create_client_cluster(ac: AsyncClient, create_test_super_user_acc
   assert cluster_create_bad.status_code == 401
   
   cluster_create_access_denied = await ac.post('/clients/client_cluster/', params={'name': 'test name'}, headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
-  assert cluster_create_access_denied.status_code == 405
+  assert cluster_create_access_denied.status_code == 403
 
 
 
@@ -36,7 +36,7 @@ async def test_create_currency(ac: AsyncClient, create_test_super_user_access_to
   assert len(curency_db) == len(currency_data)
   assert curency_db[0]['cur_name'] == currency_data[0]['currency_name']
   curency_bad_req = await ac.post('/clients/currency/', params={'currency_name': item['currency_name']}, headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'})
-  assert curency_bad_req.status_code == 405
+  assert curency_bad_req.status_code == 403
   
   
   
@@ -53,7 +53,7 @@ async def test_create_client_group(ac: AsyncClient, create_test_super_user_acces
   client_group_bad_req = await ac.get('/clients/client_groups/', headers={'Authorization': f'Bearer {test_bad_token}'})
   assert client_group_bad_req.status_code == 401
   client_group_acces_denied = await ac.post('/clients/client_groups/', headers={'Authorization': f'Bearer {create_test_user_token["access_token"]}'}, json=body)
-  assert client_group_acces_denied.status_code == 405
+  assert client_group_acces_denied.status_code == 403
   
 
 
